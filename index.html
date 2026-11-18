@@ -1,0 +1,1806 @@
+<!doctype html>
+<html lang="he" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#faf6f1"><title>תכנון עצמאות כלכלית</title>
+<style>/* layout: single-column dashboard, warm paper surface, glass cards */
+:root{--bg:#faf6f1;--ink:#241f2d;--mut:#6f6a78;--card:rgba(255,255,255,.82);--surface:#fff;--line:#eadfd4;--th:#fffaf5;--glow1:#ffe3d1;--glow2:#e6dcff;--ok:#1f9d63;--okbg:#e4f6ec;--bad:#d64545;--badbg:#fdeaea;--warn:#c9740f;--warnbg:#fff1dc;--info:#3d6fd8;--infobg:#e7eefc;--pri:#6c4bd6;--track:#eee4d8;--navbg:rgba(250,246,241,.92);--grid:#eadfd4;--axis:#8a8494;--hover:rgba(108,75,214,.10);--shadow:rgba(80,50,30,.07);--r:20px}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#17141d;--ink:#f1eef6;--mut:#a39cb0;--card:rgba(38,33,49,.88);--surface:#231f2c;--line:#3a3347;--th:#211c29;--glow1:#3a2420;--glow2:#2a2347;--ok:#4fcf93;--okbg:#16352a;--bad:#ef7a7a;--badbg:#3d1f22;--warn:#f0a850;--warnbg:#3d2e14;--info:#7ea6f5;--infobg:#1b2a4d;--pri:#9a82ff;--track:#3a3347;--navbg:rgba(23,20,29,.92);--grid:#3a3347;--axis:#a39cb0;--hover:rgba(154,130,255,.14);--shadow:rgba(0,0,0,.3);color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#17141d;--ink:#f1eef6;--mut:#a39cb0;--card:rgba(38,33,49,.88);--surface:#231f2c;--line:#3a3347;--th:#211c29;--glow1:#3a2420;--glow2:#2a2347;--ok:#4fcf93;--okbg:#16352a;--bad:#ef7a7a;--badbg:#3d1f22;--warn:#f0a850;--warnbg:#3d2e14;--info:#7ea6f5;--infobg:#1b2a4d;--pri:#9a82ff;--track:#3a3347;--navbg:rgba(23,20,29,.92);--grid:#3a3347;--axis:#a39cb0;--hover:rgba(154,130,255,.14);--shadow:rgba(0,0,0,.3);color-scheme:dark}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"Heebo","Assistant","Segoe UI",system-ui,-apple-system,Arial,sans-serif;line-height:1.45;min-height:100vh;
+ background-image:radial-gradient(900px 500px at 90% -10%,var(--glow1) 0,transparent 60%),radial-gradient(800px 500px at -10% 10%,var(--glow2) 0,transparent 60%);background-attachment:fixed}
+.app{max-width:1120px;margin:0 auto;padding-block:16px 40px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+header.top{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:12px}
+h1{font-size:22px;margin:0;font-weight:800;letter-spacing:-.3px}
+h1 small{display:block;font-size:12px;color:var(--mut);font-weight:500}
+h2{font-size:17px;margin:0 0 10px;font-weight:700}
+h3{font-size:14px;margin:14px 0 6px;color:var(--mut);font-weight:600}
+nav.tabs{display:flex;gap:6px;flex-wrap:wrap;margin:6px 0 16px}
+nav.tabs button{border:0;background:var(--surface);padding:9px 16px;border-radius:999px;font:inherit;font-size:14px;cursor:pointer;color:var(--ink)}
+nav.tabs button.on{background:var(--ink);color:var(--bg)}
+.card{background:var(--card);backdrop-filter:blur(8px);border:1px solid var(--line);box-shadow:0 6px 24px var(--shadow);border-radius:var(--r);padding:18px;margin-bottom:14px}
+.grid{display:grid;gap:14px}.g2{grid-template-columns:1fr 1fr}.g3{grid-template-columns:repeat(3,1fr)}.g4{grid-template-columns:repeat(4,1fr)}
+.hero{display:flex;gap:14px;align-items:center}
+.hero .ico{width:54px;height:54px;border-radius:18px;display:grid;place-items:center;font-size:28px;flex:none}
+.hero.ok .ico{background:var(--okbg)}.hero.bad .ico{background:var(--badbg)}.hero.warn .ico{background:var(--warnbg)}
+.hero .t{font-size:24px;font-weight:800}.hero .s{color:var(--mut);font-size:14px}
+.kpi .l{font-size:12.5px;color:var(--mut)}.kpi .v{font-size:26px;font-weight:800;letter-spacing:-.5px}.kpi .n{font-size:12px;color:var(--mut)}
+.pos{color:var(--ok)}.neg{color:var(--bad)}.wrn{color:var(--warn)}.inf{color:var(--info)}
+.badge{display:inline-block;padding:2px 10px;border-radius:999px;font-size:12px;font-weight:600}
+.b-ok{background:var(--okbg);color:var(--ok)}.b-bad{background:var(--badbg);color:var(--bad)}.b-warn{background:var(--warnbg);color:var(--warn)}.b-info{background:var(--infobg);color:var(--info)}
+.chips{display:flex;gap:6px;overflow-x:auto;padding-bottom:4px}
+.chip{border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:7px 14px;font:inherit;font-size:13px;cursor:pointer;white-space:nowrap}
+.chip.on{background:var(--pri);color:#fff;border-color:var(--pri)}
+.btn{border:0;background:var(--ink);color:var(--bg);border-radius:12px;padding:8px 14px;font:inherit;font-size:13px;cursor:pointer}
+.btn.sec{background:var(--surface);color:var(--ink);border:1px solid var(--line)}.btn.sm{padding:5px 10px;font-size:12px}.btn.red{background:var(--bad)}
+.rec{display:flex;gap:12px;align-items:center;justify-content:space-between;padding:12px 0;border-top:1px solid var(--line)}
+.rec:first-of-type{border-top:0}.rec b{display:block}.rec span{color:var(--mut);font-size:13.5px}
+table{border-collapse:collapse;width:100%;font-size:13px}
+th,td{padding:7px 8px;text-align:right;border-bottom:1px solid var(--line);white-space:nowrap}
+th{font-weight:600;color:var(--mut);font-size:12px;position:sticky;top:0;background:var(--th)}
+td.num,th.num{text-align:left;direction:ltr;font-variant-numeric:tabular-nums}
+tr.gap td{background:var(--badbg)}tr.mile td{background:var(--infobg)}
+.scroll{overflow:auto;max-height:520px;border-radius:12px}
+input[type=text],input:not([type]),select,textarea{font:inherit;font-size:14px;border:1px solid var(--line);border-radius:10px;padding:7px 10px;background:var(--surface);color:var(--ink);width:100%;min-width:0}
+td input{width:96px;padding:5px 8px}td input.w{width:150px}td select{width:auto}
+.f{display:flex;flex-direction:column;gap:4px}.f label{font-size:12.5px;color:var(--mut)}
+.row{display:flex;gap:12px;flex-wrap:wrap}.row>.f{flex:1;min-width:130px}
+.note{font-size:12.5px;color:var(--mut)}
+.warnbox{background:var(--warnbg);border-radius:14px;padding:10px 14px;font-size:13.5px;margin-bottom:12px}
+.infobox{background:var(--infobg);border-radius:14px;padding:10px 14px;font-size:13.5px;margin-bottom:12px}
+.svgbox{direction:ltr;position:relative}
+svg.ch{width:100%;height:auto;display:block}
+svg.ch text{font-size:11px;fill:var(--axis);font-family:inherit}
+svg.ch .hit{fill:transparent}svg.ch .hit:hover{fill:var(--hover)}
+.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:12.5px;color:var(--mut);margin-top:6px}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-left:5px}
+#tip{position:fixed;z-index:50;background:var(--ink);color:var(--bg);padding:8px 12px;border-radius:10px;font-size:12.5px;pointer-events:none;display:none;max-width:260px;line-height:1.5}
+.heat{display:grid;gap:2px;direction:ltr}
+.heat .c{height:22px;border-radius:4px;cursor:pointer;font-size:9px;display:grid;place-items:center;color:#fff}
+.heat .ok{background:#35b27b}.heat .tight{background:#f0b44b}.heat .fail{background:#e2706f}.heat .cur{outline:3px solid var(--ink);z-index:1}
+.heat .h{font-size:10px;color:var(--mut);display:grid;place-items:center;cursor:default;background:none}
+footer{font-size:12px;color:var(--mut);margin-top:20px;text-align:center}
+@media(max-width:720px){
+ .g2,.g3,.g4{grid-template-columns:1fr}.g4.k{grid-template-columns:1fr 1fr}
+ nav.tabs{position:fixed;bottom:0;left:0;right:0;margin:0;padding:8px 8px calc(8px + env(safe-area-inset-bottom));background:rgba(255,255,255,.95);backdrop-filter:blur(10px);border-top:1px solid var(--line);z-index:20;flex-wrap:nowrap;overflow-x:auto;gap:2px}
+ nav.tabs button{padding:8px 11px;font-size:12.5px;flex:none}
+ .kpi .v{font-size:22px}.hero .t{font-size:20px}
+}
+@media print{nav.tabs,.btn{display:none}body{background:#fff}.card{box-shadow:none}}
+/* v2 */
+nav.tabs{position:sticky;top:0;z-index:20;background:var(--navbg);backdrop-filter:blur(8px);padding:8px 0;margin:0 0 14px;overflow-x:auto;flex-wrap:nowrap}
+nav.tabs button{flex:none}
+.slider{padding:6px 10px 0;direction:ltr}
+.slider .track{position:relative;height:104px}
+.slider input[type=range]{position:absolute;left:0;right:0;top:0;width:100%;margin:0;accent-color:#6c4bd6;height:24px}
+.mk{position:absolute;transform:translateX(-50%);border:0;background:none;padding:0;cursor:pointer;display:flex;flex-direction:column;align-items:center;font:inherit}
+.mk i{width:2px;height:10px;background:var(--c);display:block}
+.mk span{font-size:11px;color:var(--c);white-space:nowrap;font-weight:600;background:var(--surface);border-radius:6px;padding:0 3px}
+.bar{flex:1;height:10px;background:var(--track);border-radius:99px;overflow:hidden}.bar i{display:block;height:100%;background:var(--ok)}
+.ck{display:flex;gap:10px;align-items:flex-start;padding:8px 0;border-top:1px solid var(--line);cursor:pointer;font-size:14px}.ck input{margin-top:5px;width:18px;height:18px}
+tr[data-act]:hover td{background:var(--infobg)}
+@media(max-width:720px){nav.tabs{position:sticky;top:0;bottom:auto;border-top:0;left:auto;right:auto;padding:8px 0}.app{padding-bottom:30px}}
+
+#chat{position:fixed;inset-inline-start:max(16px,env(safe-area-inset-left));bottom:max(16px,env(safe-area-inset-bottom));z-index:50}
+.chatfab{background:var(--pri);color:#fff;border:0;border-radius:999px;padding:12px 18px;font:inherit;font-weight:600;box-shadow:var(--shadow);cursor:pointer}
+.chatbox{width:min(380px,calc(100vw - 32px));height:min(520px,70vh);display:flex;flex-direction:column;background:var(--card);color:var(--ink);border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow);overflow:hidden}
+.chathead{display:flex;justify-content:space-between;align-items:center;padding:8px 10px;border-bottom:1px solid var(--line)}
+.chatlog{flex:1;overflow:auto;padding:10px;display:flex;flex-direction:column;gap:8px}
+.msg{padding:8px 10px;border-radius:10px;max-width:92%;font-size:14px;line-height:1.5}
+.msg.u{background:var(--infobg);align-self:flex-start}.msg.a{background:var(--surface);align-self:flex-end}
+.prop{margin-top:6px;padding:6px 8px;border:1px dashed var(--line);border-radius:8px;background:var(--card)}
+.chatin{display:flex;gap:6px;padding:8px;border-top:1px solid var(--line)}
+.chatin textarea{flex:1;font:inherit;resize:none;background:var(--surface);color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:6px}
+.seg{display:flex;gap:6px;flex-wrap:wrap}.seg button{font:inherit;border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:999px;padding:6px 14px;cursor:pointer}.seg button.on{background:var(--pri);color:#fff;border-color:var(--pri)}
+
+/* v3: soft colorful, mobile first */
+:root{--bg:#f4f3ff;--ink:#25214a;--mut:#7571a6;--card:#fff;--surface:#fff;--line:#e1dffa;--th:#f4f3ff;--pri:#5b4fe0;--track:#e1dffa;--navbg:rgba(244,243,255,.94);--grid:#e1dffa;--axis:#7571a6;--shadow:rgba(60,50,150,.08);--r:18px;--infobg:#eae8ff;--info:#5b4fe0}
+body{background-image:none}
+.card{backdrop-filter:none;box-shadow:0 2px 10px var(--shadow)}
+.greet{display:flex;justify-content:space-between;align-items:center;gap:8px;margin:0 2px 10px;font-weight:600;font-size:15px}
+.hero2{background:var(--pri);color:#fff;border-radius:24px;padding:18px 20px;margin-bottom:12px}
+.hero2 .hl{font-size:13px;opacity:.85}.hero2 .hbig{font-size:44px;font-weight:800;line-height:1.15;margin:2px 0 8px}
+.hchip{display:inline-block;background:rgba(255,255,255,.2);border-radius:99px;padding:3px 12px;font-size:13px;margin-inline-end:6px}
+.hlink{display:block;margin-top:12px;border:0;background:none;color:#fff;font:inherit;font-size:13px;text-decoration:underline;cursor:pointer;padding:0}
+details.fold{padding:0}
+details.fold>summary{list-style:none;display:flex;justify-content:space-between;align-items:center;gap:10px;padding:14px 16px;cursor:pointer;font-size:16px;font-weight:700}
+details.fold>summary::-webkit-details-marker{display:none}
+details.fold .chev{width:9px;height:9px;border:solid var(--mut);border-width:0 2px 2px 0;transform:rotate(45deg);flex:none;margin-top:-3px;transition:transform .15s}
+details.fold[open]>summary .chev{transform:rotate(-135deg);margin-top:3px}
+details.fold[open]>summary{padding-bottom:6px}
+details.fold>*:not(summary){margin-inline:16px}
+details.fold>*:last-child{margin-bottom:16px}
+.bnav,.sheet,.sheetbg{display:none}
+@media(max-width:720px){
+ nav.tabs{display:none}
+ .app{padding-bottom:96px}
+ .bnav{display:flex;position:fixed;bottom:0;left:0;right:0;z-index:62;background:var(--surface);border-top:1px solid var(--line);padding:6px 4px calc(6px + env(safe-area-inset-bottom));justify-content:space-around}
+ .bnav button{border:0;background:none;color:var(--mut);font:inherit;font-size:11px;display:flex;flex-direction:column;align-items:center;gap:2px;padding:4px 10px;cursor:pointer;flex:1}
+ .bnav button.on{color:var(--pri);font-weight:700}
+ .sheetbg{display:block;position:fixed;inset:0;background:rgba(20,15,60,.35);z-index:60}
+ .sheet{display:block;position:fixed;left:0;right:0;bottom:0;z-index:61;background:var(--surface);border-radius:22px 22px 0 0;padding:18px 16px calc(84px + env(safe-area-inset-bottom))}
+ .sheetg{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+ .sheetg button{border:1px solid var(--line);background:var(--bg);color:var(--ink);border-radius:14px;padding:14px;font:inherit;font-size:15px;cursor:pointer}
+ .sheetg button.on{background:var(--pri);color:#fff;border-color:var(--pri)}
+ #chat{bottom:calc(74px + env(safe-area-inset-bottom))}
+ .chatbox{height:min(460px,60vh)}
+ header.top h1 small{display:none}
+ .hero2 .hbig{font-size:40px}
+}
+@media(min-width:721px){.hero2{max-width:520px}}
+</style></head>
+<body><div class="app" id="app"></div><div id="tip"></div>
+<script>/* Family FI Planner – engine (pure, no DOM). All amounts in real 2026 shekels. */
+const FFI = (function () {
+'use strict';
+
+const REF = {
+  version: '2026-10-27',
+  gemelCap: 83641,             // תקרת הפקדה שנתית לגמל להשקעה 2026
+  khExemptDeposit: 20566,      // תקרת הפקדה מוטבת לקרן השתלמות לעצמאי
+  brackets: [[7010,.10],[10060,.14],[19000,.20],[25100,.31],[46690,.35],[60130,.47],[Infinity,.50]],
+  creditPoint: 242,
+  bl: { reduced: 7703, max: 51910, blLow: .0104, hLow: .0323, blFull: .07, hFull: .0517 },
+  erPenExempt: 0.075 * 34425,
+  erKhExempt: 0.075 * 15712,
+  rates: { empPen: .06, erPen: .065, penTotal: .2083, empKh: .025, erKh: .075, khTotal: .10 },
+  boiRate: .0325, inflation12m: .015,
+  sources: [
+    ['תקרת גמל להשקעה 2026', 'רשות המסים / קופות הגמל'],
+    ['מדרגות מס ונקודות זיכוי 2026', 'רשות המסים'],
+    ['ביטוח לאומי ובריאות 2026', 'המוסד לביטוח לאומי'],
+    ['ריבית בנק ישראל', 'בנק ישראל'],
+  ],
+};
+const PHASES = ['both_working','tova_retired_nuri_working','nuri_retired_tova_working','both_retired_pre60','age60_to67','pension_age'];
+const PHASE_HE = {
+  both_working: 'שניהם עובדים',
+  tova_retired_nuri_working: '{T} פרש/ה, {N} עובד/ת',
+  nuri_retired_tova_working: '{N} פרש/ה, {T} עובד/ת',
+  both_retired_pre60: 'שניהם פרשו (לפני 60)',
+  age60_to67: 'גיל 60–67',
+  pension_age: 'גיל פנסיה (67+)',
+};
+function phaseHe(cfg, p) { return PHASE_HE[p].replace('{N}', cfg.people.nuri.name).replace('{T}', cfg.people.tova.name); }
+const TIER_NOM = { low: .04, medium: .055, high: .07 };
+const SHOCK = { low: -.10, medium: -.20, high: -.30 };
+
+/* ---------- helpers ---------- */
+const clone = o => JSON.parse(JSON.stringify(o));
+function getPath(o, p) { return p.split('.').reduce((a, k) => (a == null ? a : a[k]), o); }
+function setPath(o, p, v) {
+  const ks = p.split('.'); let a = o;
+  for (let i = 0; i < ks.length - 1; i++) { if (a[ks[i]] == null) a[ks[i]] = {}; a = a[ks[i]]; }
+  a[ks[ks.length - 1]] = v;
+}
+function bracketTax(m) {
+  let t = 0, prev = 0;
+  for (const [lim, r] of REF.brackets) { if (m > prev) { t += (Math.min(m, lim) - prev) * r; prev = lim; } else break; }
+  return t;
+}
+function blHealth(inc) {
+  const R = REF.bl;
+  const lo = Math.min(inc, R.reduced), hi = Math.max(0, Math.min(inc, R.max) - R.reduced);
+  return lo * (R.blLow + R.hLow) + hi * (R.blFull + R.hFull);
+}
+function netFromParts(gross, penSal, khSal, credits) {
+  const r = REF.rates;
+  const empPen = r.empPen * penSal, empKh = r.empKh * khSal;
+  const benefit = Math.max(0, r.erPen * penSal - REF.erPenExempt) + Math.max(0, r.erKh * khSal - REF.erKhExempt);
+  const taxable = gross + benefit;
+  const tax = Math.max(0, bracketTax(taxable) - credits * REF.creditPoint - 0.35 * empPen);
+  return gross - tax - blHealth(taxable) - empPen - empKh;
+}
+const calCache = new Map();
+function calibrateCredits(cfg) {
+  const t = cfg.people.tova, c = t.calib;
+  if (!(c.gross > 0 && c.net > 0 && c.penSal >= 0)) return 0;
+  const key = [c.gross, c.net, c.penSal].join('|');
+  if (calCache.has(key)) return calCache.get(key);
+  let lo = 0, hi = 40;
+  for (let i = 0; i < 50; i++) {
+    const mid = (lo + hi) / 2;
+    const n = netFromParts(c.gross, c.penSal, c.penSal, mid);
+    if (n < c.net) lo = mid; else hi = mid;
+  }
+  const v = (lo + hi) / 2; calCache.set(key, v); return v;
+}
+function tovaNet(cfg, gross, share) {
+  if (gross <= 0) return 0;
+  const ps = gross * (share == null ? cfg.people.tova.pensShare : share);
+  return netFromParts(gross, ps, ps, calibrateCredits(cfg));
+}
+function activeScenario(cfg) { return cfg.scenarios.find(s => s.id === cfg.active) || cfg.scenarios[0]; }
+function salaryAt(segs, y) {
+  let cur = segs[0];
+  for (const s of segs) if (s.from <= y) cur = s;
+  return cur;
+}
+function monthsIn(it, y) {
+  if (it.kind === 'oneTime') return y === it.startY ? 1 : 0;
+  const sY = it.startY || 0, eY = it.endY || 9999;
+  if (y < sY || y > eY) return 0;
+  const s = y === sY ? (it.startM || 1) : 1, e = y === eY ? (it.endM || 12) : 12;
+  return Math.max(0, e - s + 1);
+}
+function expensesAt(cfg, y) {
+  let living = 0, debt = 0;
+  for (const it of cfg.expenses) {
+    if (it.enabled === false) continue;
+    const m = monthsIn(it, y); if (!m) continue;
+    let v = it.monthly * m;
+    if (it.nominal) v /= Math.pow(1 + cfg.inflation, y - 2026);
+    else if (it.realGrowth) v *= Math.pow(1 + it.realGrowth, y - 2026);
+    if (it.type === 'debt') debt += v; else living += v;
+  }
+  living = living * (cfg.expenseScale == null ? 1 : cfg.expenseScale) + (cfg.extraMonthly || 0) * 12;
+  return { living, debt };
+}
+function expenseItems(cfg, y) {
+  const out = [];
+  for (const it of cfg.expenses) {
+    if (it.enabled === false) continue;
+    const m = monthsIn(it, y); if (!m) continue;
+    let v = it.monthly * m;
+    if (it.nominal) v /= Math.pow(1 + cfg.inflation, y - 2026); else if (it.realGrowth) v *= Math.pow(1 + it.realGrowth, y - 2026);
+    if (it.type !== 'debt') v *= (cfg.expenseScale == null ? 1 : cfg.expenseScale);
+    out.push({ name: it.name, type: it.type, annual: v });
+  }
+  if (cfg.extraMonthly) out.push({ name: 'תוספת הוצאות', type: 'living', annual: cfg.extraMonthly * 12 });
+  return out;
+}
+function phaseOf(w, age) {
+  if (w.nuri && w.tova) return 'both_working';
+  if (!w.tova && w.nuri) return 'tova_retired_nuri_working';
+  if (w.tova && !w.nuri) return 'nuri_retired_tova_working';
+  const mn = Math.min(age.nuri, age.tova);
+  if (mn >= 67) return 'pension_age';
+  if (mn >= 60) return 'age60_to67';
+  return 'both_retired_pre60';
+}
+function gemelTier(yearsTo60) {
+  if (yearsTo60 > 2) return 'high';
+  if (yearsTo60 === 2) return 'medium';
+  if (yearsTo60 === 1) return 'low';
+  return 'medium';
+}
+const realRet = (nom, aum, inf) => (1 + nom - aum) / (1 + inf) - 1;
+
+/* ---------- simulation ---------- */
+function simulate(cfg, opts) {
+  opts = opts || {};
+  const stress = !!opts.stress;
+  const sc = opts.sc || activeScenario(cfg);
+  const inf = cfg.inflation, P = cfg.people, cgt = cfg.cgt;
+  const R = REF.rates;
+  const A = cfg.assets.filter(a => a.enabled !== false).map(a => ({
+    id: a.id, name: a.name, owner: a.owner, kind: a.kind, sub: a.sub || '', aum: a.aum || 0, depFee: a.depFee || 0,
+    ts: a.taxableShare || 0, bal: a.bal || 0, prot: a.bal || 0,
+  }));
+  const find = (owner, kind, sub) => A.find(a => a.owner === owner && a.kind === kind && (!sub || a.sub === sub));
+  const ann = { nuri: { gemel: 0, pension: 0 }, tova: { gemel: 0, pension: 0 } };
+  const crashY = (cfg.stress && cfg.stress.crashYear) || sc.tovaRetire + ((cfg.stress && cfg.stress.crashOffset) || 0);
+  const rows = [];
+  let maxRecErr = 0, cashErr = 0;
+  const S = { firstMandatoryGap: null, firstIncomeOnlyGap: null, firstPrincipalDraw: null,
+    mandGapTotal: 0, incomeGapTotal: 0, principalTotal: 0, taxTotal: 0, mandGapYears: 0, minSurplus: Infinity };
+  let sustain60 = Infinity;
+
+  for (let y = cfg.baseYear; y <= cfg.horizon; y++) {
+    const age = { nuri: y - P.nuri.birth, tova: y - P.tova.birth };
+    const work = { nuri: y < sc.nuriRetire && age.nuri < 67, tova: y < sc.tovaRetire && age.tova < 67 };
+    const phase = phaseOf(work, age);
+    const planned = (work.nuri && work.tova) ? 'high' : 'medium';
+    // salaries
+    const seg = salaryAt(sc.tovaSalary, y);
+    const grossT = work.tova ? seg.gross : 0;
+    const shareT = seg.pensShare == null ? P.tova.pensShare : seg.pensShare;
+    const netN = work.nuri ? P.nuri.netMonthly * 12 : 0;
+    const netT = work.tova ? tovaNet(cfg, grossT, shareT) * 12 : 0;
+    // payroll deposits (gross annual) – not household cash
+    const penSalT = grossT * shareT;
+    const payPen = { nuri: work.nuri ? P.nuri.penSal * R.penTotal * 12 : 0, tova: work.tova ? penSalT * R.penTotal * 12 : 0 };
+    const payKh = { nuri: work.nuri ? P.nuri.khSal * R.khTotal * 12 : 0, tova: work.tova ? penSalT * R.khTotal * 12 : 0 };
+
+    // conversions at start of year
+    const conv = {}; A.forEach(a => conv[a.id] = 0);
+    for (const o of ['nuri', 'tova']) {
+      const g = find(o, 'gemel'), p = find(o, 'pension');
+      if (g && age[o] === 60 && g.bal > 0) {
+        conv[g.id] = g.bal * cfg.gemel.convPct;
+        ann[o].gemel += conv[g.id] / cfg.gemel.factor * 12;
+        g.prot *= (1 - cfg.gemel.convPct);
+      }
+      if (p && age[o] === 67 && p.bal > 0) {
+        const monthly = Math.min(cfg.pension.taxFreeMonthly, p.bal / cfg.pension.factor);
+        conv[p.id] = monthly * cfg.pension.factor;
+        ann[o].pension += monthly * 12;
+        p.prot = Math.max(0, p.prot - conv[p.id]);
+      }
+    }
+    // growth & shock
+    const led = {};
+    for (const a of A) {
+      if (a.kind === 'cash') { const base0 = a.bal - conv[a.id], g0 = base0 * realRet(cfg.cashRate || 0, 0, inf); led[a.id] = { open: a.bal, conv: conv[a.id], growth: g0, shock: 0, dep: 0, wd: 0, tier: 'cash' }; a.pre = base0 + g0; continue; }
+      let tier = planned;
+      if (a.kind === 'gemel') tier = gemelTier(P[a.owner].birth + 60 - y);
+      const base = a.bal - conv[a.id];
+      if (cfg.returnProfile && cfg.returnProfile !== 'auto') tier = cfg.returnProfile;
+      const g = base * realRet((cfg.returns || TIER_NOM)[tier], a.aum, inf);
+      const sh = (stress && y === crashY) ? base * SHOCK[tier] : 0;
+      led[a.id] = { open: a.bal, conv: conv[a.id], growth: g, shock: sh, dep: 0, wd: 0, tier };
+      a.pre = base + g + sh;
+    }
+    // mandatory deposits
+    let topups = 0, gemelDep = 0, retPen = 0;
+    const dep = (a, v, fee) => { if (!a || v <= 0) return 0; const net = v * (1 - (fee ? a.depFee : 0)); led[a.id].dep += net; a.pre += net; a.prot += net; return v; };
+    for (const o of ['nuri', 'tova']) {
+      const pen = find(o, 'pension'), kh = find(o, 'kh', 'active');
+      if (age[o] < 60) gemelDep += dep(find(o, 'gemel'), cfg.floors.gemelAnnual[o], false);
+      if (work[o]) {
+        dep(pen, payPen[o], true); dep(kh, payKh[o], false);
+        const tp = Math.max(0, cfg.floors.pensionMonthly[o] * 12 - payPen[o]);
+        const tk = Math.max(0, cfg.floors.khMonthly[o] * 12 - payKh[o]);
+        topups += dep(pen, tp, true) + dep(kh, tk, false);
+      } else if (age[o] < 67) {
+        const rp = ((cfg.retiredPension[phase] || {})[o] || 0) * 12;
+        retPen += dep(pen, rp, true);
+      }
+    }
+    // envelope
+    const ex = expensesAt(cfg, y);
+    const spare = (cfg.spare[phase] || 0) * 12;
+    const mand = ex.living + ex.debt + spare + gemelDep + retPen + topups;
+    const targetOn = cfg.target.enabled && (phase === 'age60_to67' || phase === 'pension_age');
+    const targetAnnual = targetOn ? cfg.target.netMonthly * 12 : 0;
+    const need = Math.max(mand, targetAnnual);
+    const annuityIn = ann.nuri.gemel + ann.tova.gemel + ann.nuri.pension + ann.tova.pension;
+    const solar = cfg.solar;
+    const fixedIn = netN + netT + solar + annuityIn;
+    // funding
+    let rem = Math.max(0, need - fixedIn), drawsNet = 0, tax = 0, principal = 0;
+    const draw = (a, netF) => {
+      if (rem <= 1e-9) return;
+      const cap = Math.max(0, a.pre - a.prot) * netF;
+      const x = Math.min(rem, cap); if (x <= 0) return;
+      const gross = x / netF; led[a.id].wd += gross; a.pre -= gross; rem -= x; drawsNet += x; tax += gross - x;
+    };
+    if (rem > 0) {
+      A.filter(a => a.kind === 'kh').forEach(a => draw(a, 1 - a.ts * cgt));
+      A.filter(a => a.kind === 'psagot').forEach(a => draw(a, 1 - cgt));
+      if (cfg.allowPrincipal && rem > 1e-9) {
+        for (const a of A.filter(a => a.kind === 'psagot' || a.kind === 'kh')) {
+          if (rem <= 1e-9) break;
+          const x = Math.min(rem, Math.max(0, a.pre)); if (x <= 0) continue;
+          led[a.id].wd += x; a.pre -= x; a.prot = Math.max(0, a.prot - x); rem -= x; drawsNet += x; principal += x;
+        }
+      }
+    }
+    const funded = fixedIn + drawsNet;
+    const mandGap = Math.max(0, mand - funded);
+    const incomeGap = Math.max(0, need - funded) - mandGap;
+    const spend = need - mandGap - incomeGap;
+    const surplus = Math.max(0, fixedIn - need);
+    // optional deposits & investing
+    let optKh = 0, left = surplus;
+    if (cfg.optKh.nuriSelf && work.nuri && left > 0) {
+      const a = find('nuri', 'kh', 'self'); const v = Math.min(left, REF.khExemptDeposit);
+      if (a && v > 0) { led[a.id].dep += v; a.prot += v; a.pre += v; optKh += v; left -= v; }
+    }
+    if (cfg.optKh.tovaRetired && !work.tova && age.tova < 67 && left > 0) {
+      const a = find('tova', 'kh', 'active'); const v = Math.min(left, REF.khExemptDeposit);
+      if (a && v > 0) { led[a.id].dep += v; a.prot += v; a.pre += v; optKh += v; left -= v; }
+    }
+    const ps = A.find(a => a.kind === 'psagot');
+    if (left > 0 && ps) { led[ps.id].dep += left; ps.prot += left; ps.pre += left; }
+    const invest = ps ? left : 0;
+    // close & reconcile
+    let total = 0; const closing = {};
+    for (const a of A) {
+      const l = led[a.id];
+      a.bal = a.pre; l.close = a.bal; closing[a.id] = a.bal; total += a.bal;
+      const e = Math.abs(l.open - l.conv + l.growth + l.shock + l.dep - l.wd - l.close);
+      if (e > maxRecErr) maxRecErr = e;
+    }
+    const ce = Math.abs((fixedIn + drawsNet + mandGap) - (spend + optKh + (surplus - optKh - invest > 1e-6 ? surplus - optKh : invest) ));
+    // note: if no psagot asset, leftover surplus is simply idle cash
+    const idle = surplus - optKh - invest;
+    const ce2 = Math.abs((fixedIn + drawsNet + mandGap) - (spend + optKh + invest + idle));
+    cashErr = Math.max(cashErr, ce2);
+    // summary
+    if (mandGap > 1) { S.mandGapTotal += mandGap; S.mandGapYears++; if (S.firstMandatoryGap == null) S.firstMandatoryGap = y; }
+    if (incomeGap > 1) { S.incomeGapTotal += incomeGap; if (S.firstIncomeOnlyGap == null) S.firstIncomeOnlyGap = y; }
+    if (principal > 1) { S.principalTotal += principal; if (S.firstPrincipalDraw == null) S.firstPrincipalDraw = y; }
+    S.taxTotal += tax;
+    if (targetOn) sustain60 = Math.min(sustain60, spend / 12);
+    rows.push({
+      year: y, ageNuri: age.nuri, ageTova: age.tova, phase, work, tier: planned,
+      grossTova: grossT, netNuri: netN, netTova: netT, solar, annuityGemel: ann.nuri.gemel + ann.tova.gemel,
+      annuityPension: ann.nuri.pension + ann.tova.pension, fixedIn,
+      living: ex.living, debt: ex.debt, spare, gemelDep, retPen, topups, mand, targetAnnual, need,
+      drawsNet, tax, principal, mandGap, incomeGap, spend, surplus, optKh, invest, idle,
+      total, closing, ledger: led,
+    });
+  }
+  const last = rows[rows.length - 1];
+  S.safeHorizon = S.mandGapYears === 0 && S.principalTotal <= 1;
+  S.finalAssets = last.total;
+  S.sustainableMonthly60 = sustain60 === Infinity ? null : sustain60;
+  const at = (y) => rows.find(r => r.year === y);
+  S.assetsAtTovaRetire = (at(sc.tovaRetire) || last).total;
+  S.assetsAtNuriRetire = (at(sc.nuriRetire) || last).total;
+  S.maxRecErr = maxRecErr; S.cashErr = cashErr;
+  return { rows, summary: S, maxRecErr, cashErr };
+}
+
+function isSafeSum(cfg, S) {
+  return S.mandGapYears === 0 && S.principalTotal <= 1 && (!cfg.requireTarget || S.incomeGapTotal <= 1);
+}
+function evalSafe(cfg, sc) {
+  const base = simulate(cfg, { sc });
+  const baseOk = isSafeSum(cfg, base.summary);
+  let stressOk = baseOk, st = null;
+  if (baseOk || true) { st = simulate(cfg, { sc, stress: true }); stressOk = isSafeSum(cfg, st.summary); }
+  const ok = baseOk && (!cfg.stress.requireInSolver || stressOk);
+  return { ok, baseOk, stressOk, base, stress: st };
+}
+const safeFast = (cfg, sc) => {
+  if (!isSafeSum(cfg, simulate(cfg, { sc }).summary)) return false;
+  return !cfg.stress.requireInSolver || isSafeSum(cfg, simulate(cfg, { sc, stress: true }).summary);
+};
+
+/* ---------- Tova minimum salary ---------- */
+function withFlatSalary(sc, from, gross) {
+  const s2 = clone(sc);
+  const keep = sc.tovaSalary.filter(s => s.from < from);
+  s2.tovaSalary = keep.concat([{ from, gross }]);
+  return s2;
+}
+function solveMinSalary(cfg, sc, fromYear) {
+  sc = sc || activeScenario(cfg);
+  const T = cfg.people.tova;
+  const from = fromYear || cfg.solveFromYear || cfg.baseYear;
+  const share = T.pensShare;
+  const plannedSeg = salaryAt(sc.tovaSalary, from);
+  const out = { from, to: sc.tovaRetire - 1, plannedGross: plannedSeg.gross, plannedNet: tovaNet(cfg, plannedSeg.gross, plannedSeg.pensShare),
+    pensionNeutralGross: Math.max(cfg.floors.pensionMonthly.tova / (REF.rates.penTotal * share), cfg.floors.khMonthly.tova / (REF.rates.khTotal * share)) };
+  if (sc.tovaRetire <= from) { out.minGross = 0; out.minNet = 0; out.feasible = true; out.noWork = true; out.gapGross = 0; out.gapNet = 0; return out; }
+  const ok = g => safeFast(cfg, withFlatSalary(sc, from, g));
+  if (ok(0)) { out.minGross = 0; out.minNet = 0; out.feasible = true; }
+  else if (!ok(250000)) { out.feasible = false; out.minGross = null; out.minNet = null; }
+  else {
+    let lo = 0, hi = 250000;
+    for (let i = 0; i < 28; i++) { const m = (lo + hi) / 2; if (ok(m)) hi = m; else lo = m; }
+    out.feasible = true; out.minGross = Math.ceil(hi / 50) * 50; out.minNet = tovaNet(cfg, out.minGross, share);
+  }
+  if (out.feasible) {
+    out.gapGross = Math.max(0, out.minGross - out.plannedGross); out.gapNet = Math.max(0, out.minNet - out.plannedNet);
+    out.marginGross = Math.max(0, out.plannedGross - out.minGross); out.marginNet = Math.max(0, out.plannedNet - out.minNet);
+  }
+  return out;
+}
+function salarySensitivity(cfg, sc, ages) {
+  sc = sc || activeScenario(cfg);
+  return ages.map(a => {
+    const s2 = clone(sc); s2.tovaRetire = cfg.people.tova.birth + a;
+    const r = solveMinSalary(cfg, s2);
+    return { age: a, year: s2.tovaRetire, minGross: r.minGross, minNet: r.minNet, feasible: r.feasible };
+  });
+}
+
+/* ---------- recommendations ---------- */
+function scIndex(cfg) { return Math.max(0, cfg.scenarios.findIndex(s => s.id === cfg.active)); }
+function recommend(cfg) {
+  const sc = activeScenario(cfg), idx = scIndex(cfg);
+  const ev = evalSafe(cfg, sc);
+  const nN = cfg.people.nuri.name, nT = cfg.people.tova.name;
+  const res = { safe: ev.ok, baseOk: ev.baseOk, stressOk: ev.stressOk, recs: [], margins: [] };
+  const T = cfg.people.tova, N = cfg.people.nuri;
+  const sp = `scenarios.${idx}.`;
+  const money = v => Math.round(v).toLocaleString('en-US');
+  if (!ev.ok) {
+    // 1. Tova minimum salary
+    const ms = solveMinSalary(cfg, sc);
+    if (ms.feasible && ms.minGross > 0) res.recs.push({ id: 'salary', title: `העלאת שכר של ${nT}`, text: `${nT} צריך/ה ברוטו ${money(ms.minGross)} ₪ (נטו ${money(ms.minNet)} ₪) לחודש עד פרישתה.`,
+      apply: [[sp + 'tovaSalary', withFlatSalary(sc, ms.from, ms.minGross).tovaSalary]] });
+    // 2. delay Tova
+    for (let y = sc.tovaRetire + 1; y <= T.birth + 67; y++) {
+      const s2 = clone(sc); s2.tovaRetire = y;
+      if (safeFast(cfg, s2)) { res.recs.push({ id: 'delayTova', title: `דחיית פרישת ${nT}`, text: `אם ${nT} יפרוש/תפרוש ב-${y} (גיל ${y - T.birth}) במקום ${sc.tovaRetire} התכנית עומדת.`, apply: [[sp + 'tovaRetire', y]] }); break; }
+    }
+    // 3. delay Nuri
+    for (let y = sc.nuriRetire + 1; y <= N.birth + 67; y++) {
+      const s2 = clone(sc); s2.nuriRetire = y;
+      if (safeFast(cfg, s2)) { res.recs.push({ id: 'delayNuri', title: `דחיית פרישת ${nN}`, text: `אם ${nN} יפרוש/תפרוש ב-${y} (גיל ${y - N.birth}) במקום ${sc.nuriRetire} התכנית עומדת.`, apply: [[sp + 'nuriRetire', y]] }); break; }
+    }
+    // 4. expense scale
+    const okScale = s => { const c = clone(cfg); c.expenseScale = s; return safeFast(c, sc); };
+    if (okScale(0.4)) {
+      let lo = 0.4, hi = 1;
+      for (let i = 0; i < 22; i++) { const m = (lo + hi) / 2; if (okScale(m)) lo = m; else hi = m; }
+      const s = Math.floor(lo * 100) / 100;
+      res.recs.push({ id: 'expenses', title: 'צמצום הוצאות מחייה', text: `הפחתה אחידה של ${Math.ceil((1 - s) * 100)}% בהוצאות השוטפות (ללא החזרי חוב) סוגרת את הפער.`, apply: [['expenseScale', s]] });
+    }
+    // 5. spare
+    const okSpare = f => { const c = clone(cfg); for (const k in c.spare) c.spare[k] *= f; return safeFast(c, sc); };
+    if (okSpare(0)) {
+      let lo = 0, hi = 1; for (let i = 0; i < 20; i++) { const m = (lo + hi) / 2; if (okSpare(m)) hi = m; else lo = m; }
+      const f = Math.ceil(hi * 100) / 100; const ap = [];
+      for (const k in cfg.spare) ap.push(['spare.' + k, Math.round(cfg.spare[k] * f)]);
+      res.recs.push({ id: 'spare', title: 'הקטנת הספייר', text: `הקטנת הספייר החודשי ל-${Math.round(f * 100)}% מהמתוכנן סוגרת את הפער.`, apply: ap });
+    }
+    // 6. target
+    const S = ev.base.summary;
+    if (cfg.target.enabled && S.incomeGapTotal > 1 && S.sustainableMonthly60) {
+      const t = Math.floor(S.sustainableMonthly60 / 500) * 500;
+      res.recs.push({ id: 'target', title: 'הורדת יעד ההכנסה בפרישה', text: `יעד הכנסה בר-קיימא בגיל 60+ הוא כ-${money(t)} ₪ נטו לחודש (במקום ${money(cfg.target.netMonthly)}).`, apply: [['target.netMonthly', t]] });
+    }
+    // 7. floors (violates the user's minimums – flagged alternative)
+    const c0 = clone(cfg);
+    ['nuri', 'tova'].forEach(o => { c0.floors.gemelAnnual[o] = 0; c0.floors.pensionMonthly[o] = 0; c0.floors.khMonthly[o] = 0; });
+    if (safeFast(c0, sc)) res.recs.push({ id: 'floors', title: 'הורדת המינימומים (חלופה – חורגת ממה שהגדרתם)', text: 'ללא מינימום הפקדות התכנית עומדת. זו חלופה אחרונה, והיא אינה מומלצת.', violatesFloors: true,
+      apply: [['floors.gemelAnnual.nuri', 0], ['floors.gemelAnnual.tova', 0]] });
+  } else {
+    // margins
+    for (let y = sc.tovaRetire - 1; y >= T.birth + 35; y--) {
+      const s2 = clone(sc); s2.tovaRetire = y; if (!safeFast(cfg, s2)) { res.margins.push({ id: 'earlyTova', text: `${nT} יכול/ה לפרוש כבר ב-${y + 1} (גיל ${y + 1 - T.birth}) ועדיין לעמוד בתכנית.`, year: y + 1 }); break; }
+      if (y === T.birth + 35) res.margins.push({ id: 'earlyTova', text: `${nT} יכול/ה לפרוש מוקדם מגיל 35 ועדיין לעמוד בתכנית.`, year: y });
+    }
+    for (let y = sc.nuriRetire - 1; y >= N.birth + 35; y--) {
+      const s2 = clone(sc); s2.nuriRetire = y; if (!safeFast(cfg, s2)) { res.margins.push({ id: 'earlyNuri', text: `${nN} יכול/ה לפרוש כבר ב-${y + 1} (גיל ${y + 1 - N.birth}) ועדיין לעמוד בתכנית.`, year: y + 1 }); break; }
+    }
+    const okX = x => { const c = clone(cfg); c.extraMonthly = x; return safeFast(c, sc); };
+    let lo = 0, hi = 80000; if (okX(hi)) lo = hi; else for (let i = 0; i < 20; i++) { const m = (lo + hi) / 2; if (okX(m)) lo = m; else hi = m; }
+    res.margins.push({ id: 'extraExp', text: `אפשר להוסיף עד כ-${money(Math.floor(lo / 100) * 100)} ₪ בחודש להוצאות ועדיין לעמוד בתכנית.`, value: Math.floor(lo / 100) * 100 });
+    const ms = solveMinSalary(cfg, sc);
+    if (ms.feasible && ms.minGross != null) res.margins.push({ id: 'minSal', text: ms.minGross === 0 ? `התכנית עומדת גם אם ${nT} לא יעבוד/תעבוד כלל מהיום.` : `השכר המינימלי ש${nT} צריך/ה: ${money(ms.minGross)} ₪ ברוטו (${money(ms.minNet)} ₪ נטו).` });
+  }
+  return res;
+}
+
+/* ---------- retirement-year frontier ---------- */
+function earliestNuriRetire(cfg, sc) {
+  const nb = cfg.people.nuri.birth, lo0 = Math.max(cfg.baseYear, nb + 30), hi0 = nb + 67;
+  const ok = y => { const s2 = clone(sc); s2.nuriRetire = y; return evalSafe(cfg, s2).ok; };
+  if (!ok(hi0)) return { feasible: false };
+  let lo = lo0, hi = hi0;
+  if (ok(lo)) hi = lo; else while (hi - lo > 1) { const m = (lo + hi) >> 1; if (ok(m)) hi = m; else lo = m; }
+  return { feasible: true, year: hi, age: hi - nb };
+}
+/* פרישה מוקדמת ביותר: mode = together | tova_first | nuri_first */
+function earliestPair(cfg, sc, mode, o) {
+  o = o || {}; const nb = cfg.people.nuri.birth, tb = cfg.people.tova.birth, cap = cfg.latestRetireAge || 60;
+  const nCap = nb + cap, tCap = tb + cap, y0 = cfg.baseYear;
+  const ok = (tY, nY) => {
+    const s2 = clone(sc); s2.tovaRetire = tY; s2.nuriRetire = nY;
+    const c2 = Object.assign({}, cfg, { stress: Object.assign({}, cfg.stress, o.crashAtFirst === false ? {} : { crashYear: Math.min(tY, nY) }) });
+    return evalSafe(c2, s2).ok;
+  };
+  const search = (lo, hi, f) => { if (!f(hi)) return null; if (f(lo)) return lo; while (hi - lo > 1) { const m = (lo + hi) >> 1; if (f(m)) hi = m; else lo = m; } return hi; };
+  let tY = null, nY = null;
+  if (mode === 'together') { const Y = search(y0, Math.min(tCap, nCap), y => ok(y, y)); if (Y != null) tY = nY = Y; }
+  else if (mode === 'tova_first') { tY = search(y0, tCap, y => ok(y, nCap)); if (tY != null) nY = search(tY, nCap, y => ok(tY, y)); }
+  else { nY = search(y0, nCap, y => ok(tCap, y)); if (nY != null) tY = search(nY, tCap, y => ok(y, nY)); }
+  if (tY == null || nY == null) return { feasible: false, cap };
+  return { feasible: true, tovaYear: tY, nuriYear: nY, tovaAge: tY - tb, nuriAge: nY - nb, cap };
+}
+function capitalSplit(cfg, sc, tY, nY) {
+  const s2 = clone(sc); s2.tovaRetire = tY; s2.nuriRetire = nY; const Y = Math.max(tY, nY);
+  const r = simulate(cfg, { sc: s2 }); let dep = 0, wd = 0, row = null;
+  r.rows.forEach(x => { if (x.year <= Y) { row = x; Object.values(x.ledger).forEach(l => { dep += l.dep || 0; wd += l.wd || 0; }); } });
+  const existing = cfg.assets.filter(a => a.enabled !== false).reduce((s, a) => s + (a.bal || 0), 0), total = row ? row.total : 0;
+  return { year: Y, total, existing, deposits: dep, returns: total - existing - dep + wd };
+}
+function frontier(cfg, tAges, nAges) {
+  const sc = activeScenario(cfg), idx = scIndex(cfg);
+  const grid = [];
+  for (const ta of tAges) {
+    const row = [];
+    for (const na of nAges) {
+      const s2 = clone(sc); s2.tovaRetire = cfg.people.tova.birth + ta; s2.nuriRetire = cfg.people.nuri.birth + na;
+      const b = isSafeSum(cfg, simulate(cfg, { sc: s2 }).summary);
+      let g = 'fail';
+      if (b) g = (!cfg.stress.requireInSolver || isSafeSum(cfg, simulate(cfg, { sc: s2, stress: true }).summary)) ? 'ok' : 'tight';
+      row.push({ ta, na, tovaYear: s2.tovaRetire, nuriYear: s2.nuriRetire, grade: g });
+    }
+    grid.push(row);
+  }
+  return { grid, idx };
+}
+
+return { REF, PHASES, PHASE_HE, phaseHe, expenseItems, TIER_NOM, SHOCK, clone, getPath, setPath, bracketTax, blHealth, netFromParts, calibrateCredits, tovaNet,
+  activeScenario, salaryAt, expensesAt, monthsIn, simulate, evalSafe, isSafeSum, solveMinSalary, salarySensitivity, recommend, frontier, earliestNuriRetire, earliestPair, capitalSplit, withFlatSalary };
+})();
+if (typeof module !== 'undefined') module.exports = FFI;
+</script>
+<script>const DEFAULTS = {"schema":1,"refVersion":"2026-10-27","baseYear":2027,"horizon":2075,"inflation":0.02,"cgt":0.25,"solar":0,"allowPrincipal":false,"requireTarget":false,"expenseScale":1,"extraMonthly":0,"solveFromYear":2027,"people":{"nuri":{"name":"אדם א׳","birth":1990,"netMonthly":30000,"penSal":40000,"khSal":30000},"tova":{"name":"אדם ב׳","birth":1990,"pensShare":0.85,"calib":{"gross":25000,"net":17000,"penSal":21000}}},"gemel":{"convPct":1,"factor":250},"pension":{"taxFreeMonthly":6318.1,"factor":200},"floors":{"gemelAnnual":{"nuri":83641,"tova":83641},"pensionMonthly":{"nuri":8000,"tova":5000},"khMonthly":{"nuri":3000,"tova":2000}},"retiredPension":{"tova_retired_nuri_working":{"tova":5000,"nuri":0}},"optKh":{"nuriSelf":true,"tovaRetired":true},"spare":{"both_working":0,"tova_retired_nuri_working":5000,"nuri_retired_tova_working":5000,"both_retired_pre60":5000,"age60_to67":5000,"pension_age":5000},"target":{"enabled":true,"netMonthly":30000},"stress":{"crashOffset":0,"requireInSolver":true},"assets":[{"id":"psagot","name":"תיק השקעות (פסגות)","owner":"joint","kind":"psagot","bal":0,"aum":0.003},{"id":"cash","name":"עו\"ש (חשבון בנק)","owner":"joint","kind":"cash","bal":0,"aum":0},{"id":"n_gemel","name":"גמל להשקעה – אדם א׳","owner":"nuri","kind":"gemel","bal":341600,"aum":0.0039},{"id":"t_gemel","name":"גמל להשקעה – אדם ב׳","owner":"tova","kind":"gemel","bal":367200,"aum":0.0039},{"id":"n_pen","name":"פנסיה – אדם א׳","owner":"nuri","kind":"pension","bal":1520000,"aum":0.0005,"depFee":0.011},{"id":"t_pen","name":"פנסיה – אדם ב׳","owner":"tova","kind":"pension","bal":580000,"aum":0.0012,"depFee":0.012},{"id":"n_kh_a","name":"קרן השתלמות פעילה – אדם א׳","owner":"nuri","kind":"kh","sub":"active","bal":152000,"aum":0.006,"taxableShare":0.68},{"id":"n_kh_o","name":"קרן השתלמות לא פעילה – אדם א׳","owner":"nuri","kind":"kh","sub":"old","bal":296000,"aum":0.006,"taxableShare":0},{"id":"n_kh_s","name":"קרן השתלמות כעצמאי – אדם א׳","owner":"nuri","kind":"kh","sub":"self","bal":64800,"aum":0.006,"taxableShare":0},{"id":"t_kh_o","name":"קרן השתלמות ישנה – אדם ב׳","owner":"tova","kind":"kh","sub":"old","bal":43600,"aum":0.007,"taxableShare":0},{"id":"t_kh_a","name":"קרן השתלמות פעילה – אדם ב׳","owner":"tova","kind":"kh","sub":"active","bal":173200,"aum":0.007,"taxableShare":0.43}],"expenses":[{"id":"e1","name":"משכנתא","type":"debt","monthly":5100,"nominal":true,"startY":2027,"endY":2053,"endM":9,"kind":"recurring"},{"id":"e2","name":"הלוואת הורים","type":"debt","monthly":3600,"nominal":true,"startY":2027,"endY":2034,"endM":8,"kind":"recurring"},{"id":"e3","name":"משפחתון (ילד קטן)","type":"child","monthly":2800,"startY":2027,"endY":2028,"endM":8,"kind":"recurring"},{"id":"e4","name":"צהרון – ילד גדול","type":"child","monthly":1300,"startY":2027,"endY":2029,"endM":8,"kind":"recurring"},{"id":"e5","name":"צהרון – ילד קטן (הערכה)","type":"child","monthly":1300,"startY":2028,"startM":9,"endY":2034,"endM":8,"kind":"recurring"},{"id":"e6","name":"חשבונות בית","type":"living","monthly":2400,"startY":2027,"kind":"recurring"},{"id":"e7","name":"מזון וסופר","type":"living","monthly":2800,"startY":2027,"kind":"recurring"},{"id":"e8","name":"ביטוחים ובריאות","type":"living","monthly":1600,"startY":2027,"kind":"recurring"},{"id":"e9","name":"תחבורה","type":"living","monthly":1200,"startY":2027,"kind":"recurring"},{"id":"e10","name":"שוטף, פנאי ושונות","type":"living","monthly":6000,"startY":2027,"kind":"recurring"}],"scenarios":[{"id":"s1","name":"בסיס – שניהם פורשים ב-60","nuriRetire":2050,"tovaRetire":2050,"tovaSalary":[{"from":2027,"gross":25000}]},{"id":"s2","name":"אדם ב׳ פורש בגיל 50","nuriRetire":2050,"tovaRetire":2040,"tovaSalary":[{"from":2027,"gross":25000}]}],"active":"s1","history":[],"historySeeded":false,"expected":[],"slots":{},"expectedSeeded":false,"cardsSeeded":false,"cardsV":0,"docsV":0,"earlyMode":"together","earlyCrash":true,"latestRetireAge":60,"dataDates":{},"docs":[],"checklist":{"personal0":true,"personal1":true},"setup":true,"pending":[],"view":"normal","returnProfile":"auto","returns":{"low":0.04,"medium":0.055,"high":0.07}};
+const BLANK = (function () {
+  const c = JSON.parse(JSON.stringify(DEFAULTS));
+  c.setup = false; c.pending = []; c.solar = 0; c.checklist = {}; c.docs = [];
+  c.people.nuri = { name: 'אני', birth: 1990, netMonthly: 0, penSal: 0, khSal: 0 };
+  c.people.tova = { name: 'בן/בת הזוג', birth: 1990, pensShare: 0.85, calib: { gross: 0, net: 0, penSal: 0 } };
+  c.floors = { gemelAnnual: { nuri: 83641, tova: 83641 }, pensionMonthly: { nuri: 0, tova: 0 }, khMonthly: { nuri: 0, tova: 0 } };
+  c.retiredPension = {}; c.optKh = { nuriSelf: false, tovaRetired: false };
+  for (const k in c.spare) c.spare[k] = 0;
+  c.target = { enabled: false, netMonthly: 0 };
+  const nm = { nuri: 'אני', tova: 'בן/בת הזוג' };
+  c.assets = [
+    { id: 'psagot', name: 'תיק השקעות', owner: 'joint', kind: 'psagot', bal: 0, aum: 0.003 },
+    { id: 'cash', name: 'עו"ש (חשבון בנק)', owner: 'joint', kind: 'cash', bal: 0, aum: 0 },
+    ...['nuri', 'tova'].flatMap(o => [
+      { id: o[0] + '_gemel', name: 'גמל להשקעה – ' + nm[o], owner: o, kind: 'gemel', bal: 0, aum: 0.005 },
+      { id: o[0] + '_pen', name: 'פנסיה – ' + nm[o], owner: o, kind: 'pension', bal: 0, aum: 0.002, depFee: 0.015 },
+      { id: o[0] + '_kh_a', name: 'קרן השתלמות פעילה – ' + nm[o], owner: o, kind: 'kh', sub: 'active', bal: 0, aum: 0.006, taxableShare: 0 },
+      { id: o[0] + '_kh_o', name: 'קרן השתלמות ישנה – ' + nm[o], owner: o, kind: 'kh', sub: 'old', bal: 0, aum: 0.006, taxableShare: 0 },
+      { id: o[0] + '_kh_s', name: 'קרן השתלמות כעצמאי – ' + nm[o], owner: o, kind: 'kh', sub: 'self', bal: 0, aum: 0.006, taxableShare: 0 },
+    ])];
+  c.expenses = [['משכנתא', 'debt'], ['הלוואות', 'debt'], ['מסגרות לילדים', 'child'], ['חשבונות בית', 'living'], ['מזון וסופר', 'living'], ['ביטוחים ובריאות', 'living'], ['תחבורה', 'living'], ['שוטף, פנאי ושונות', 'living']]
+    .map(([name, type], i) => ({ id: 'e' + i, name, type, monthly: 0, startY: 2027, kind: 'recurring', nominal: type === 'debt' }));
+  c.scenarios = [{ id: 's1', name: 'תרחיש בסיס', nuriRetire: 2050, tovaRetire: 2050, tovaSalary: [{ from: 2027, gross: 0 }] }];
+  c.active = 's1';
+  return c;
+})();
+if (typeof module !== 'undefined') module.exports = DEFAULTS;
+</script>
+<script>(function () {
+'use strict';
+const FAMILY = false; /*FAMILY*/
+const APP_VERSION = '2026.11.18-1';
+const E = FFI, REF = E.REF, KEY = FAMILY ? 'ffi.family.v1' : 'ffi.cfg.v1', EXAMPLE = DEFAULTS, BLANKCFG = BLANK;
+const $ = s => document.querySelector(s);
+const esc = s => String(s == null ? '' : s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+const n0 = v => Math.round(v || 0).toLocaleString('en-US');
+const fm = v => { const a = Math.abs(v); const s = a >= 1e6 ? (a / 1e6).toFixed(a >= 1e7 ? 0 : 1) + 'M' : a >= 1e3 ? Math.round(a / 1e3) + 'K' : Math.round(a) + ''; return (v < 0 ? '-' : '') + s; };
+const ils = v => n0(v) + ' ₪';
+
+function migrate(o) {
+  if (!o.assets.some(a => a.kind === 'cash')) o.assets.splice(1, 0, E.clone(EXAMPLE.assets.find(a => a.kind === 'cash')));
+  if (!o.dataDates) o.dataDates = {};
+  (o.pending || []).forEach(p => { const ex = EXAMPLE.pending.find(x => x.t === p.t); if (ex && ex.done && !p.done) p.done = true; if (!p.keys) { const e = EXAMPLE.pending.find(x => x.t === p.t); if (e) p.keys = e.keys; } });
+}
+function deepFill(t, d) { for (const k in d) { if (t[k] == null) t[k] = E.clone(d[k]); else if (typeof d[k] === 'object' && !Array.isArray(d[k])) deepFill(t[k], d[k]); } return t; }
+function load() { try { const s = localStorage.getItem(KEY); if (s) { const o = JSON.parse(s); if (o && o.schema === 1) { deepFill(o, EXAMPLE); migrate(o); return o; } } } catch (e) {} return E.clone(FAMILY ? EXAMPLE : BLANKCFG); }
+let cfg = load(), memo = { key: '', v: {} }, storeOK = true, selYear = null;
+let tab = cfg.setup ? 'home' : 'start';
+let booted = false;
+function save() { if (booted) cfg._ts = Date.now(); try { localStorage.setItem(KEY, JSON.stringify(cfg)); storeOK = true; } catch (e) { storeOK = false; } if (booted) pushSoon(); }
+/* ---- cross-device sync (Claude artifact db; private per user) ---- */
+const sync = { st: 'off', ref: null, kind: '', timer: null, last: 0 }, SYNC_MAX = 900000;
+const SYNC_TXT = { init: 'מתחבר לסנכרון…', ok: 'מסונכרן בין המכשירים', push: 'מסנכרן…', err: 'הסנכרון לא זמין כרגע – הנתונים נשמרים במכשיר ויסונכרנו בהמשך', big: 'הנתונים גדולים מדי לסנכרון', login: 'נדרשת התחברות לגוגל לסנכרון', nohttps: 'סנכרון דרייב דורש פתיחה מכתובת https' };
+function setSync(st) { sync.st = st; const el = document.getElementById('syncst'); if (el) el.textContent = SYNC_TXT[st] || ''; }
+function adopt(o) { if (!o || o.schema !== 1) return false; deepFill(o, EXAMPLE); migrate(o); cfg = o; memo = { key: '', v: {} }; selYear = null; try { localStorage.setItem(KEY, JSON.stringify(cfg)); } catch (e) { } return true; }
+function pushSoon() { if (!sync.ref) return; clearTimeout(sync.timer); sync.timer = setTimeout(pushNow, 1500); }
+async function pushNow() {
+  if (!sync.ref) return;
+  try { const j = JSON.stringify(cfg); if (j.length > SYNC_MAX) { setSync('big'); return; } if (!cfg._ts) cfg._ts = Date.now(); const ts = cfg._ts; setSync('push'); sync.last = ts; if (sync.kind === 'drive') await dPush(); else await sync.ref.set({ ts, json: JSON.stringify(cfg) }); setSync('ok'); } catch (e) { setSync(String(e.message) === 'auth' ? 'login' : 'err'); }
+}
+function onRemote(d) {
+  if (!d || !d.json || !(d.ts > (cfg._ts || 0)) || d.ts === sync.last) return;
+  const a = document.activeElement; if (a && /INPUT|TEXTAREA|SELECT/.test(a.tagName)) { setTimeout(() => onRemote(d), 3000); return; }
+  try { if (adopt(JSON.parse(d.json))) { setSync('ok'); render(); } } catch (e) { }
+}
+/* ---- Google Drive sync (hidden app-data file; needs https origin + own OAuth client id) ---- */
+const GCID = 'ffi.gclient', GAUTH = 'ffi.gauth', GTOK = { t: '', exp: 0 }, DRV = { id: '', timer: null }, DFN = 'ffi-' + (FAMILY ? 'family' : 'generic') + '.json';
+const gClient = () => lsGet(GCID);
+const secureOrigin = () => location.protocol === 'https:' || location.hostname === 'localhost' || location.hostname === '127.0.0.1';
+function gToken(interactive) {
+  return new Promise((res, rej) => {
+    if (GTOK.t && Date.now() < GTOK.exp - 60000) return res(GTOK.t);
+    loadScript('https://accounts.google.com/gsi/client', () => window.google && google.accounts && google.accounts.oauth2).then(() => {
+      const tc = google.accounts.oauth2.initTokenClient({ client_id: gClient(), scope: 'https://www.googleapis.com/auth/drive.appdata',
+        callback: r => { if (r.error) return rej(new Error('auth')); GTOK.t = r.access_token; GTOK.exp = Date.now() + (+r.expires_in || 3600) * 1000; lsSet(GAUTH, '1'); res(GTOK.t); },
+        error_callback: () => rej(new Error('auth')) });
+      tc.requestAccessToken({ prompt: interactive ? 'select_account' : '' });
+    }).catch(() => rej(new Error('auth')));
+  });
+}
+async function dFetch(url, opt) {
+  const t = await gToken(false);
+  const r = await fetch(url, Object.assign({}, opt, { headers: Object.assign({ Authorization: 'Bearer ' + t }, (opt && opt.headers) || {}) }));
+  if (r.status === 401) { GTOK.t = ''; throw new Error('auth'); }
+  if (!r.ok) throw new Error('drive ' + r.status);
+  return r;
+}
+async function dFind() { const q = encodeURIComponent("name='" + DFN + "' and trashed=false"); const r = await dFetch('https://www.googleapis.com/drive/v3/files?spaces=appDataFolder&fields=files(id)&q=' + q); const j = await r.json(); return (j.files || [])[0] || null; }
+const CRY = { key: null, salt: '' }, lock = { on: false, step: 'pw', err: '', pw: '' };
+const enc64 = u8 => { let s = ''; const a = new Uint8Array(u8); for (let i = 0; i < a.length; i += 8192) s += String.fromCharCode.apply(null, a.subarray(i, i + 8192)); return btoa(s); };
+const dec64 = t => Uint8Array.from(atob(t), c => c.charCodeAt(0));
+async function deriveKey(pw, salt) { const km = await crypto.subtle.importKey('raw', new TextEncoder().encode(pw), 'PBKDF2', false, ['deriveKey']); return crypto.subtle.deriveKey({ name: 'PBKDF2', salt, iterations: 310000, hash: 'SHA-256' }, km, { name: 'AES-GCM', length: 256 }, false, ['encrypt', 'decrypt']); }
+async function encEnv(text, ts) { const iv = crypto.getRandomValues(new Uint8Array(12)); const ct = await crypto.subtle.encrypt({ name: 'AES-GCM', iv }, CRY.key, new TextEncoder().encode(text)); return JSON.stringify({ enc: 1, ts: ts || 0, salt: CRY.salt, iv: enc64(iv), ct: enc64(ct) }); }
+async function decEnv(env) { const pt = await crypto.subtle.decrypt({ name: 'AES-GCM', iv: dec64(env.iv) }, CRY.key, dec64(env.ct)); return new TextDecoder().decode(pt); }
+async function newKey(pw) { const salt = crypto.getRandomValues(new Uint8Array(16)); CRY.salt = enc64(salt); CRY.key = await deriveKey(pw, salt); }
+async function keyFrom(env, pw) { CRY.salt = env.salt; CRY.key = await deriveKey(pw, dec64(env.salt)); }
+async function dPull() {
+  const f = await dFind(); if (!f) return null; DRV.id = f.id;
+  const r = await dFetch('https://www.googleapis.com/drive/v3/files/' + f.id + '?alt=media'); const txt = await r.text(); let o; try { o = JSON.parse(txt); } catch (e) { return null; }
+  if (o.enc) { if (!CRY.key || CRY.salt !== o.salt) return { ts: o.ts || 0, locked: true }; return { ts: o.ts || 0, json: await decEnv(o) }; }
+  return { ts: o._ts || 0, json: txt };
+}
+async function dPush() {
+  if (!CRY.key) throw new Error('auth');
+  const body = await encEnv(JSON.stringify(cfg), cfg._ts);
+  if (!DRV.id) { const f = await dFind(); if (f) DRV.id = f.id; }
+  if (DRV.id) { await dFetch('https://www.googleapis.com/upload/drive/v3/files/' + DRV.id + '?uploadType=media', { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body }); return; }
+  const b = 'ffi' + Date.now(), meta = JSON.stringify({ name: DFN, parents: ['appDataFolder'] });
+  const mp = '--' + b + '\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n' + meta + '\r\n--' + b + '\r\nContent-Type: application/json\r\n\r\n' + body + '\r\n--' + b + '--';
+  const r = await dFetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&fields=id', { method: 'POST', headers: { 'Content-Type': 'multipart/related; boundary=' + b }, body: mp });
+  DRV.id = (await r.json()).id;
+}
+async function drivePoll() { if (sync.kind !== 'drive' || lock.on || !CRY.key) return; try { const d = await dPull(); if (d && d.json) onRemote(d); } catch (e) { if (String(e.message) === 'auth') setSync('login'); } }
+async function driveUnlock(pw, pw2) {
+  lock.err = ''; lock.pw = pw;
+  if (!pw || pw.length < 6) { lock.err = 'סיסמה של 6 תווים לפחות'; return; }
+  try {
+    try { await gToken(false); } catch (e) { await gToken(true); }
+    const f = await dFind(); let env = null, plain = null;
+    if (f) { DRV.id = f.id; const r = await dFetch('https://www.googleapis.com/drive/v3/files/' + f.id + '?alt=media'); const t = await r.text(); try { const o = JSON.parse(t); if (o.enc) env = o; else plain = { ts: o._ts || 0, json: t }; } catch (e) { } }
+    let d = null;
+    if (env) {
+      try { await keyFrom(env, pw); d = { ts: env.ts || 0, json: await decEnv(env) }; } catch (e) { CRY.key = null; lock.err = 'סיסמה שגויה'; return; }
+    } else {
+      if (lock.step !== 'create') { lock.step = 'create'; return; }
+      if (pw !== pw2) { lock.err = 'הסיסמאות אינן זהות'; return; }
+      await newKey(pw); d = plain;
+    }
+    lock.on = false; lock.pw = ''; sync.kind = 'drive'; sync.ref = true; setSync('init');
+    if (d && d.ts > (cfg._ts || 0)) onRemote(d); else await pushNow();
+    setSync('ok'); setTimeout(maybeBackup, 1500);
+    if (!DRV.timer) { DRV.timer = setInterval(() => { drivePoll(); maybeBackup(); }, 30000); document.addEventListener('visibilitychange', () => { if (!document.hidden) drivePoll(); }); }
+  } catch (e) { lock.err = 'לא ניתן להתחבר לדרייב – בדקו חיבור ואישור הרשאה'; }
+}
+/* ---- auto-lock after idle (drive sync only) ---- */
+const IDLE_KEY = 'ffi.idle'; let lastAct = Date.now();
+const idleMin = () => { const v = +lsGet(IDLE_KEY); return v > 0 ? v : 5; };
+async function lockNow() {
+  if (lock.on) return;
+  try { if (sync.timer) { clearTimeout(sync.timer); sync.timer = null; await pushNow(); } } catch (e) { }
+  CRY.key = null; sync.ref = null; lock.on = true; lock.step = 'pw'; lock.err = ''; lock.pw = ''; render();
+}
+function checkIdle() { if (sync.kind === 'drive' && !lock.on && CRY.key && Date.now() - lastAct > idleMin() * 60000) lockNow(); }
+['click', 'keydown', 'touchstart', 'mousemove', 'scroll'].forEach(ev => document.addEventListener(ev, () => { lastAct = Date.now(); }, { passive: true, capture: true }));
+setInterval(checkIdle, 10000); document.addEventListener('visibilitychange', checkIdle);
+
+/* ---- monthly backup (on/after the 20th) ---- */
+const BK = { list: null, busy: false, msg: '' };
+const ymOf = d => d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0');
+const backupDue = () => { const n = new Date(); return n.getDate() >= 20 && cfg.lastBackup !== ymOf(n); };
+async function dList(prefix) { const q = encodeURIComponent("name contains '" + prefix + "' and trashed=false"); const r = await dFetch('https://www.googleapis.com/drive/v3/files?spaces=appDataFolder&pageSize=100&fields=files(id,name)&q=' + q); const j = await r.json(); return (j.files || []).sort((a, b) => a.name < b.name ? 1 : -1); }
+async function dBackup() {
+  if (!CRY.key) throw new Error('auth');
+  const nm = 'ffi-backup-' + (FAMILY ? 'family' : 'generic') + '-' + new Date().toISOString().slice(0, 10) + '.json', body = await encEnv(JSON.stringify(cfg), cfg._ts);
+  const ex = (await dList(nm)).filter(f => f.name === nm)[0];
+  if (ex) await dFetch('https://www.googleapis.com/upload/drive/v3/files/' + ex.id + '?uploadType=media', { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body });
+  else { const b = 'ffi' + Date.now(), meta = JSON.stringify({ name: nm, parents: ['appDataFolder'] }); await dFetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&fields=id', { method: 'POST', headers: { 'Content-Type': 'multipart/related; boundary=' + b }, body: '--' + b + '\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n' + meta + '\r\n--' + b + '\r\nContent-Type: application/json\r\n\r\n' + body + '\r\n--' + b + '--' }); }
+  const all = await dList('ffi-backup-' + (FAMILY ? 'family' : 'generic') + '-');
+  for (const f of all.slice(12)) { try { await dFetch('https://www.googleapis.com/drive/v3/files/' + f.id, { method: 'DELETE' }); } catch (e) { } }
+  BK.list = null;
+}
+async function runBackup(auto) {
+  if (BK.busy) return; BK.busy = true;
+  try { await dBackup(); cfg.lastBackup = ymOf(new Date()); BK.msg = (auto ? 'גיבוי חודשי אוטומטי נשמר בדרייב' : 'גיבוי נשמר בדרייב') + ' (' + todayStr() + ')'; save(); }
+  catch (e) { BK.msg = 'שמירת הגיבוי נכשלה – נסו שוב'; }
+  BK.busy = false; render();
+}
+function maybeBackup() { if (sync.kind === 'drive' && CRY.key && !lock.on && backupDue()) runBackup(true); }
+async function restoreBackup(id) {
+  const r = await dFetch('https://www.googleapis.com/drive/v3/files/' + id + '?alt=media'); const env = JSON.parse(await r.text());
+  const o = JSON.parse(await decEnv(env)); if (!o || o.schema !== 1) throw new Error('bad');
+  o._ts = Date.now(); adopt(o); save();
+}
+
+async function driveInit() {
+  if (!gClient()) return;
+  if (!secureOrigin()) { setSync('nohttps'); return; }
+  if (lsGet(GAUTH)) { lock.on = true; lock.step = 'pw'; render(); } else setSync('login');
+}
+function lockHTML() {
+  const cr = lock.step === 'create';
+  return `<div class="card nofold" style="max-width:420px;margin:12vh auto 0"><h2>${cr ? 'בחירת סיסמת סנכרון' : 'הזינו סיסמת סנכרון'}</h2>
+  <p class="note" style="margin-top:0">${cr ? 'זו הפעם הראשונה: בחרו סיסמה. היא מצפינה את הנתונים לפני שהם נשמרים בדרייב. אם תשכחו אותה, לא ניתן לשחזר את הנתונים בדרייב.' : 'הסיסמה נדרשת בכל כניסה ואינה נשמרת.'}</p>
+  <div class="f"><label>סיסמה</label><input id="pw1" type="password" autocomplete="${cr ? 'new-password' : 'current-password'}" value="${esc(lock.pw)}"></div>
+  ${cr ? '<div class="f" style="margin-top:8px"><label>אימות סיסמה</label><input id="pw2" type="password" autocomplete="new-password"></div>' : ''}
+  ${lock.err ? `<p class="neg" style="margin:8px 0 0"><b>${esc(lock.err)}</b></p>` : ''}
+  <p style="margin:12px 0 0"><button class="btn" data-act="unlock">${cr ? 'יצירה והמשך' : 'פתיחה'}</button> <button class="btn sec" data-act="lockSkip">המשך בלי סנכרון</button></p></div>`;
+}
+function syncCard() {
+  if (window.claude && window.claude.use) return '';
+  const cid = gClient(), st = SYNC_TXT[sync.st] || '';
+  return `<div class="card"><h2>סנכרון בין מכשירים (Google Drive)</h2>
+   <p class="note" style="margin-top:0">הנתונים נשמרים בקובץ מוסתר בדרייב שלכם (אף אחד אחר לא רואה אותו). נדרשת פתיחה מכתובת https והגדרה חד-פעמית.</p>
+   <div class="f"><label>מזהה לקוח (Client ID) של Google</label><input data-apikey="gclient" value="${esc(cid)}" placeholder="123456-abc.apps.googleusercontent.com" autocomplete="off"></div>
+   <div class="f" style="max-width:260px;margin-top:10px"><label>נעילה אוטומטית אחרי חוסר פעילות</label><select data-apikey="idle">${[2, 5, 10, 30].map(m => `<option value="${m}" ${idleMin() === m ? 'selected' : ''}>${m} דקות</option>`).join('')}</select></div>
+   <p style="margin:10px 0 4px">${st ? '<b>' + esc(st) + '</b>' : ''}</p>
+   <p style="margin:0"><button class="btn" data-act="gLogin">התחברות וסנכרון</button> <button class="btn sec" data-act="gOff">ניתוק</button></p>
+   ${sync.kind === 'drive' && !lock.on ? `<h3>גיבויים בדרייב</h3><p class="note" style="margin:0 0 6px">גיבוי אוטומטי מוצפן נשמר ב-20 לחודש (או בפתיחה הראשונה אחריו), ונשמרים 12 אחרונים. ${cfg.lastBackup ? 'גיבוי אחרון: חודש ' + esc(cfg.lastBackup) + '.' : ''}</p>
+   ${BK.msg ? '<p style="margin:4px 0"><b>' + esc(BK.msg) + '</b></p>' : ''}
+   <p style="margin:0"><button class="btn sm" data-act="bkNow">שמירת גיבוי עכשיו</button> <button class="btn sm sec" data-act="bkShow">הצגת גיבויים לשחזור</button></p>
+   ${BK.list ? '<div style="margin-top:8px">' + (BK.list.length ? BK.list.map(f => `<div class="rec"><span>${esc(f.name.replace(/^ffi-backup-(family|generic)-/, '').replace('.json', ''))}</span><button class="btn sm sec" data-act="bkRestore" data-id="${esc(f.id)}">שחזור</button></div>`).join('') : '<span class="note">אין גיבויים עדיין.</span>') + '</div>' : ''}` : ''}
+   <details style="margin-top:10px"><summary class="note" style="cursor:pointer">הוראות הקמה (פעם אחת)</summary>
+   <ol style="line-height:1.8;padding-inline-start:20px;font-size:13.5px"><li>פתחו את console.cloud.google.com והתחברו לחשבון הגוגל שבו תשמרו את הנתונים. צרו פרויקט חדש.</li>
+   <li>ב-APIs and Services, Library: חפשו Google Drive API והפעילו.</li>
+   <li>ב-OAuth consent screen (או Google Auth platform): סוג External, הזינו שם לאפליקציה ואימייל, הוסיפו את ההיקף drive.appdata, והוסיפו את חשבון הגוגל שלכם (ושל בן/בת הזוג) כ-Test users.</li>
+   <li>ב-Credentials: Create credentials, OAuth client ID, סוג Web application. ב-Authorized JavaScript origins הוסיפו את כתובת האתר שבו האפליקציה מאוחסנת, למשל https://שם.github.io (ללא נתיב).</li>
+   <li>העתיקו את ה-Client ID לשדה למעלה ולחצו "התחברות וסנכרון". בכל מכשיר נוסף: הדביקו את אותו מזהה והתחברו לאותו חשבון גוגל.</li></ol></details></div>`;
+}
+
+async function syncInit() {
+  if (!(window.claude && window.claude.use)) return driveInit();
+  try {
+    setSync('init');
+    const db = await window.claude.use('db'), us = await window.claude.use('user'); if (!db || !us) { setSync(''); return; }
+    const id = await us.id(); sync.ref = db.doc('data/users/' + id + '/' + (FAMILY ? 'family' : 'generic'));
+    const snap = await sync.ref.get(), d = snap && await (typeof snap.data === 'function' ? snap.data() : snap);
+    if (d && d.json && d.ts > (cfg._ts || 0)) onRemote(d); else await pushNow();
+    setSync('ok');
+    if (sync.ref.onSnapshot) sync.ref.onSnapshot(async sn => { const x = sn && await (typeof sn.data === 'function' ? sn.data() : sn.data || sn); onRemote(x); });
+  } catch (e) { setSync('err'); }
+}
+function C() { const k = JSON.stringify(cfg, (key, v) => (key === 'docs' || key === 'checklist') ? undefined : v); if (memo.key !== k) memo = { key: k, v: {} }; return memo.v; }
+function get(name, fn) { const m = C(); return m[name] || (m[name] = fn()); }
+const sc = () => E.activeScenario(cfg);
+const scIdx = () => Math.max(0, cfg.scenarios.findIndex(s => s.id === cfg.active));
+const N = () => cfg.people.nuri.name || 'א', T = () => cfg.people.tova.name || 'ב';
+const PH = p => E.phaseHe(cfg, p);
+
+/* ---------- inputs ---------- */
+function inp(path, o) {
+  o = o || {}; const v = E.getPath(cfg, path); const k = o.scale || 1;
+  const shown = v == null ? '' : (o.type === 'text' ? v : +(v * k).toFixed(o.dec == null ? 4 : o.dec));
+  return `<input ${o.cls ? `class="${o.cls}"` : ''} inputmode="${o.type === 'text' ? 'text' : 'decimal'}" data-path="${path}" data-type="${o.type || 'num'}" data-scale="${k}" value="${esc(shown)}">`;
+}
+function chk(path, label) { return `<label style="display:flex;gap:8px;align-items:center;font-size:14px"><input type="checkbox" data-path="${path}" data-type="bool" ${E.getPath(cfg, path) ? 'checked' : ''}> ${label}</label>`; }
+function sel(path, opts, o) { const v = E.getPath(cfg, path); return `<select data-path="${path}" data-type="text" ${o && o.cls ? `class="${o.cls}"` : ''}>${opts.map(([k, l]) => `<option value="${k}" ${k === v ? 'selected' : ''}>${l}</option>`).join('')}</select>`; }
+const field = (label, html, note) => `<div class="f"><label>${label}</label>${html}${note ? `<span class="note">${note}</span>` : ''}</div>`;
+
+/* ---------- charts ---------- */
+function chart(o) {
+  const W = 720, H = o.h || 250, pl = 46, pr = 10, pt = 12, pb = 24, n = o.xs.length;
+  let max = 0, min = 0;
+  if (o.stack) { for (let i = 0; i < n; i++) { let s = 0; o.series.forEach(s_ => s += Math.max(0, s_.vals[i])); max = Math.max(max, s); } if (o.line) max = Math.max(max, ...o.line.vals); }
+  else o.series.forEach(s => s.vals.forEach(v => { max = Math.max(max, v); min = Math.min(min, v); }));
+  max = max * 1.06 || 1;
+  const X = i => pl + (W - pl - pr) * (n === 1 ? .5 : i / (n - 1)), Y = v => pt + (H - pt - pb) * (1 - (v - min) / (max - min || 1));
+  let g = '';
+  for (let k = 0; k <= 4; k++) { const v = min + (max - min) * k / 4, y = Y(v); g += `<line x1="${pl}" x2="${W - pr}" y1="${y}" y2="${y}" style="stroke:var(--grid)" stroke-width="1"/><text x="${pl - 6}" y="${y + 4}" text-anchor="end">${fm(v)}</text>`; }
+  const step = Math.ceil(n / 9);
+  o.xs.forEach((x, i) => { if (i % step === 0) g += `<text x="${X(i)}" y="${H - 6}" text-anchor="middle">${x}</text>`; });
+  let body = '';
+  if (o.stack) {
+    const bw = (W - pl - pr) / n * .78;
+    for (let i = 0; i < n; i++) { let acc = 0; o.series.forEach(s => { const v = Math.max(0, s.vals[i]); if (v <= 0) return; const y1 = Y(acc + v), y0 = Y(acc); body += `<rect x="${X(i) - bw / 2}" y="${y1}" width="${bw}" height="${Math.max(0, y0 - y1)}" style="fill:${s.color}"/>`; acc += v; }); }
+    if (o.line) body += `<polyline fill="none" style="stroke:var(--ink)" stroke-width="2" stroke-dasharray="4 3" points="${o.line.vals.map((v, i) => X(i) + ',' + Y(v)).join(' ')}"/>`;
+  } else {
+    o.series.forEach(s => {
+      const pts = s.vals.map((v, i) => X(i) + ',' + Y(v)).join(' ');
+      if (s.fill) body += `<polygon style="fill:${s.color}" opacity=".13" points="${X(0)},${Y(0)} ${pts} ${X(n - 1)},${Y(0)}"/>`;
+      body += `<polyline fill="none" style="stroke:${s.color}" stroke-width="2.4" stroke-linejoin="round" points="${pts}"/>`;
+    });
+  }
+  (o.marks || []).forEach((m, mi) => { const i = o.xs.indexOf(m.x); if (i < 0) return; body += `<line x1="${X(i)}" x2="${X(i)}" y1="${pt}" y2="${H - pb}" style="stroke:${m.color}" stroke-width="${m.bold ? 2.5 : 1}" ${m.bold ? '' : 'stroke-dasharray="3 3"'}/>`; });
+  let hits = ''; const hw = (W - pl - pr) / n;
+  for (let i = 0; i < n; i++) {
+    const tp = [`<b>${o.xs[i]}</b>${o.sub ? ' · ' + o.sub(i) : ''}`].concat(o.series.map(s => `${s.name}: ${n0(s.vals[i])}`)).concat(o.line ? [`${o.line.name}: ${n0(o.line.vals[i])}`] : []).join('<br>');
+    hits += `<rect class="hit" x="${X(i) - hw / 2}" y="${pt}" width="${hw}" height="${H - pt - pb}" data-tip="${esc(tp)}"/>`;
+  }
+  const lg = o.series.map(s => `<span><i style="background:${s.color}"></i>${s.name}</span>`).join('') + (o.line ? `<span><i style="background:var(--ink)"></i>${o.line.name}</span>` : '');
+  return `<div class="svgbox"><svg class="ch" viewBox="0 0 ${W} ${H}" preserveAspectRatio="xMidYMid meet">${g}${body}${hits}</svg></div><div class="legend">${lg}</div>`;
+}
+const tip = $('#tip');
+document.addEventListener('mousemove', e => {
+  const t = e.target.closest && e.target.closest('[data-tip]');
+  if (!t) { tip.style.display = 'none'; return; }
+  tip.innerHTML = t.getAttribute('data-tip'); tip.style.display = 'block';
+  const w = tip.offsetWidth; let x = e.clientX + 14; if (x + w > innerWidth - 6) x = e.clientX - w - 14; tip.style.left = Math.max(6, x) + 'px'; tip.style.top = Math.max(6, e.clientY - 10 - tip.offsetHeight / 2) + 'px';
+});
+document.addEventListener('touchstart', e => { const t = e.target.closest && e.target.closest('[data-tip]'); if (t) { tip.innerHTML = t.getAttribute('data-tip'); tip.style.display = 'block'; tip.style.left = '10px'; tip.style.top = '70px'; } else tip.style.display = 'none'; }, { passive: true });
+
+/* ---------- computed bundle ---------- */
+function bundle() {
+  return get('bundle', () => {
+    const s = sc(), ev = E.evalSafe(cfg, s);
+    const crash = cfg.view === 'crash';
+    const sim = crash ? ev.stress : ev.base;
+    return { s, ev, base: ev.base, rows: sim.rows, sum: sim.summary, ms: E.solveMinSalary(cfg, s), crash };
+  });
+}
+const groupOf = a => a.kind;
+const GCOL = { pension: '#6c4bd6', gemel: '#1f9d63', kh: '#3d6fd8', psagot: '#e08a1e', cash: '#8a8494' };
+const GNAME = { pension: 'פנסיה', gemel: 'גמל להשקעה', kh: 'קרנות השתלמות', psagot: 'תיק ני"ע', cash: 'עו"ש' };
+function groupSeries(rows) {
+  const out = {}; Object.keys(GCOL).forEach(k => out[k] = rows.map(() => 0));
+  cfg.assets.filter(a => a.enabled !== false).forEach(a => rows.forEach((r, i) => out[groupOf(a)][i] += r.closing[a.id] || 0));
+  return out;
+}
+
+/* ---------- shared blocks ---------- */
+function scChips() {
+  return `<div class="chips">${cfg.scenarios.map(s => `<button class="chip ${s.id === cfg.active ? 'on' : ''}" data-act="setActive" data-id="${s.id}">${esc(s.name)}</button>`).join('')}</div>`;
+}
+function assumptionsCard(title) {
+  const s = sc();
+  return `<div class="card"><h2>${title || 'הנחות עבודה'}</h2><div class="row">
+   ${field('תרחיש תצוגה', sel('view', [['normal', 'רגיל'], ['crash', 'קטסטרופה – ירידת שוק חדה']]), cfg.view === 'crash' ? 'הנתונים מוצגים כולל ירידה של 10%/20%/30% (לפי רמת סיכון) בשנה אחת' : 'תשואות לפי ההנחות למטה')}
+   ${field('שנת הקטסטרופה', inp('stress.crashYear', { dec: 0 }), `ריק = שנת פרישת ${esc(T())} (${s.tovaRetire})`)}
+   ${field('אינפלציה שנתית ממוצעת (%)', inp('inflation', { scale: 100, dec: 2 }))}
+   ${field('מסלול תשואה', sel('returnProfile', [['auto', 'אוטומטי (לפי שלב בחיים)'], ['low', 'נמוך'], ['medium', 'בינוני'], ['high', 'גבוה']]), 'אוטומטי: גבוה כששניהם עובדים, בינוני אחר כך')}
+  </div><div class="row" style="margin-top:10px">
+   ${field('תשואה נומינלית – מסלול נמוך (%)', inp('returns.low', { scale: 100, dec: 2 }))}
+   ${field('תשואה נומינלית – בינוני (%)', inp('returns.medium', { scale: 100, dec: 2 }))}
+   ${field('תשואה נומינלית – גבוה (%)', inp('returns.high', { scale: 100, dec: 2 }))}</div>
+   <p class="note" style="margin:8px 0 0">התשואה הריאלית = התשואה הנומינלית פחות דמי ניהול ופחות אינפלציה. כל הסכומים באפליקציה הם בשקלים של היום.</p></div>`;
+}
+function minIncomeCard(b) {
+  const ms = b.ms, s = b.s, t = esc(T());
+  let main;
+  if (ms.noWork) main = `${t} כבר פורש/ת בתרחיש הזה, ולכן אין שכר לבדוק.`;
+  else if (!ms.feasible) main = `גם בשכר גבוה מאוד (250,000 ₪ ברוטו) התכנית לא עומדת עם גילאי הפרישה שנבחרו. ראו המלצות.`;
+  else if (ms.minGross === 0) main = `<b class="pos">לא נדרש שכר כדי שהתכנית תעמוד.</b> גם אם ${t} לא יעבוד/תעבוד, ההכנסה של ${esc(N())} והחיסכון מספיקים. כל שכר של ${t} הוא תוספת חיסכון.`;
+  else {
+    const gap = ms.gapGross > 1;
+    main = `כדי שהתכנית תעמוד, ${t} צריך/ה להרוויח לפחות <b>${ils(ms.minGross)} ברוטו</b> (<b>${ils(ms.minNet)} נטו</b>) בחודש, מ-${ms.from} ועד הפרישה ב-${s.tovaRetire}.<br>בתכנית כרגע: ${ils(ms.plannedGross)} ברוטו (${ils(ms.plannedNet)} נטו) – ` + (gap ? `<b class="neg">חסרים ${ils(ms.gapGross)} ברוטו בחודש</b>.` : `<b class="pos">יש מרווח של ${ils(ms.marginGross)} ברוטו בחודש</b>.`);
+  }
+  return `<div class="card"><h2>כמה ${t} צריך/ה להרוויח?</h2><p style="margin:0 0 8px">${main}</p>
+   <p class="note" style="margin:0">ברוטו = לפני מס, נטו = מה שנכנס לחשבון. "מינימום" הוא הסכום הנמוך ביותר שעדיין מאפשר לממן את ההוצאות וההפקדות המינימליות שהגדרתם (לשונית מינימומים) בלי לגעת בקרן${cfg.stress.requireInSolver ? ', וגם אם השוק יורד בחדות בשנת הפרישה' : ''}.${ms.feasible && !ms.noWork && ms.minGross > 0 ? `<br>עד כ-${ils(ms.pensionNeutralGross)} ברוטו ההפקדות בתלוש מכסות את מינימום הפנסיה וההשתלמות; מתחת לזה ההפרש מושלם מהתזרים הביתי.` : ''}</p></div>`;
+}
+function recsCard() {
+  const rec = get('rec', () => E.recommend(cfg));
+  let h = `<div class="card"><h2>${rec.safe ? 'מרווחי ביטחון' : 'המלצות לסגירת הפער'}</h2>`;
+  if (!rec.safe) {
+    h += `<p class="note" style="margin-top:0">כל ההמלצות נבדקו בסימולציה ועומדות במינימומים שהגדרתם (חוץ מחלופה אחרונה, אם מופיעה, שמסומנת בהתאם).</p>`;
+    h += rec.recs.length ? rec.recs.map((r, i) => `<div class="rec"><div><b>${esc(r.title)} ${r.violatesFloors ? '<span class="badge b-warn">חורג מהמינימום</span>' : ''}</b><span>${esc(r.text)}</span></div><button class="btn sm ${r.violatesFloors ? 'sec' : ''}" data-act="apply" data-i="${i}">החל</button></div>`).join('') : '<p>לא נמצאה הצעה בודדת שסוגרת את הפער – נסו לשלב כמה צעדים.</p>';
+  } else h += rec.margins.map(m => `<div class="rec"><span style="color:var(--ink)">${esc(m.text)}</span></div>`).join('');
+  return h + '</div>';
+}
+
+/* ---------- home ---------- */
+function events(b) {
+  const s = b.s, P = cfg.people, ev = [];
+  const add = (y, label, color) => { if (y >= cfg.baseYear && y <= cfg.horizon) ev.push({ y, label, color }); };
+  add(s.nuriRetire, `${N()} פורש/ת`, '#6c4bd6'); add(s.tovaRetire, `${T()} פורש/ת`, '#e08a1e');
+  s.tovaSalary.forEach((g, k) => { if (k > 0) add(g.from, `שינוי שכר ${T()}`, '#d64545'); });
+  add(P.nuri.birth + 60, `${N()} 60`, '#1f9d63'); add(P.tova.birth + 60, `${T()} 60`, '#1f9d63');
+  add(P.nuri.birth + 67, `${N()} 67`, '#3d6fd8'); add(P.tova.birth + 67, `${T()} 67`, '#3d6fd8');
+  cfg.expenses.filter(e => e.type === 'debt' && e.enabled !== false && e.endY && e.monthly > 0).forEach(e => add(e.endY, `סיום ${e.name}`, '#8a8494'));
+  return ev.sort((a, c) => a.y - c.y);
+}
+function avgIncome(b, who) {
+  const w = b.rows.filter(r => r.work[who]); if (!w.length) return null;
+  const key = who === 'nuri' ? 'netNuri' : 'netTova';
+  return w.reduce((a, r) => a + r[key], 0) / w.length / 12;
+}
+function sliderHTML(b) {
+  const ev = events(b), span = cfg.horizon - cfg.baseYear || 1;
+  const pos = y => ((y - cfg.baseYear) / span * 100).toFixed(2);
+  return `<div class="slider"><div class="track">${ev.map((e, i) => `<button class="mk" style="left:${pos(e.y)}%;top:${28 + (i % 3) * 22}px;--c:${e.color}" data-act="goYear" data-y="${e.y}" title="${esc(e.label)}"><i></i><span>${esc(e.label)} · ${e.y}</span></button>`).join('')}
+   <input type="range" id="yr" min="${cfg.baseYear}" max="${cfg.horizon}" step="1" value="${selYear}"></div></div>`;
+}
+function yearDetail(b) {
+  const R = b.rows, r = R.find(x => x.year === selYear) || R[0], s = b.s;
+  const m = v => n0(v / 12);
+  const items = E.expenseItems(cfg, r.year).filter(x => x.annual > 0.5).sort((a, c) => c.annual - a.annual);
+  const livingTotal = items.reduce((a, x) => a + x.annual, 0);
+  const diff = r.fixedIn - r.need;
+  const assets = cfg.assets.filter(a => a.enabled !== false);
+  const gs = groupSeries(R), idx = R.indexOf(r);
+  const retEarly = Math.min(s.nuriRetire, s.tovaRetire);
+  const marks = [{ x: s.tovaRetire, color: '#e08a1e' }, { x: s.nuriRetire, color: '#6c4bd6' }, { x: r.year, color: 'var(--ink)', bold: true }];
+  const inc = [[`משכורת ${N()}`, r.netNuri], [`משכורת ${T()}`, r.netTova], ['סולארי', r.solar], ['קצבת גמל', r.annuityGemel], ['קצבת פנסיה', r.annuityPension], ['משיכה מהשקעות (רווחים)', r.drawsNet]].filter(x => x[1] > 0.5);
+  const dep = assets.map(a => [a.name, r.ledger[a.id].dep]).filter(x => x[1] > 0.5);
+  const crashNote = b.crash && r.ledger && Object.values(r.ledger).some(l => l.shock < 0) ? '<span class="badge b-bad">שנת הקטסטרופה</span>' : '';
+  return `<div class="card"><div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px"><h2 style="margin:0">שנת ${r.year} ${crashNote}</h2><span class="note">${esc(N())} בן/בת ${r.ageNuri} · ${esc(T())} בן/בת ${r.ageTova} · ${esc(PH(r.phase))}</span></div>
+   <div class="grid g2" style="margin-top:12px">
+    <div><h3>הכנסה חודשית ממוצעת</h3><table>${inc.map(x => `<tr><td>${esc(x[0])}</td><td class="num">${m(x[1])}</td></tr>`).join('') || '<tr><td class="note">אין הכנסה קבועה</td><td></td></tr>'}<tr><td><b>סה"כ הכנסה</b></td><td class="num"><b>${m(r.fixedIn + r.drawsNet)}</b></td></tr></table>
+     <p class="note" style="margin:6px 0 0">משכורת = נטו אחרי מס, ביטוח לאומי והפרשות עובד.</p></div>
+    <div><h3>הוצאות חודשיות ממוצעות</h3><table>${items.map(x => `<tr><td>${esc(x.name)}</td><td class="num">${m(x.annual)}</td></tr>`).join('')}
+     ${r.spare > 0.5 ? `<tr><td>ספייר</td><td class="num">${m(r.spare)}</td></tr>` : ''}
+     <tr><td><b>סה"כ הוצאות</b></td><td class="num"><b>${m(livingTotal + r.debt * 0 + r.spare)}</b></td></tr>
+     ${(r.gemelDep + r.retPen + r.topups) > 0.5 ? `<tr><td>הפקדות חובה מהבית (גמל/פנסיה/השלמות)</td><td class="num">${m(r.gemelDep + r.retPen + r.topups)}</td></tr>` : ''}</table></div></div>
+   <div class="grid g3" style="margin-top:12px">
+    <div class="kpi"><div class="l">הפרש חודשי: הכנסה פחות הוצאות והפקדות</div><div class="v ${diff >= 0 ? 'pos' : 'wrn'}">${diff >= 0 ? '+' : '−'}${m(Math.abs(diff))}</div><div class="n">${diff >= 0 ? 'עודף שמושקע (' + m(r.invest + r.optKh) + ' לחודש)' : (r.mandGap > 1 ? '<span class="neg">חסר ' + m(r.mandGap) + ' לחודש</span>' : 'מכוסה ממשיכת רווחים')}</div></div>
+    <div class="kpi"><div class="l">סה"כ הון בסוף השנה</div><div class="v">${fm(r.total)}</div><div class="n">${Object.keys(GCOL).map(k => GNAME[k] + ' ' + fm(gs[k][idx])).join(' · ')}</div></div>
+    <div class="kpi"><div class="l">הפקדות חודשיות לחיסכון (כולל מעסיק)</div><div class="v">${m(dep.reduce((a, x) => a + x[1], 0))}</div><div class="n">גמל, פנסיה, השתלמות ותיק ני"ע</div></div></div>
+   <div class="scroll" style="margin-top:12px;max-height:360px"><table><tr><th>קופה / תיק</th><th class="num">הפקדה חודשית</th><th class="num">הון בסוף השנה</th></tr>
+    ${assets.map(a => `<tr><td>${esc(a.name)}</td><td class="num">${m(r.ledger[a.id].dep)}</td><td class="num">${n0(r.closing[a.id])}</td></tr>`).join('')}</table></div></div>
+   <div class="card"><h2>התפתחות ההון</h2>${chart({ xs: R.map(x => x.year), h: 250, marks, sub: i => `${esc(N())} ${R[i].ageNuri} · ${esc(T())} ${R[i].ageTova}`,
+    series: [{ name: 'סה"כ', color: 'var(--ink)', vals: R.map(x => x.total), fill: true }, { name: 'נזיל (תיק + השתלמות)', color: '#e08a1e', vals: R.map((x, i) => gs.psagot[i] + gs.kh[i] + gs.cash[i]) }, { name: 'גמל + פנסיה', color: '#6c4bd6', vals: R.map((x, i) => gs.gemel[i] + gs.pension[i]) }] })}</div>`;
+}
+function keyPoints(b) {
+  const R = b.rows, P = cfg.people, s = b.s, gs = groupSeries(R);
+  const pts = {};
+  const add = (y, l) => { if (y >= cfg.baseYear && y <= cfg.horizon) (pts[y] = pts[y] || []).push(l); };
+  const early = Math.min(s.nuriRetire, s.tovaRetire);
+  add(early, 'פרישה מוקדמת (' + (s.nuriRetire <= s.tovaRetire ? N() : T()) + ')'); add(Math.max(s.nuriRetire, s.tovaRetire), 'שניהם פרשו');
+  add(P.nuri.birth + 60, `${N()} בן/בת 60`); add(P.tova.birth + 60, `${T()} בן/בת 60`);
+  add(P.nuri.birth + 67, `${N()} גיל פנסיה`); add(P.tova.birth + 67, `${T()} גיל פנסיה`); add(cfg.horizon, 'סוף התקופה');
+  const ys = Object.keys(pts).map(Number).sort((a, c) => a - c);
+  return `<div class="card"><h2>נקודות ציון: הון וצפי</h2><div class="scroll" style="max-height:none"><table><tr><th>שנה</th><th>אירוע</th><th class="num">הון כולל</th><th class="num">פנסיה</th><th class="num">גמל</th><th class="num">השתלמות</th><th class="num">תיק ני"ע</th><th class="num">הוצאה חודשית</th></tr>
+   ${ys.map(y => { const i = R.findIndex(r => r.year === y), r = R[i]; return `<tr data-act="goYear" data-y="${y}" style="cursor:pointer"><td>${y}</td><td>${pts[y].map(esc).join(' · ')}</td><td class="num"><b>${n0(r.total)}</b></td><td class="num">${n0(gs.pension[i])}</td><td class="num">${n0(gs.gemel[i])}</td><td class="num">${n0(gs.kh[i])}</td><td class="num">${n0(gs.psagot[i])}</td><td class="num">${n0(r.spend / 12)}</td></tr>`; }).join('')}</table></div>
+   <p class="note">שנת הקופה = סוף השנה, בשקלי היום. לחיצה על שורה מעבירה את הסרגל לשנה.</p></div>`;
+}
+function missingItems() {
+  const out = [], P = cfg.people, bal = id => (cfg.assets.find(a => a.id === id) || {}).bal || 0;
+  if (!(P.nuri.netMonthly > 0)) out.push(`שכר נטו חודשי של ${P.nuri.name}`);
+  if (!(P.tova.calib.gross > 0 && P.tova.calib.net > 0)) out.push(`שכר ברוטו ונטו של ${P.tova.name}`);
+  const tot = cfg.assets.reduce((a, x) => a + (x.bal || 0), 0);
+  if (tot <= 0) out.push('יתרות של קרנות הפנסיה, ההשתלמות והגמל');
+  else if (bal('psagot') <= 0) out.push('יתרת תיק ני"ע ומזומן (מוזנת כ-0)');
+  if (!cfg.expenses.some(e => e.monthly > 0)) out.push('הוצאות חודשיות');
+  (cfg.pending || []).forEach(p => { if (!p.done) out.push(p.t); });
+  const ck = cfg.checklist || {}, total = CHECK.reduce((a, g) => a + g[3].length, 0), done = Object.keys(ck).filter(k => ck[k]).length;
+  if (total - done > 0) out.push(`${total - done} מסמכים בצ'ק ליסט עדיין לא סומנו`);
+  const lbl = id => (cfg.assets.find(a => a.id === id) || {}).name || ({ payslip_nuri: 'תלוש ' + P.nuri.name, payslip_tova: 'תלוש ' + P.tova.name, expenses: 'הוצאות', mortgage: 'משכנתא', loan: 'הלוואה', insurance: 'ביטוח' })[id] || id;
+  Object.entries(cfg.dataDates || {}).forEach(([id, d]) => { if (d && (Date.now() - new Date(d).getTime()) / 864e5 > 120) out.push(`${lbl(id)}: הנתון מעודכן ל-${d}, כדאי לרענן`); });
+  return out;
+}
+function reminderCard() {
+  const m = missingItems(); if (!m.length) return '';
+  return `<div class="card"><h2>חסר להשלמת החישובים · ${m.length}</h2><div style="display:flex;gap:12px;justify-content:space-between;align-items:flex-start;flex-wrap:wrap"><div><ul style="margin:0;padding-inline-start:20px">${m.slice(0, 6).map(x => `<li>${esc(x)}</li>`).join('')}${m.length > 6 ? `<li>ועוד ${m.length - 6}…</li>` : ''}</ul></div><button class="btn sm" data-act="tab" data-id="start">לבסיס הנתונים</button></div></div>`;
+}
+/* ---------- expected documents schedule ---------- */
+const MHE = ['ינואר', 'פברואר', 'מרץ', 'אפריל', 'מאי', 'יוני', 'יולי', 'אוגוסט', 'ספטמבר', 'אוקטובר', 'נובמבר', 'דצמבר'];
+const p2 = n => String(n).padStart(2, '0'), fmtD = d => d.getFullYear() + '-' + p2(d.getMonth() + 1) + '-' + p2(d.getDate());
+const FREQ_HE = { monthly: 'חודשי', quarterly: 'רבעוני', annual: 'שנתי' };
+const ACCEPT = '.pdf,.png,.jpg,.jpeg,.webp,.gif,.xlsx,.xls,.csv,.docx,.txt';
+function periodInfo(e, now) {
+  const y = now.getFullYear(), m = now.getMonth();
+  if (e.freq === 'monthly') { const s = new Date(y, m - 1, 1); return { key: s.getFullYear() + '-' + p2(s.getMonth() + 1), label: (e.type === 'card' ? 'חודש חיוב ' : 'חודש ') + MHE[s.getMonth()] + ' ' + s.getFullYear(), start: s, end: new Date(y, m, 0), due: new Date(y, m, e.dueDay || 5) }; }
+  if (e.freq === 'quarterly') { let qy = y, q = Math.floor(m / 3) - 1; if (q < 0) { q = 3; qy = y - 1; } const s = new Date(qy, q * 3, 1), end = new Date(qy, q * 3 + 3, 0); return { key: qy + '-Q' + (q + 1), label: 'רבעון ' + (q + 1) + ' ' + qy, start: s, end, due: new Date(end.getTime() + (e.dueDay || 15) * 864e5) }; }
+  const s = new Date(y - 1, 0, 1), end = new Date(y - 1, 11, 31); return { key: '' + (y - 1), label: 'סיכום שנת ' + (y - 1), start: s, end, due: new Date(end.getTime() + (e.dueDay || 31) * 864e5) };
+}
+function isDone(e, p) {
+  if ((cfg.slots || {})[e.id + '|' + p.key]) return true;
+  if (e.freq === 'annual' || e.type === 'card') return false;
+  const dk = e.type === 'payslip' ? 'payslip_' + e.owner : e.type === 'bank' ? 'cash' : e.sel || null, dd = dk && (cfg.dataDates || {})[dk];
+  return !!(dd && new Date(dd) >= p.start);
+}
+function expItems() { const now = new Date(); return (cfg.expected || []).filter(e => e.on !== false).map(e => { const p = periodInfo(e, now); return { e, p, done: isDone(e, p), due: now >= p.due }; }); }
+function seedCards() { }
+function seedProducts() { }
+function seedExpected() {
+  if (cfg.expectedSeeded) { seedCards(); seedProducts(); return; } cfg.expectedSeeded = true; cfg.expected = cfg.expected || [];
+  const P = cfg.people; let n = 0; const add = o => cfg.expected.push(Object.assign({ id: 'x' + (++n) + Date.now().toString(36).slice(-3), on: true }, o));
+  ['nuri', 'tova'].forEach(o => add({ title: 'תלוש שכר ' + P[o].name, type: 'payslip', owner: o, freq: 'monthly', dueDay: 5 }));
+  if (!FAMILY) add({ title: 'פירוט כרטיס אשראי (כרטיס 1)', type: 'card', owner: 'nuri', freq: 'monthly', dueDay: 10 });
+  add({ title: 'דף עו"ש / יתרה חודשית', type: 'bank', owner: 'nuri', freq: 'monthly', dueDay: 3 });
+  cfg.assets.filter(a => a.enabled !== false && ['pension', 'kh', 'gemel', 'psagot'].indexOf(a.kind) >= 0).forEach(a => add({ title: 'דוח רבעוני – ' + a.name, type: a.kind === 'psagot' ? 'portfolio' : a.kind, owner: a.owner === 'tova' ? 'tova' : 'nuri', sel: a.id, freq: 'quarterly', dueDay: 45 }));
+  ['nuri', 'tova'].forEach(o => add({ title: 'טופס 106 / סיכום שנתי – ' + P[o].name, type: 'other', owner: o, freq: 'annual', dueDay: 31 }));
+  add({ title: 'דוח מסלקה פנסיונית (שנתי)', type: 'other', owner: 'nuri', freq: 'annual', dueDay: 31 });
+  add({ title: 'סיכום שנתי – כרטיסי אשראי', type: 'other', owner: 'nuri', freq: 'annual', dueDay: 31 });
+  seedCards(); seedProducts(); save();
+}
+const noBtn = (e, p) => e.type === 'card' ? ` <button class="btn sm sec" data-act="noActivity" data-id="${e.id}" data-k="${p.key}">אין תנועה</button>` : '';
+const upBtn = (e, p, lbl) => `<label class="btn sm" style="cursor:pointer">${lbl || 'העלאה'}<input type="file" hidden multiple accept="${ACCEPT}" data-expect="${e.id}"></label>`;
+function dueCard() {
+  const items = expItems().filter(x => !x.done && x.due); if (!items.length) return '';
+  const grp = ['monthly', 'quarterly', 'annual'].map(f => [f, items.filter(x => x.e.freq === f)]).filter(g => g[1].length);
+  return `<div class="card"><h2>מסמכים להעלאה · ${items.length}</h2><div style="display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap"><span></span><button class="btn sm sec" data-act="tab" data-id="start">לוח המסמכים המלא</button></div>
+  ${grp.map(([f, xs]) => `<h3 style="margin:10px 0 4px">${FREQ_HE[f]}</h3>${xs.map(x => `<div style="display:flex;justify-content:space-between;align-items:center;gap:8px;padding:4px 0;border-top:1px solid var(--line)"><span>${esc(x.e.title)} <span class="note">· ${esc(x.p.label)}</span></span><span>${upBtn(x.e, x.p)}${noBtn(x.e, x.p)}</span></div>`).join('')}`).join('')}</div>`;
+}
+function scheduleCard() {
+  const items = expItems(), ex = cfg.expected || [];
+  const st = x => x.done ? ((cfg.slots || {})[x.e.id + '|' + x.p.key] === 'none' ? '<span class="badge b-info">ללא תנועה</span> <button class="btn sm sec" data-act="undoSlot" data-id="' + x.e.id + '" data-k="' + x.p.key + '">בטל</button>' : '<span class="badge b-ok">הועלה</span>') : x.due ? '<span class="badge b-warn">ממתין להעלאה</span>' : `<span class="note">צפוי בסביבות ${x.p.due.getDate()}/${x.p.due.getMonth() + 1}</span>`;
+  return `<div class="card"><h2>לוח מסמכים – מה להעלות ומתי</h2><p class="note" style="margin-top:0">כל שורה היא מסמך שחוזר מדי חודש, רבעון או שנה. לחצו "העלאה", בחרו את הקובץ מהמחשב, והוא ייקרא וימתין לאישורכם לפני שייכנס לחישוב.</p>
+  ${['monthly', 'quarterly', 'annual'].map(f => { const xs = items.filter(x => x.e.freq === f); return xs.length ? `<h3>${FREQ_HE[f]}</h3><div class="scroll"><table><tr><th>מסמך</th><th>תקופה</th><th>מצב</th><th></th></tr>${xs.map(x => `<tr><td>${esc(x.e.title)}</td><td>${esc(x.p.label)}</td><td>${st(x)}</td><td>${upBtn(x.e, x.p, x.done ? 'העלה שוב' : 'העלאה')}${x.done ? '' : noBtn(x.e, x.p)}</td></tr>`).join('')}</table></div>` : ''; }).join('')}
+  <details style="margin-top:10px"><summary class="note" style="cursor:pointer">ניהול הרשימה (הוספת כרטיס, שינוי שם ותדירות)</summary>
+  <div class="scroll"><table><tr><th>שם המסמך</th><th>סוג</th><th>תדירות</th><th>יום צפוי</th><th>פעיל</th><th></th></tr>${ex.map((e, i) => `<tr><td><input data-path="expected.${i}.title" data-type="text" value="${esc(e.title)}"></td><td>${sel(`expected.${i}.type`, DT.map(x => [x[0], x[1]]).concat([['other', 'אחר / סיכום (ראיה)']]).filter((x, k, a) => a.findIndex(y => y[0] === x[0]) === k))}</td><td>${sel(`expected.${i}.freq`, [['monthly', 'חודשי'], ['quarterly', 'רבעוני'], ['annual', 'שנתי']])}</td><td><input class="w" inputmode="numeric" data-path="expected.${i}.dueDay" value="${e.dueDay || ''}"></td><td><input type="checkbox" data-path="expected.${i}.on" data-type="bool" ${e.on !== false ? 'checked' : ''}></td><td><button class="btn sm sec" data-act="delExpected" data-i="${i}">✕</button></td></tr>`).join('')}</table></div>
+  <p class="note">"יום צפוי": חודשי – היום בחודש שבו המסמך בדרך כלל מגיע; רבעוני ושנתי – כמה ימים אחרי סוף התקופה. כדי להוסיף כרטיס אשראי, הוסיפו שורה וקראו לה למשל "פירוט Mastercard 1234".</p>
+  <button class="btn sec sm" data-act="addExpected">+ הוסף מסמך צפוי</button></details></div>`;
+}
+const emodeShort = m => m === 'tova_first' ? T() + ' קודם' : m === 'nuri_first' ? N() + ' קודם' : 'יחד';
+function earlyRes(sc_) { const mode = cfg.earlyMode || 'together', o = { crashAtFirst: cfg.earlyCrash !== false };
+  return get('pair' + mode + o.crashAtFirst + (cfg.latestRetireAge || 60) + sc_.id + JSON.stringify(sc_), () => E.earliestPair(cfg, sc_, mode, o)); }
+function heroHome(b) {
+  const ev = b.ev, P = cfg.people, rc = earlyRes(sc());
+  const n = expItems().filter(x => !x.done && x.due).length;
+  const okTxt = !(P.nuri.netMonthly > 0) ? 'חסרים נתונים להשלמת החישוב' : ev.ok ? 'הכל בסדר' : ev.baseOk ? 'התכנית עומדת, אך לא במשבר' : 'יש פער בתכנית';
+  const greet = okTxt + (n ? ' · חסרים ' + n + ' מסמכים' : '');
+  const cls = !(P.nuri.netMonthly > 0) ? 'b-info' : ev.ok ? 'b-ok' : ev.baseOk ? 'b-warn' : 'b-bad';
+  const chipTxt = !(P.nuri.netMonthly > 0) ? 'חסרים נתונים' : ev.ok ? 'עומדים בתכנית' : ev.baseOk ? 'לא במשבר' : 'פער מ-' + (b.sum.firstMandatoryGap || '—');
+  const big = rc.feasible ? 'גיל ' + rc.nuriAge : 'אין צירוף';
+  const sub = rc.feasible ? `<span class="hchip">${esc(N())} ${rc.nuriYear}</span><span class="hchip">${esc(T())} ${rc.tovaYear}</span>` : `<span class="hchip">עד גיל ${rc.cap}</span>`;
+  return `<div class="greet"><span>${esc(greet)}</span><span class="badge ${cls}">${chipTxt}</span></div>
+  <div class="hero2"><div class="hl">הפרישה המוקדמת ביותר · ${esc(emodeShort(cfg.earlyMode || 'together'))}</div><div class="hbig">${big}</div><div>${sub}</div>
+  <button class="hlink" data-act="tab" data-id="strategy">לפירוט התרחישים</button></div>`;
+}
+function backupReminder() {
+  if (sync.kind === 'drive' || !backupDue()) return '';
+  return `<div class="card nofold"><b>גיבוי חודשי</b><p class="note" style="margin:4px 0 8px">כדאי לשמור קובץ גיבוי של הנתונים (מתחילת החודש לא נשמר).</p><button class="btn sm" data-act="export">שמירת קובץ גיבוי</button></div>`;
+}
+function screenHome() {
+  const b = bundle(), S = b.sum, s = b.s, ev = b.ev, R = b.rows, P = cfg.people;
+  if (selYear == null || selYear < cfg.baseYear || selYear > cfg.horizon) selYear = Math.min(s.tovaRetire, s.nuriRetire, cfg.horizon);
+  let badge;
+  if (!(P.nuri.netMonthly > 0)) badge = '<span class="badge b-info">חסרים נתונים</span>';
+  else if (ev.ok) badge = `<span class="badge b-ok">התכנית עומדת${cfg.stress.requireInSolver ? ' גם במשבר' : ''}</span>`;
+  else if (ev.baseOk) badge = '<span class="badge b-warn">עומדת – אך לא במשבר</span>';
+  else badge = `<span class="badge b-bad">יש פער מ-${S.firstMandatoryGap || '—'}</span>`;
+  const person = o => { const a = avgIncome(b, o), ret = o === 'nuri' ? s.nuriRetire : s.tovaRetire;
+    const chg = o === 'tova' && s.tovaSalary.length > 1 ? ' · שינוי שכר: ' + s.tovaSalary.slice(1).map(g => `${g.from} ל-${n0(g.gross)} ברוטו`).join(', ') : '';
+    return `<div class="card kpi" style="margin:0"><div class="l">${esc(P[o].name)}</div><div class="v">פורש/ת בגיל ${ret - P[o].birth}</div><div class="n">שנת ${ret} · היום בן/בת ${cfg.baseYear - 1 - P[o].birth}</div>
+      <div class="n" style="margin-top:6px">הכנסה נטו ממוצעת עד הפרישה: <b>${a == null ? '—' : ils(a) + ' בחודש'}</b>${esc(chg)}</div></div>`; };
+  return `${heroHome(b)}${backupReminder()}${impactHTML()}${reminderCard()}${dueCard()}<div class="card"><div style="display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;align-items:center"><h2 style="margin:0">התרחיש שלכם</h2>${badge}</div>
+   <div style="margin:10px 0">${scChips()}</div>
+   <div class="grid g2">${person('nuri')}${person('tova')}</div>
+   ${cfg.view === 'crash' ? '<div class="warnbox" style="margin:10px 0 0">מוצג תרחיש קטסטרופה (ירידת שוק חדה).</div>' : ''}</div>
+  <div class="card"><h2>בחרו שנה לצפייה</h2><p class="note" style="margin-top:0">גררו את הסרגל או לחצו על נקודת ציון.</p><div id="sl">${sliderHTML(b)}</div></div>
+  <div id="yd">${yearDetail(b)}</div>
+  ${keyPoints(b)}
+  ${assumptionsCard()}
+  ${minIncomeCard(b)}
+  ${recsCard()}
+  ${S.incomeGapTotal > 1 ? `<div class="warnbox">יעד ההכנסה (${ils(cfg.target.netMonthly)} נטו בחודש) לא מתקיים בכל שנות 60+; הפער הראשון ב-${S.firstIncomeOnlyGap}.</div>` : ''}`;
+}
+
+/* ---------- start / checklist ---------- */
+const CHECK = [
+ ['personal', 'פרטים אישיים', 'התחלה', [['שנות לידה של שניכם', 'כדי לחשב גילאי פרישה ושנות 60 ו-67.'], ['גילאי הילדים ושנות סיום המסגרות', 'ההוצאה על מסגרות יורדת בהדרגה – מזינים כסעיפי הוצאה עם שנת סיום.']]],
+ ['income', 'הכנסות', 'התחלה', [['תלוש שכר אחרון של כל אחד (עדיף 3 אחרונים)', 'ברוטו, נטו, שכר קובע לפנסיה ושכר קובע להשתלמות, והפרשות המעסיק.'], ['חוזה עבודה', 'שכר בסיס, בונוסים ותנאים סוציאליים – לבדיקה שההפרשות בתלוש נכונות.'], ['הכנסות נוספות', 'עצמאות, שכירות, פאנלים סולאריים (חשבוניות ייצור שנתיות).']]],
+ ['pension', 'פנסיה', 'נכסים', [['דוח שנתי/רבעוני מקרן הפנסיה, או דוח מהמסלקה הפנסיונית', 'יתרה צבורה, דמי ניהול מהפקדה ומצבירה, שכר קובע. המסלקה נותנת את כל הקופות של אדם בדוח אחד.']]],
+ ['kh', 'קרנות השתלמות', 'נכסים', [['דוח מכל קרן השתלמות', 'יתרה, תאריך ההפקדה הראשונה (מתי נזילה), דמי ניהול ושכר קובע.'], ['שאלה לקרן: מה חלק הרווח החייב במס?', 'הפקדות מעל התקרה הפטורה יוצרות רווח חייב. אם לא ידוע – משאירים 0 ומתעדכן בהמשך.']]],
+ ['gemel', 'גמל להשקעה', 'נכסים', [['דוח מכל קופת גמל להשקעה', 'יתרה, הפקדות בשנה האחרונה (מול התקרה השנתית) ודמי ניהול.']]],
+ ['portfolio', 'תיק השקעות ומזומן', 'נכסים', [['דוח יתרות מתיק הני"ע', 'שווי נוכחי, עלות מקורית (בסיס למס רווחי הון), דמי ניהול.'], ['יתרות בנק וחסכונות נזילים', 'קרן חירום ומזומן.']]],
+ ['bank', 'יתרת עו"ש', 'נכסים', [['מסך יתרה עדכני בחשבון הבנק (או דף העו"ש האחרון)', 'היתרה הנוכחית והתאריך שלה.']]],
+ ['card', 'כרטיסי אשראי', 'הוצאות', [['פירוט חיובים חודשי לכל כרטיס', 'מהאתר או האפליקציה של חברת האשראי. אפשר להעלות כל חודש, והאפליקציה מסכמת לפי קטגוריות ומחשבת ממוצע מצטבר.']]],
+ ['mortgage', 'משכנתא', 'נתונים', [['לוח סילוקין מהבנק', 'לכל מסלול: יתרה, החזר חודשי, ריבית, מועד סיום ומועד שינוי ריבית.']]],
+ ['loans', 'הלוואות וחובות', 'נתונים', [['לכל הלוואה: יתרה, החזר חודשי, מועד סיום ותשלום סיום (בלון)', 'כולל הלוואות מהמשפחה.']]],
+ ['expenses', 'הוצאות שוטפות', 'נתונים', [['דפי עו"ש וחיובי אשראי של 6–12 חודשים', 'ממוצע חודשי לכל קטגוריה: מזון, חשבונות, תחבורה, פנאי וכו\'. אפשר לשלוח לי בצ\'אט לסיווג אוטומטי.']]],
+ ['insurance', 'ביטוחים', 'נתונים', [['פוליסות בריאות, סיעוד וחיים', 'עלות חודשית/שנתית וסוג הכיסוי.']]],
+];
+function screenStart() {
+  const ck = cfg.checklist || {}; const total = CHECK.reduce((a, g) => a + g[3].length, 0), done = Object.keys(ck).filter(k => ck[k]).length;
+  const P = cfg.people;
+  const tabName = { 'התחלה': 'start', 'נכסים': 'assets', 'נתונים': 'data' };
+  const rest = `<div class="card"><h2>ברוכים הבאים</h2><p style="margin:0 0 8px">האפליקציה עוזרת לתכנן <b>מתי אפשר להפסיק לעבוד</b> ובאילו תנאים: היא מחברת הכנסות, הוצאות, חסכונות ומסים, ובודקת שנה אחרי שנה אם הכסף מספיק – כולל מצב של ירידה חדה בשוק.</p>
+   <ol style="margin:0;padding-inline-start:20px;line-height:1.8"><li>הזינו פרטים בסיסיים (למטה).</li><li>אספו את המסמכים מהרשימה והזינו את המספרים (בלשוניות נכסים ונתונים). אפשר גם לשלוח לי את המסמכים בצ'אט ואחלץ את המספרים.</li><li>בלשונית "בית" תראו את התכנית; ב"אסטרטגיה" משחקים עם גילאי הפרישה.</li></ol>
+   <p style="margin:12px 0 0"><button class="btn" data-act="goHome">אני מוכן/ה – לבית</button> <button class="btn sec" data-act="loadExample">טעינת דוגמה (משפחה לדוגמה)</button></p></div>
+  <div class="card"><h2>שלב 1 · פרטים בסיסיים</h2><div class="grid g2">
+   <div><h3>אדם א׳</h3><div class="row">${field('שם', inp('people.nuri.name', { type: 'text' }))}${field('שנת לידה', inp('people.nuri.birth', { dec: 0 }))}</div>
+    <div class="row" style="margin-top:8px">${field('תאריך התלוש', `<input type="date" data-path="dataDates.payslip_nuri" data-type="text" value="${esc((cfg.dataDates || {}).payslip_nuri || '')}">`)}${field('שכר נטו חודשי (₪)', inp('people.nuri.netMonthly', { dec: 0 }), 'מהתלוש')}${field('שכר קובע לפנסיה', inp('people.nuri.penSal', { dec: 0 }))}${field('שכר קובע להשתלמות', inp('people.nuri.khSal', { dec: 0 }))}</div></div>
+   <div><h3>אדם ב׳</h3><div class="row">${field('שם', inp('people.tova.name', { type: 'text' }))}${field('שנת לידה', inp('people.tova.birth', { dec: 0 }))}</div>
+    <div class="row" style="margin-top:8px">${field('תאריך התלוש', `<input type="date" data-path="dataDates.payslip_tova" data-type="text" value="${esc((cfg.dataDates || {}).payslip_tova || '')}">`)}${field('שכר ברוטו חודשי (₪)', inp('people.tova.calib.gross', { dec: 0 }))}${field('שכר נטו חודשי (₪)', inp('people.tova.calib.net', { dec: 0 }), 'מהתלוש – לכיול המס')}${field('שכר קובע לפנסיה', inp('people.tova.calib.penSal', { dec: 0 }))}</div></div></div>
+   <p class="note">לאדם ב׳ מחושב נטו לכל רמת שכר (לבדיקת "כמה צריך להרוויח"), לכן נדרשים גם ברוטו וגם נטו. לאדם א׳ נטו קבוע. גילאי פרישה והחלפת מקצוע – בלשונית "אסטרטגיה".</p></div>
+  ${(cfg.pending || []).length ? `<div class="card"><h2>משימות פתוחות</h2>${cfg.pending.map((p, k) => `<label class="ck"><input type="checkbox" data-path="pending.${k}.done" data-type="bool" ${p.done ? 'checked' : ''}><span>${esc(p.t)}</span></label>`).join('')}</div>` : ''}
+  <div class="card"><h2>שלב 2 · צ'ק ליסט מסמכים</h2><div style="display:flex;align-items:center;gap:10px"><div class="bar"><i style="width:${Math.round(done / total * 100)}%"></i></div><span class="note">${done}/${total}</span></div>
+   <div class="infobox" style="margin-top:10px">המסמכים אינם נקראים אוטומטית באפליקציה (היא עובדת בלי אינטרנט). קראו אותם, או שלחו לי בצ'אט, והזינו את המספרים. מסמך משמש כראיה בלבד ולא משנה את החישוב בעצמו.</div>
+   ${CHECK.map(g => `<h3 style="display:flex;justify-content:space-between"><span>${g[1]}</span><button class="btn sm sec" data-act="tab" data-id="${tabName[g[2]] || 'start'}">להזנה: ${g[2]}</button></h3>${g[3].map((it, k) => { const id = g[0] + k; return `<label class="ck"><input type="checkbox" data-path="checklist.${id}" data-type="bool" ${ck[id] ? 'checked' : ''}><span><b>${it[0]}</b><br><span class="note">${it[1]}</span></span></label>`; }).join('')}`).join('')}</div>
+`;
+  const top = scheduleCard() + docCard();
+  const sc_ = syncCard();
+  return cfg.setup ? top + sc_ + rest : sc_ + rest + top;
+}
+
+
+/* ---------- document intake ---------- */
+const DT = [['payslip', 'תלוש משכורת', 'income0'], ['pension', 'דוח פנסיה', 'pension0'], ['kh', 'דוח קרן השתלמות', 'kh0'], ['gemel', 'דוח גמל להשקעה', 'gemel0'], ['portfolio', 'דוח תיק השקעות', 'portfolio0'], ['mortgage', 'משכנתא (לוח סילוקין)', 'mortgage0'], ['loan', 'הלוואה', 'loans0'], ['expenses', 'דף עו"ש / חיוב אשראי (ממוצע חודשי)', 'expenses0'], ['insurance', 'פוליסות ביטוח', 'insurance0'], ['bank', 'יתרת עו"ש נוכחית', 'bank0'], ['card', 'פירוט כרטיס אשראי (חודשי)', 'card0'], ['contract', 'חוזה עבודה', 'income1'], ['other', 'אחר', null]];
+const KIND = { pension: 'pension', kh: 'kh', gemel: 'gemel', portfolio: 'psagot', bank: 'cash' };
+let uid = 0;
+const todayStr = () => new Date().toISOString().slice(0, 10);
+const newItem = () => ({ date: todayStr(), closes: null, id: 'i' + (++uid), type: 'payslip', owner: 'nuri', sel: '', values: {}, note: '', file: null, status: 'manual', conf: null, insights: [], error: '' });
+let draft = newItem(); draft.id = 'draft'; let queue = [], lastImpact = null;
+const itemById = id => id === 'draft' ? draft : queue.find(x => x.id === id);
+const aid = (o, k) => (o === 'nuri' ? 'n_' : 't_') + k;
+const assetBy = id => cfg.assets.find(a => a.id === id);
+const assetOptions = (type, o) => cfg.assets.filter(a => a.kind === KIND[type] && (a.owner === o || a.owner === 'joint'));
+function expFind(re) { return cfg.expenses.find(e => re.test(e.name)); }
+function expF(key, label, re, field, o) { o = o || {}; return { key, label, get: () => { const e = expFind(re); return e ? e[field] : undefined; }, set: v => { let e = expFind(re); if (!e) { e = { id: 'e' + Date.now() + Math.random().toString(36).slice(2, 5), name: o.name || label, type: o.type || 'living', monthly: 0, startY: cfg.baseYear, kind: 'recurring', nominal: !!o.nominal }; cfg.expenses.push(e); } e[field] = v; } }; }
+function aF(key, label, id, field, scale) { scale = scale || 1; return { key, label, scale, get: () => { const a = assetBy(id); return a ? a[field] : undefined; }, set: v => { const a = assetBy(id); if (a) a[field] = v; } }; }
+function assetId(it) { const opts = assetOptions(it.type, it.owner); if (it.sel && opts.some(a => a.id === it.sel)) return it.sel; const def = it.type === 'pension' ? aid(it.owner, 'pen') : it.type === 'gemel' ? aid(it.owner, 'gemel') : it.type === 'portfolio' ? 'psagot' : it.type === 'bank' ? 'cash' : null; return def && assetBy(def) ? def : (opts[0] || {}).id; }
+function schema(it) {
+  const o = it.owner, P = cfg.people[o] || cfg.people.nuri, id = assetId(it);
+  switch (it.type) {
+    case 'payslip': return o === 'nuri' ? [
+      { key: 'net', label: 'שכר נטו חודשי (₪)', get: () => P.netMonthly, set: v => P.netMonthly = v }, { key: 'penSal', label: 'שכר קובע לפנסיה (₪)', get: () => P.penSal, set: v => P.penSal = v }, { key: 'khSal', label: 'שכר קובע להשתלמות (₪)', get: () => P.khSal, set: v => P.khSal = v }] : [
+      { key: 'gross', label: 'שכר ברוטו חודשי (₪)', get: () => P.calib.gross, set: v => { P.calib.gross = v; afterSet('people.tova.calib.gross'); } }, { key: 'net', label: 'שכר נטו חודשי (₪)', get: () => P.calib.net, set: v => { P.calib.net = v; afterSet('people.tova.calib.net'); } }, { key: 'penSal', label: 'שכר קובע לפנסיה (₪)', get: () => P.calib.penSal, set: v => { P.calib.penSal = v; afterSet('people.tova.calib.penSal'); } }];
+    case 'pension': return [aF('bal', 'יתרה צבורה (₪)', id, 'bal'), aF('aum', 'דמי ניהול מצבירה (%)', id, 'aum', 100), aF('depFee', 'דמי ניהול מהפקדה (%)', id, 'depFee', 100)];
+    case 'kh': return [aF('bal', 'יתרה (₪)', id, 'bal'), aF('aum', 'דמי ניהול מצבירה (%)', id, 'aum', 100), aF('taxableShare', 'חלק הרווח החייב במס (%)', id, 'taxableShare', 100)];
+    case 'gemel': return [aF('bal', 'יתרה (₪)', id, 'bal'), aF('aum', 'דמי ניהול מצבירה (%)', id, 'aum', 100)];
+    case 'portfolio': return [aF('bal', 'שווי התיק (₪)', 'psagot', 'bal'), aF('aum', 'דמי ניהול (%)', 'psagot', 'aum', 100)];
+    case 'mortgage': return [expF('monthly', 'החזר חודשי (₪)', /משכנתא/, 'monthly', { name: 'משכנתא', type: 'debt', nominal: true }), expF('endY', 'שנת תשלום אחרון', /משכנתא/, 'endY'), expF('endM', 'חודש תשלום אחרון (1-12)', /משכנתא/, 'endM')];
+    case 'loan': return [expF('monthly', 'החזר חודשי (₪)', /הלוואה|הלוואות/, 'monthly', { name: 'הלוואות', type: 'debt', nominal: true }), expF('endY', 'שנת תשלום אחרון', /הלוואה|הלוואות/, 'endY'), expF('endM', 'חודש תשלום אחרון (1-12)', /הלוואה|הלוואות/, 'endM')];
+    case 'expenses': return [expF('food', 'מזון וסופר (₪/חודש)', /מזון/, 'monthly', { name: 'מזון וסופר' }), expF('utilities', 'חשבונות בית (₪/חודש)', /חשבונות/, 'monthly', { name: 'חשבונות בית' }), expF('transport', 'תחבורה ורכב (₪/חודש)', /תחבורה/, 'monthly', { name: 'תחבורה' }), expF('other', 'שוטף, פנאי ושונות (₪/חודש)', /שוטף|פנאי/, 'monthly', { name: 'שוטף, פנאי ושונות' }), Object.assign(aF('balance', 'יתרת עו"ש בסוף התקופה (₪)', 'cash', 'bal'), { dateKey: 'cash' })];
+    case 'card': return schema({ type: 'expenses', owner: it.owner, sel: null, values: {} }).filter(f => f.key !== 'balance');
+    case 'bank': return [aF('bal', 'יתרת עו"ש נוכחית (₪)', 'cash', 'bal')];
+    case 'insurance': return [expF('monthly', 'עלות ביטוחים ובריאות (₪/חודש)', /ביטוח/, 'monthly', { name: 'ביטוחים ובריאות' })];
+    default: return [];
+  }
+}
+function snap() { const b = bundle(), r0 = b.rows[0], mo = r0 ? (r0.living + r0.debt + r0.spare) / 12 : 0, cash = (assetBy('cash') || {}).bal || 0; return { ok: b.ev.ok, baseOk: b.ev.baseOk, assets: b.sum.assetsAtTovaRetire, minGross: b.ms.feasible ? b.ms.minGross : null, gap: b.sum.firstMandatoryGap, final: b.sum.finalAssets, cash, cashMonths: mo > 0 ? cash / mo : null }; }
+function dateKeyOf(it) { switch (it.type) { case 'payslip': return 'payslip_' + it.owner; case 'bank': return 'cash'; case 'expenses': case 'card': return 'expenses'; case 'mortgage': case 'loan': case 'insurance': return it.type; default: return KIND[it.type] ? assetId(it) : null; } }
+function pendMatches(p, it) {
+  const keys = p.keys || []; if (!keys.length) return false;
+  const fk = Object.keys(it.values).filter(k => it.values[k] !== '' && it.values[k] != null); if (!fk.length) return false;
+  const id = KIND[it.type] ? assetId(it) : '';
+  return keys.some(k => k === it.type || k === id || fk.some(f => k === id + '.' + f || k === it.type + '.' + f));
+}
+const isFlow = (it, f) => it.type === 'payslip' || it.type === 'card' || (it.type === 'expenses' && f.key !== 'balance');
+const hkOf = (type, owner, key) => type + ':' + (type === 'payslip' ? owner : '') + ':' + key;
+const isCardHk = hk => hk.indexOf('card:') === 0;
+function histAvg(hk) {
+  const xs = (cfg.history || []).filter(h => h.hk === hk && !h.ex); if (!xs.length) return null;
+  if (isCardHk(hk)) { const m = {}; xs.forEach(h => { m[h.month] = (m[h.month] || 0) + h.value; }); const v = Object.values(m); return { avg: v.reduce((s, x) => s + x, 0) / v.length, n: v.length }; }
+  return { avg: xs.reduce((s, h) => s + h.value, 0) / xs.length, n: xs.length };
+}
+function recomputeHist() {
+  const seen = {};
+  (cfg.history || []).forEach(h => { if (seen[h.hk]) return; seen[h.hk] = 1; const a = histAvg(h.hk), f = schema({ type: h.type, owner: h.owner || 'nuri', sel: null, values: {} }).find(x => x.key === h.key); if (a && f) f.set(a.avg); });
+}
+function seedHistory() {
+  if (cfg.historySeeded) return; cfg.historySeeded = true; cfg.history = cfg.history || [];
+  const P = cfg.people;
+  (cfg.docs || []).forEach(d => {
+    const t = DT.find(x => x[1] === d.type); if (!t || !(t[0] === 'payslip' || t[0] === 'expenses')) return;
+    const owner = P.tova.name === d.owner ? 'tova' : 'nuri', fs = schema({ type: t[0], owner, sel: null, values: {} });
+    (d.applied || []).forEach(c => {
+      const f = fs.find(x => x.label === c.label); if (!f || !isFlow({ type: t[0] }, f)) return; const v = parseFloat(c.to); if (!isFinite(v)) return;
+      const hk = hkOf(t[0], owner, f.key), month = (d.date || todayStr()).slice(0, 7);
+      cfg.history = cfg.history.filter(h => !(h.hk === hk && h.month === month));
+      cfg.history.push({ hk, type: t[0], owner, key: f.key, label: f.label, month, value: v / (f.scale || 1), file: d.name || '', entered: d.entered || d.date, seeded: true });
+    });
+  });
+  recomputeHist(); save();
+}
+let closedBuf = [];
+function applyItem(it, apply, quiet) {
+  const t = DT.find(x => x[0] === it.type), changes = [], closed = [];
+  let unchanged = 0;
+  const before = quiet ? null : (apply ? snap() : null);
+  const when = it.date || todayStr();
+  if (it.slot) { cfg.slots = cfg.slots || {}; cfg.slots[it.slot] = todayStr(); }
+  if (!cfg.dataDates) cfg.dataDates = {};
+  if (apply) schema(it).forEach(f => {
+    const raw = it.values[f.key]; if (raw == null || raw === '') return;
+    let to = raw / (f.scale || 1), lbl = f.label, shown = raw; const from = f.get(), dk = f.dateKey || dateKeyOf(it);
+    if (isFlow(it, f)) { const hk = hkOf(it.type, it.owner, f.key), month = when.slice(0, 7); const src = ((document.getElementById('nm-' + it.id) || {}).value || (it.file ? it.file.name : '') || (it.type === 'card' ? 'כרטיס' : '')).trim(); cfg.history = (cfg.history || []).filter(h => !(h.hk === hk && h.month === month && (!isCardHk(hk) || (h.file || '') === src))); cfg.history.push({ hk, type: it.type, owner: it.owner, key: f.key, label: f.label, month, value: to, file: isCardHk(hk) ? src : (it.file ? it.file.name : ''), entered: todayStr() }); const a = histAvg(hk); to = a.avg; lbl += ` – ממוצע מצטבר של ${a.n} חודשים (נקלט: ${n0(raw)})`; shown = Math.round(to); }
+    if (dk) cfg.dataDates[dk] = when;
+    if (from != null && Math.abs(from - to) < 1e-9) { unchanged++; return; }
+    changes.push({ label: lbl, from: from == null ? '—' : +(from * (f.scale || 1)).toFixed(3), to: shown }); f.set(to);
+  });
+  (cfg.pending || []).forEach((p, k) => { if (p.done) return; const want = it.closes && (k in it.closes) ? it.closes[k] : (apply && pendMatches(p, it)); if (want) { p.done = true; p.doneDate = when; closed.push(p.t); closedBuf.push(p.t); } });
+  if (apply && !quiet) lastImpact = { before, after: snap(), changes, unchanged, closed, type: it.type, date: when, label: t[1] };
+  if (!apply && !quiet) lastImpact = { evidence: true, changes: [], unchanged: 0, closed, type: it.type, date: when, label: t[1] };
+  const nm = (document.getElementById('nm-' + it.id) || {}).value;
+  cfg.docs.push({ type: t[1], owner: cfg.people[it.owner] ? cfg.people[it.owner].name : 'משותף', name: nm || (it.file ? it.file.name : ''), note: (it.insights || []).join(' | '), date: when, entered: todayStr(), applied: changes, fileId: null, fileName: it.file ? it.file.name : '' });
+  const entry = cfg.docs[cfg.docs.length - 1];
+  if (t[2]) cfg.checklist[t[2]] = true;
+  if (it.file) { entry.fileId = 'f' + Date.now() + it.id; idbPut(entry.fileId, it.file); }
+  changes.unchanged = unchanged;
+  return changes;
+}
+function idb() { return new Promise((res, rej) => { try { const r = indexedDB.open('ffi-docs', 1); r.onupgradeneeded = () => r.result.createObjectStore('f'); r.onsuccess = () => res(r.result); r.onerror = () => rej(r.error); } catch (e) { rej(e); } }); }
+function idbPut(id, blob) { idb().then(d => d.transaction('f', 'readwrite').objectStore('f').put(blob, id)).catch(() => {}); }
+function idbDel(id) { idb().then(d => d.transaction('f', 'readwrite').objectStore('f').delete(id)).catch(() => {}); }
+function idbOpen(id) { idb().then(d => { const r = d.transaction('f').objectStore('f').get(id); r.onsuccess = () => { if (r.result) window.open(URL.createObjectURL(r.result), '_blank'); }; }).catch(() => {}); }
+function guessFromName(n) {
+  n = n.toLowerCase(); const g = {};
+  if (/תלוש|payslip|salary/.test(n)) g.type = 'payslip'; else if (/השתלמות/.test(n)) g.type = 'kh'; else if (/פנסיה|pension/.test(n)) g.type = 'pension'; else if (/גמל/.test(n)) g.type = 'gemel';
+  else if (/משכנתא|סילוקין/.test(n)) g.type = 'mortgage'; else if (/הלוואה/.test(n)) g.type = 'loan'; else if (/אשראי|visa|max|isracard|ישראכרט|כאל|דיינרס|כרטיס/.test(n)) g.type = 'card'; else if (/עו.ש|עוש|bank|בנק/.test(n)) g.type = 'expenses'; else if (/ביטוח|פוליס/.test(n)) g.type = 'insurance'; else if (/חוזה/.test(n)) g.type = 'contract'; else if (/תיק|פסגות|psagot|ני.ע/.test(n)) g.type = 'portfolio';
+  const P = cfg.people; if (P.tova.name && n.includes(P.tova.name.toLowerCase())) g.owner = 'tova'; else if (P.nuri.name && n.includes(P.nuri.name.toLowerCase())) g.owner = 'nuri';
+  return g;
+}
+
+/* ---- AI extraction (needs network + API key) ---- */
+const AKEY = 'ffi.apikey', AMODEL = 'ffi.model', AMODEL2 = 'ffi.model2', M_LIGHT = 'claude-haiku-5-5', M_HEAVY = 'claude-sonnet-5-5', HEAVY_TYPES = ['pension', 'kh', 'gemel', 'portfolio'];
+const modelFor = type => HEAVY_TYPES.indexOf(type) >= 0 ? (lsGet(AMODEL2) || M_HEAVY) : (lsGet(AMODEL) || M_LIGHT);
+const lsGet = k => { try { return localStorage.getItem(k) || ''; } catch (e) { return ''; } };
+const lsSet = (k, v) => { try { localStorage.setItem(k, v); } catch (e) {} };
+function b64(file) { return new Promise((res, rej) => { const r = new FileReader(); r.onload = () => res(String(r.result).split(',')[1]); r.onerror = () => rej(r.error); r.readAsDataURL(file); }); }
+function readText(file) { return new Promise((res, rej) => { const r = new FileReader(); r.onload = () => res(String(r.result)); r.onerror = () => rej(r.error); r.readAsText(file); }); }
+function readBuf(file) { return new Promise((res, rej) => { const r = new FileReader(); r.onload = () => res(r.result); r.onerror = () => rej(r.error); r.readAsArrayBuffer(file); }); }
+function loadScript(url, test) { return new Promise((res, rej) => { if (test()) return res(); const s = document.createElement('script'); s.src = url; s.onload = () => test() ? res() : rej(new Error('lib')); s.onerror = () => rej(new Error('לא ניתן לטעון רכיב קריאה (נדרש אינטרנט)')); document.head.appendChild(s); }); }
+async function fileToContent(file) {
+  const n = file.name.toLowerCase(), ty = file.type;
+  if (file.size > 20e6) throw new Error('הקובץ גדול מדי (מעל 20MB)');
+  if (ty === 'application/pdf' || n.endsWith('.pdf')) return [{ type: 'document', source: { type: 'base64', media_type: 'application/pdf', data: await b64(file) } }];
+  if (/^image\/(png|jpe?g|gif|webp)$/.test(ty) || /\.(png|jpe?g|gif|webp)$/.test(n)) { const mt = ty && ty.startsWith('image/') ? ty : (n.endsWith('png') ? 'image/png' : n.endsWith('gif') ? 'image/gif' : n.endsWith('webp') ? 'image/webp' : 'image/jpeg'); return [{ type: 'image', source: { type: 'base64', media_type: mt, data: await b64(file) } }]; }
+  if (/\.(xlsx|xlsm|xls)$/.test(n)) {
+    await loadScript('https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js', () => window.XLSX);
+    const wb = XLSX.read(await readBuf(file), { type: 'array' });
+    const txt = wb.SheetNames.map(s => `--- גיליון: ${s} ---\n` + XLSX.utils.sheet_to_csv(wb.Sheets[s])).join('\n\n');
+    return [{ type: 'text', text: 'תוכן קובץ Excel:\n' + txt.slice(0, 150000) }];
+  }
+  if (n.endsWith('.docx')) {
+    await loadScript('https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js', () => window.mammoth);
+    const r = await mammoth.extractRawText({ arrayBuffer: await readBuf(file) });
+    return [{ type: 'text', text: 'תוכן מסמך Word:\n' + r.value.slice(0, 150000) }];
+  }
+  if (/\.(csv|txt|tsv|json|md)$/.test(n) || ty.startsWith('text/')) return [{ type: 'text', text: 'תוכן הקובץ:\n' + (await readText(file)).slice(0, 150000) }];
+  throw new Error('סוג קובץ לא נתמך (נתמכים: PDF, תמונה, Excel, Word docx, CSV, טקסט)');
+}
+const FIELD_DOC = 'payslip: gross (ברוטו חודשי), net (נטו חודשי), penSal (שכר קובע לפנסיה), khSal (שכר קובע להשתלמות)\npension: bal (יתרה צבורה), aum (דמי ניהול מצבירה באחוזים, למשל 0.05), depFee (דמי ניהול מהפקדה באחוזים)\nkh: bal, aum (אחוזים), taxableShare (חלק הרווח החייב במס באחוזים, אם מצוין)\ngemel: bal, aum (אחוזים)\nportfolio: bal (שווי כולל), aum (אחוזים)\nmortgage: monthly (החזר חודשי כולל), endY (שנת תשלום אחרון), endM (חודש 1-12)\nloan: monthly, endY, endM\nexpenses: food, utilities, transport, other (ממוצע חודשי בשקלים לכל קטגוריה; other = כל השאר כולל פנאי ורכישות), balance (יתרת העו"ש בסוף התקופה, אם מופיעה)\nbank: bal (יתרת עו"ש נוכחית)\ncard: food, utilities, transport, other (סך החיובים בחודש בכל קטגוריה בשקלים, בלי החזרי משכנתא והלוואות; other = כל השאר; reportDate = סוף תקופת החיוב; ownerName/שם הכרטיס אם מופיע)\ninsurance: monthly (סך עלות חודשית)\ncontract/other: ללא ערכים';
+let sampleFn = null, sampleImgMax = 0;
+try { if (window.claude && window.claude.use) window.claude.use('sample').then(async s => { sampleFn = s || null; if (s && s.limits) { try { const l = await s.limits(); sampleImgMax = l.images ? l.images.maxCount : 0; } catch (e) {} } if (tab === 'start') render(); chatRender(); }).catch(() => {}); } catch (e) {}
+const canAI = () => !!sampleFn || (navigator.onLine && !!lsGet(AKEY));
+function buildPrompt() {
+  const P = cfg.people, assets = cfg.assets.map(a => `${a.id}: ${a.name} (יתרה נוכחית ${Math.round(a.bal || 0)})`).join('\n');
+  return `חלץ נתונים מהמסמך הפיננסי הישראלי המצורף. החזר JSON בלבד (ללא טקסט נוסף) במבנה:\n{"type":"payslip|pension|kh|gemel|portfolio|mortgage|loan|expenses|card|bank|insurance|contract|other","reportDate":"YYYY-MM-DD תאריך הדוח או סוף התקופה, או null","ownerName":"שם בעל המסמך או null","assetId":"מזהה נכס מהרשימה או null","values":{...},"period":"התקופה שהמסמך מכסה","confidence":0.0,"insights":["עד 4 הערות קצרות בעברית: חריגות, דברים לאמת, נתון שחסר"]}\nשדות values לפי סוג:\n${FIELD_DOC}\nכללים: סכומים כמספרים בשקלים בלי פסיקים; אחוזים כמספר באחוזים (0.05 משמע 0.05%); נתון שלא מופיע = null, אל תנחש; בדפי אשראי/עו"ש חשבו ממוצע חודשי לפי מספר החודשים המכוסים והתעלמו מהחזרי משכנתא/הלוואות ומהפקדות לחיסכון.\nבעלי המסמכים האפשריים: "${P.nuri.name}" ו"${P.tova.name}".\nנכסים קיימים (לבחירת assetId):\n${assets}`;
+}
+function applyResult(it, res) {
+  const P = cfg.people;
+  if (!it.locked && DT.some(x => x[0] === res.type)) it.type = res.type;
+  const nm = String(res.ownerName || '').trim();
+  if (nm && !it.locked) { if (nm.includes(P.tova.name) || P.tova.name.includes(nm)) it.owner = 'tova'; else if (nm.includes(P.nuri.name) || P.nuri.name.includes(nm)) it.owner = 'nuri'; }
+  if (res.assetId && assetBy(res.assetId)) { it.sel = res.assetId; const ow = assetBy(res.assetId).owner; if (ow === 'nuri' || ow === 'tova') it.owner = ow; }
+  it.values = {}; schema(it).forEach(f => { const v = res.values && res.values[f.key]; if (typeof v === 'number' && isFinite(v)) it.values[f.key] = v; });
+  if (!it.locked && /^\d{4}-\d{2}-\d{2}$/.test(res.reportDate || '')) it.date = res.reportDate;
+  it.conf = res.confidence; it.insights = Array.isArray(res.insights) ? res.insights.slice(0, 4) : []; it.period = res.period || ''; it.status = 'done';
+}
+/* file -> text + images, for the in-Claude path (no PDF input there, so PDFs are read with pdf.js) */
+async function fileToSample(file) {
+  const n = file.name.toLowerCase(), ty = file.type, out = { text: '', images: [] };
+  if (file.size > 20e6) throw new Error('הקובץ גדול מדי (מעל 20MB)');
+  if (/^image\/(png|jpe?g|gif|webp)$/.test(ty) || /\.(png|jpe?g|gif|webp)$/.test(n)) { if (!sampleImgMax) throw new Error('שליחת תמונות אינה זמינה כאן'); out.images.push(file); return out; }
+  if (ty === 'application/pdf' || n.endsWith('.pdf')) {
+    await loadScript('https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js', () => window.pdfjsLib);
+    pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+    const pdf = await pdfjsLib.getDocument({ data: await readBuf(file) }).promise, pages = Math.min(pdf.numPages, 40);
+    for (let p = 1; p <= pages; p++) { const tc = await (await pdf.getPage(p)).getTextContent(); out.text += `\n--- עמוד ${p} ---\n` + tc.items.map(i => i.str).join(' '); }
+    if (out.text.replace(/---[^-]*---|\s/g, '').length < 300) {
+      if (!sampleImgMax) throw new Error('ה-PDF סרוק (ללא טקסט) ואי אפשר לשלוח תמונות כאן');
+      out.text = '';
+      for (let p = 1; p <= Math.min(pdf.numPages, sampleImgMax, 4); p++) { const pg = await pdf.getPage(p), vp = pg.getViewport({ scale: 1.6 }), cv = document.createElement('canvas'); cv.width = vp.width; cv.height = vp.height; await pg.render({ canvasContext: cv.getContext('2d'), viewport: vp }).promise; out.images.push(await new Promise(r => cv.toBlob(r, 'image/jpeg', .85))); }
+    }
+    return out;
+  }
+  const c = await fileToContent(file); out.text = c.map(x => x.text || '').join('\n'); if (!out.text) throw new Error('סוג קובץ לא נתמך'); return out;
+}
+const SAMPLE_ERR = { not_granted: 'לא אושר שימוש ב-Claude עבור העמוד הזה', rate_limited: 'יותר מדי בקשות – נסו שוב בעוד כמה דקות', session_expired: 'צריך להתחבר מחדש ל-Claude', sampling_disabled: 'Claude אינו זמין בחשבון הזה', image_rejected: 'התמונה לא התקבלה', invalid_json: 'לא התקבלה תשובה מובנית – נסו שוב', prompt_too_large: 'המסמך גדול מדי' };
+async function runAI(it) {
+  it.status = 'working'; it.error = ''; render();
+  try {
+    if (sampleFn) {
+      const d = await fileToSample(it.file);
+      const res = await sampleFn.json(buildPrompt() + '\n\nהמסמך:' + (d.text ? '\n' + d.text.slice(0, 200000) : ' מצורף כתמונה/ות.'), { images: d.images.length ? d.images : undefined, cache: false });
+      applyResult(it, res);
+    } else {
+      const content = await fileToContent(it.file);
+      const callAI = async model => {
+      const r = await fetch('https://api.anthropic.com/v1/messages', { method: 'POST', headers: { 'content-type': 'application/json', 'x-api-key': lsGet(AKEY), 'anthropic-version': '2023-06-01', 'anthropic-dangerous-direct-browser-access': 'true' },
+        body: JSON.stringify({ model: model, max_tokens: 2000, system: 'אתה מחלץ נתונים מדויק ממסמכים פיננסיים. אתה מחזיר JSON תקין בלבד.', messages: [{ role: 'user', content: content.concat([{ type: 'text', text: buildPrompt() }]) }] }) });
+      if (!r.ok) { let m = ''; try { m = (await r.json()).error.message; } catch (e) {} throw new Error(r.status === 401 ? 'מפתח API שגוי' : `שגיאת שירות (${r.status}) ${m}`); }
+      const data = await r.json(); const txt = (data.content || []).map(c => c.text || '').join('');
+      const a = txt.indexOf('{'), z = txt.lastIndexOf('}'); if (a < 0) throw new Error('לא התקבלה תשובה מובנית');
+      return JSON.parse(txt.slice(a, z + 1));
+      };
+      const m1 = modelFor(it.type), mh = lsGet(AMODEL2) || M_HEAVY; let out;
+      try { out = await callAI(m1); } catch (e) { if (m1 !== mh && !/מפתח API שגוי|שגיאת שירות \(4(29|0[0-9])/.test(e.message)) out = await callAI(mh); else throw e; }
+      applyResult(it, out);
+    }
+  } catch (e) { it.status = 'error'; it.error = e && e.code ? (SAMPLE_ERR[e.code] || 'שגיאה בקריאת המסמך (' + e.code + ')') : String((e && e.message) || e); }
+  render();
+}
+function addFiles(files, pre) {
+  for (const f of files) { const it = newItem(); it.file = f; const g = guessFromName(f.name); if (g.type) it.type = g.type; if (g.owner) it.owner = g.owner; if (pre) { Object.assign(it, { type: pre.type, owner: pre.owner || it.owner, sel: pre.sel || null, slot: pre.slot, date: pre.date, label: pre.label, locked: true }); } queue.push(it); if (canAI()) runAI(it); }
+  render();
+}
+const NOTES = { card: 'חיובי כרטיס אשראי מסוכמים לפי חודש. אם יש כמה כרטיסים, כל כרטיס נספר בנפרד באותו חודש והסכום החודשי הוא הסכום של כולם. ההוצאות במודל הן הממוצע המצטבר של החודשים.', bank: 'יתרת העו"ש נכנסת להון הכולל ולנזילות, אך נשמרת כרזרבה ואינה מממנת הוצאות שוטפות בחישוב, ולכן בדרך כלל אינה משנה את השכר המינימלי.', pension: 'הפנסיה אינה מממנת הוצאות לפני גיל 67, ולכן שינוי בה משפיע בעיקר על ההון הכולל ועל הקצבה העתידית.', kh: 'קרן השתלמות מממנת הוצאות מהרווחים (אחרי מס על החלק החייב), ולכן שינוי ביתרה, בדמי הניהול או בחלק החייב משפיע על ההכנסה בפרישה.', gemel: 'הגמל להשקעה מומר לקצבה בגיל 60, ולכן שינוי ביתרה משפיע על ההכנסה מגיל 60.', portfolio: 'תיק ההשקעות מממן הוצאות מהרווחים, ולכן שינוי ביתרה משפיע על ההכנסה בשנים שאחרי הפרישה.', payslip: 'השכר והשכר הקובע משפיעים על ההכנסה השוטפת, על ההפקדות בתלוש ועל חישוב המס.', expenses: 'ההוצאות משפיעות על הצורך החודשי בכל השנים שהסעיף בתוקף.', mortgage: 'ההחזר ותאריך הסיום משפיעים על ההוצאות בכל שנות התשלום.', loan: 'ההחזר ותאריך הסיום משפיעים על ההוצאות בכל שנות התשלום.', insurance: 'עלות הביטוח נכנסת להוצאות החודשיות.' };
+function explainLines() {
+  const L = lastImpact, out = [];
+  if (L.evidence) return ['המסמך נשמר כראיה בלבד. לא הוזנו ערכים, ולכן החישובים לא השתנו.'];
+  const { before: b, after: a } = L, T_ = esc(T());
+  if (!L.changes.length && !L.unchanged) return ['לא הוזנו ערכים, ולכן לא השתנה דבר.'];
+  out.push(`נקלטו ${L.changes.length} נתונים שהשתנו${L.unchanged ? ` ו-${L.unchanged} שאושרו ללא שינוי (זהים לקיים)` : ''}, בתאריך ${esc(L.date)}.`);
+  const dA = a.assets - b.assets, pct = b.assets ? dA / b.assets * 100 : 0;
+  out.push(Math.abs(pct) < 0.05 && Math.abs(dA) < 1000 ? `ההון בפרישת ${T_} לא השתנה מהותית (${fm(a.assets)}).` : `ההון בפרישת ${T_} ${dA > 0 ? 'עלה' : 'ירד'} מ-${fm(b.assets)} ל-${fm(a.assets)} (${dA > 0 ? '+' : '−'}${Math.abs(pct).toFixed(1)}%).`);
+  if (b.minGross !== a.minGross) out.push(`השכר המינימלי ש${T_} צריך/ה: ${b.minGross == null ? 'לא אפשרי' : n0(b.minGross) + ' ₪'} ← ${a.minGross == null ? 'לא אפשרי' : n0(a.minGross) + ' ₪'} ברוטו.`); else out.push('השכר המינימלי לא השתנה.');
+  const st = x => x.ok ? 'עומדת' : x.baseOk ? 'עומדת בלי משבר' : 'פער' + (x.gap ? ' מ-' + x.gap : '');
+  out.push(st(b) === st(a) ? `מצב התכנית לא השתנה: ${st(a)}.` : `מצב התכנית השתנה: ${st(b)} ← ${st(a)}.`);
+  if (Math.abs(a.final - b.final) > 1000) out.push(`ההון בסוף התקופה: ${fm(b.final)} ← ${fm(a.final)}.`);
+  if (a.cashMonths != null && (L.type === 'bank' || L.type === 'expenses') && a.cash > 0) out.push(`יתרת העו"ש (${n0(a.cash)} ₪) מכסה כ-${a.cashMonths.toFixed(1)} חודשי הוצאות.`);
+  if (L.changes.some(c => /ממוצע מצטבר/.test(c.label))) out.push('הערך במודל הוא ממוצע מצטבר של כל המסמכים מסוג זה שהוזנו עד היום. כל מסמך חדש מדייק אותו, ואפשר להוציא חודש חריג מהממוצע במאגר הנתונים.');
+  if (NOTES[L.type]) out.push(NOTES[L.type]);
+  if (L.closed && L.closed.length) out.push('משימות שנסגרו: ' + L.closed.map(esc).join('; '));
+  return out;
+}
+function impactHTML() {
+  if (!lastImpact) return '';
+  const L = lastImpact;
+  return `<div class="infobox" style="border:2px solid var(--info)"><div style="display:flex;justify-content:space-between;gap:8px"><b>${L.evidence ? 'נשמר' : 'הוחל על המודל'}: ${esc(L.label)}</b><button class="btn sm sec" data-act="clearImpact">סגור</button></div>${L.changes.length ? '<ul style="margin:6px 0 0;padding-inline-start:20px">' + L.changes.map(c => `<li>${esc(c.label)}: ${esc(c.from)} ← <b>${esc(c.to)}</b></li>`).join('') + '</ul>' : ''}
+   <p style="margin:8px 0 2px"><b>איך זה השפיע</b></p><ul style="margin:0;padding-inline-start:20px">${explainLines().map(x => `<li>${x}</li>`).join('')}</ul></div>`;
+}
+function itemForm(it) {
+  const P = cfg.people, fs_ = schema(it), opts = KIND[it.type] ? assetOptions(it.type, it.owner) : [];
+  return `<div class="row"><div class="f"><label>סוג מסמך</label><select data-itreset="type" data-it="${it.id}">${DT.map(x => `<option value="${x[0]}" ${x[0] === it.type ? 'selected' : ''}>${x[1]}</option>`).join('')}</select></div>
+   <div class="f"><label>שייך ל</label><select data-itreset="owner" data-it="${it.id}"><option value="nuri" ${it.owner === 'nuri' ? 'selected' : ''}>${esc(P.nuri.name)}</option><option value="tova" ${it.owner === 'tova' ? 'selected' : ''}>${esc(P.tova.name)}</option></select></div>
+   ${opts.length > 1 ? `<div class="f"><label>איזה נכס</label><select data-itreset="sel" data-it="${it.id}">${opts.map(a => `<option value="${a.id}" ${assetId(it) === a.id ? 'selected' : ''}>${esc(a.name)}</option>`).join('')}</select></div>` : ''}</div>
+   ${fs_.length ? `<h3>הנתונים (מתחת לכל שדה – הערך הנוכחי במודל)</h3><div class="row">${fs_.map(f => { const cur = f.get(); return `<div class="f"><label>${f.label}</label><input inputmode="decimal" data-it="${it.id}" data-key="${f.key}" value="${it.values[f.key] == null ? '' : esc(it.values[f.key])}"><span class="note">נוכחי: ${cur == null ? '—' : +(cur * (f.scale || 1)).toFixed(3)}</span></div>`; }).join('')}</div>` : '<p class="note">למסמך מסוג זה אין שדות חישוב – אפשר לשמור כראיה.</p>'}
+   <div class="row" style="margin-top:8px"><div class="f"><label>תאריך הדוח / הנתון</label><input type="date" data-it="${it.id}" data-itdate="1" value="${esc(it.date || todayStr())}"></div><div class="f"><label>שם / הערה ליומן</label><input id="nm-${it.id}" value="${esc(it.label || (it.file ? it.file.name : ''))}"></div></div>
+   ${pendHTML(it)}`;
+}
+function pendHTML(it) {
+  const pend = (cfg.pending || []).map((p, k) => [p, k]).filter(([p]) => !p.done); if (!pend.length) return '';
+  return `<h3>משימות פתוחות שהנתון הזה סוגר</h3><p class="note" style="margin:0 0 4px">מסומנות אוטומטית כשמזינים נתון רלוונטי. אפשר לסמן ידנית.</p>${pend.map(([p, k]) => `<label class="ck"><input type="checkbox" data-it="${it.id}" data-pend="${k}" ${(it.closes && k in it.closes ? it.closes[k] : pendMatches(p, it)) ? 'checked' : ''}><span>${esc(p.t)}</span></label>`).join('')}`;
+}
+function syncPend(it) { (cfg.pending || []).forEach((p, k) => { const el = document.querySelector(`[data-it="${it.id}"][data-pend="${k}"]`); if (el && !(it.closes && k in it.closes)) el.checked = pendMatches(p, it); }); }
+function queueCard(it) {
+  let head, body = '';
+  if (it.status === 'working') head = '<span class="badge b-info">קורא ומחלץ…</span>';
+  else if (it.status === 'error') { head = '<span class="badge b-bad">שגיאה</span>'; body = `<div class="warnbox">${esc(it.error)}</div>`; }
+  else if (it.status === 'done') head = `<span class="badge b-ok">חולץ אוטומטית${it.conf != null ? ' · ביטחון ' + Math.round(it.conf * 100) + '%' : ''}</span>`;
+  else head = '<span class="badge b-warn">הזנה ידנית</span>';
+  const ins = (it.insights || []).length ? `<div class="infobox"><b>תובנות מהמסמך</b><ul style="margin:4px 0 0;padding-inline-start:20px">${it.insights.map(x => `<li>${esc(x)}</li>`).join('')}</ul>${it.period ? `<span class="note">תקופה: ${esc(it.period)}</span>` : ''}</div>` : '';
+  return `<div class="card"><div style="display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap"><b>${esc(it.file ? it.file.name : '')}</b>${head}</div>${body}${it.status === 'working' ? '' : ins + itemForm(it)}
+   ${it.status === 'working' ? '' : `<div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap"><button class="btn" data-act="qApply" data-it="${it.id}">הזן והחל על המודל</button><button class="btn sec" data-act="qEvidence" data-it="${it.id}">שמור כראיה בלבד</button>${canAI() ? `<button class="btn sec" data-act="qRetry" data-it="${it.id}">קריאה מחדש</button>` : ''}<button class="btn sec" data-act="qDrop" data-it="${it.id}">הסר</button></div>`}</div>`;
+}
+function histCard() {
+  const H = cfg.history || []; if (!H.length) return '';
+  const hks = []; H.forEach(h => { if (hks.indexOf(h.hk) < 0) hks.push(h.hk); });
+  const who = h => h.type === 'payslip' ? (cfg.people[h.owner] || {}).name + ' – ' : '';
+  return `<div class="card"><h2>מאגר נתונים וממוצעים</h2><p class="note" style="margin-top:0">כל תלוש והוצאה שהוזנו נשמרים כאן. הערך במודל הוא הממוצע של כל החודשים המסומנים, והוא מתדייק עם כל מסמך חדש. חודש חריג (שעות נוספות חד-פעמיות, מענק) אפשר להוציא מהממוצע בלי למחוק אותו.</p>
+  ${hks.map(hk => { const xs = H.map((h, i) => [h, i]).filter(([h]) => h.hk === hk).sort((a, b) => a[0].month < b[0].month ? -1 : 1), on = xs.filter(([h]) => !h.ex).map(([h]) => h.value), a = histAvg(hk), h0 = xs[0][0];
+    return `<h3>${esc(who(h0))}${esc(h0.label)}</h3><div class="infobox">ממוצע במודל: <b>${a ? n0(a.avg) : '—'}</b> · ${on.length} מתוך ${xs.length} חודשים${on.length ? ` · טווח ${n0(Math.min(...on))}–${n0(Math.max(...on))}` : ''}</div>
+    <div class="scroll"><table><tr><th>חודש</th><th class="num">ערך</th><th>מקור</th><th>בממוצע</th><th></th></tr>${xs.map(([h, i]) => `<tr><td>${esc(h.month)}</td><td class="num">${n0(h.value)}</td><td>${esc(h.file || '')}${h.seeded ? ' <span class="note">(משוחזר מהיומן)</span>' : ''}</td><td><input type="checkbox" data-act="histEx" data-i="${i}" ${h.ex ? '' : 'checked'}></td><td><button class="btn sm sec" data-act="histDel" data-i="${i}">✕</button></td></tr>`).join('')}</table></div>`; }).join('')}</div>`;
+}
+function docCard() {
+  const online = navigator.onLine, key = lsGet(AKEY);
+  const status = sampleFn ? '<span class="badge b-ok">קריאה אוטומטית פעילה (דרך חשבון ה-Claude שלכם)</span>' : !online ? '<span class="badge b-warn">אופליין – קריאה אוטומטית חסומה, אפשר להזין ידנית</span>' : key ? '<span class="badge b-ok">מחובר – קריאה אוטומטית פעילה</span>' : '<span class="badge b-warn">קריאה אוטומטית זמינה בגרסת Claude של האפליקציה</span>';
+  const done = queue.filter(x => x.status === 'done');
+  const adv = sampleFn ? '' : `<details style="margin-top:8px"><summary class="note" style="cursor:pointer">מתקדם: חיבור באמצעות מפתח API (למשתמשים טכניים)</summary><div class="row" style="margin-top:8px"><div class="f"><label>מפתח API</label><input type="password" data-apikey="key" value="${esc(key)}" placeholder="sk-ant-…" autocomplete="off"></div><div class="f"><label>מודל זול (תלושים, אשראי, עו"ש)</label><input data-apikey="model" value="${esc(lsGet(AMODEL) || M_LIGHT)}"></div><div class="f"><label>מודל מדויק (פנסיה, השתלמות, גמל, תיק)</label><input data-apikey="model2" value="${esc(lsGet(AMODEL2) || M_HEAVY)}"></div></div></div></details>`;
+  return `${impactHTML()}<div class="card"><h2>העלאת מסמכים</h2>
+   <p style="margin:0 0 8px">${status}</p>
+   <div class="infobox">כשהקריאה האוטומטית פעילה, האפליקציה קוראת כל קובץ (PDF, תמונה, Excel, Word, CSV), מסווגת אותו, מחלצת את המספרים ומציגה אותם לאישור לפני שהם נכנסים לחישוב. <b>תוכן הקובץ נשלח ל-Claude לצורך הקריאה</b>; האפליקציה עצמה לא שומרת אותו בשום שרת.</div>${adv}
+   <div class="f" style="margin-top:10px"><label>בחרו קבצים (אפשר כמה יחד)</label><input type="file" id="docFile" multiple accept=".pdf,.png,.jpg,.jpeg,.webp,.gif,.xlsx,.xls,.csv,.docx,.txt"></div>
+   ${done.length > 1 ? '<p style="margin:10px 0 0"><button class="btn" data-act="qApplyAll">החל את כל המסמכים שחולצו (' + done.length + ')</button></p>' : ''}</div>
+  ${queue.map(queueCard).join('')}
+  <div class="card"><h2>הזנה ידנית (בלי קובץ)</h2>${itemForm(draft)}<div style="margin-top:10px"><button class="btn" data-act="docApply">הזן והחל על המודל</button></div></div>
+  ${histCard()}
+  ${cfg.docs.length ? `<div class="card"><h2>יומן מסמכים</h2><div class="scroll"><table><tr><th>תאריך</th><th>סוג</th><th>בעלים</th><th>שם</th><th>מה עודכן</th><th></th></tr>${cfg.docs.map((d, k) => `<tr><td>${esc(d.date || '')}</td><td>${esc(d.type)}</td><td>${esc(d.owner)}</td><td>${esc(d.name)}</td><td style="white-space:normal">${(d.applied || []).map(c => esc(c.label) + ': ' + esc(c.from) + '←' + esc(c.to)).join('<br>') || '<span class="note">ראיה בלבד</span>'}${d.note ? `<br><span class="note">${esc(d.note)}</span>` : ''}</td><td>${d.fileId ? `<button class="btn sm sec" data-act="docOpen" data-id="${d.fileId}">פתח</button> ` : ''}<button class="btn sm sec" data-act="delDoc" data-k="${k}">✕</button></td></tr>`).join('')}</table></div></div>` : ''}`;
+}
+window.addEventListener('online', () => { if (tab === 'start') render(); }); window.addEventListener('offline', () => { if (tab === 'start') render(); });
+
+/* ---------- strategy ---------- */
+function screenStrategy() {
+  const s = sc(), i = scIdx(), b = bundle(), P = cfg.people;
+  const seg = s.tovaSalary.map((g, k) => `<tr><td>${inp(`scenarios.${i}.tovaSalary.${k}.from`, { dec: 0 })}</td><td>${inp(`scenarios.${i}.tovaSalary.${k}.gross`, { dec: 0 })}</td><td class="num">${n0(E.tovaNet(cfg, g.gross, g.pensShare))}</td><td>${s.tovaSalary.length > 1 ? `<button class="btn sm sec" data-act="delSeg" data-k="${k}">הסר</button>` : ''}</td></tr>`).join('');
+  const AG = Array.from({ length: 23 }, (_, k) => 40 + k);
+  const fr = get('frontier', () => E.frontier(cfg, AG, AG));
+  const curT = s.tovaRetire - P.tova.birth, curN = s.nuriRetire - P.nuri.birth;
+  let heat = `<div class="heat" style="grid-template-columns:34px repeat(23,1fr)"><div class="h"></div>${AG.map(a => `<div class="h">${a % 2 === 0 ? a : ''}</div>`).join('')}`;
+  fr.grid.forEach(row => { heat += `<div class="h">${row[0].ta}</div>` + row.map(c => `<div class="c ${c.grade} ${c.ta === curT && c.na === curN ? 'cur' : ''}" data-act="applyRet" data-t="${c.tovaYear}" data-n="${c.nuriYear}" data-tip="${esc(T())} ${c.ta} (${c.tovaYear}) · ${esc(N())} ${c.na} (${c.nuriYear})<br>${c.grade === 'ok' ? 'עומד' : c.grade === 'tight' ? 'עומד רק בלי משבר' : 'פער'}"></div>`).join(''); });
+  heat += '</div>';
+  const sens = get('sens', () => E.salarySensitivity(cfg, s, [40, 45, 50, 55, 60]));
+  return `<div class="card"><h2>עריכת תרחיש</h2>${scChips()}
+   <div class="row" style="margin-top:12px">${field('שם התרחיש', inp(`scenarios.${i}.name`, { type: 'text' }))}
+   ${field(`${esc(N())} פורש/ת (שנה) – גיל ${curN}`, inp(`scenarios.${i}.nuriRetire`, { dec: 0 }), 'שנת העבודה האחרונה: ' + (s.nuriRetire - 1))}
+   ${field(`${esc(T())} פורש/ת (שנה) – גיל ${curT}`, inp(`scenarios.${i}.tovaRetire`, { dec: 0 }), 'שנת העבודה האחרונה: ' + (s.tovaRetire - 1))}</div>
+   <div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap"><button class="btn sec sm" data-act="dupSc">שכפול תרחיש</button><button class="btn sec sm" data-act="newSc">תרחיש חדש (החלפת מקצוע)</button>${cfg.scenarios.length > 1 ? '<button class="btn sm red" data-act="delSc">מחיקה</button>' : ''}</div></div>
+  <div class="card"><h2>שכר ${esc(T())} (ברוטו חודשי, במונחי היום)</h2><p class="note" style="margin-top:0">כל שורה היא שכר החל משנה מסוימת. החלפת מקצוע: שורה חדשה עם שנת המעבר והשכר החדש.</p>
+   <table><tr><th>החל משנה</th><th>ברוטו</th><th class="num">נטו משוער</th><th></th></tr>${seg}</table>
+   <button class="btn sec sm" style="margin-top:10px" data-act="addSeg">+ שינוי שכר / החלפת מקצוע</button>
+   <div class="row" style="margin-top:12px">${field('חישוב השכר המינימלי החל משנה', inp('solveFromYear', { dec: 0 }), 'ברירת מחדל: תחילת התכנון')}</div></div>
+  ${minIncomeCard(b)}
+  <div class="card"><h2>שכר מינימלי לפי גיל הפרישה של ${esc(T())}</h2><p class="note" style="margin-top:0">כמה צריך להרוויח (חודשי, קבוע) אם הפרישה תהיה בגיל שבשורה, בשאר הגדרות התרחיש.</p>
+   <table><tr><th>גיל פרישה</th><th>שנה</th><th class="num">ברוטו מינימלי</th><th class="num">נטו מינימלי</th></tr>${sens.map(x => `<tr><td>${x.age}</td><td>${x.year}</td><td class="num">${x.feasible ? n0(x.minGross) : '—'}</td><td class="num">${x.feasible ? n0(x.minNet) : 'לא אפשרי'}</td></tr>`).join('')}</table></div>
+  <div class="card"><h2>מפת גילאי פרישה</h2><p class="note" style="margin-top:0">שורות: גיל פרישת ${esc(T())} · עמודות: גיל פרישת ${esc(N())}. <span class="badge b-ok">ירוק</span> עומד · <span class="badge b-warn">כתום</span> עומד רק בלי משבר · <span class="badge b-bad">אדום</span> פער. לחיצה על משבצת מחילה אותה על התרחיש.</p>${heat}</div>
+  <div class="card"><h2>יעד הכנסה ושכבת ביטחון</h2><div class="row">
+   <div class="f"><label>יעד הכנסה נטו בגיל 60+ (₪/חודש)</label>${inp('target.netMonthly', { dec: 0 })}</div>
+   <div class="f"><label>&nbsp;</label>${chk('target.enabled', 'יעד הכנסה פעיל')}${chk('requireTarget', 'לדרוש עמידה ביעד כתנאי לתכנית')}${chk('stress.requireInSolver', 'לדרוש עמידה גם בתרחיש משבר')}</div></div>
+   <h3>ספייר חודשי לפי שלב</h3><div class="row">${E.PHASES.slice(1).map(p => field(esc(PH(p)), inp('spare.' + p, { dec: 0 }))).join('')}</div></div>`;
+}
+
+function screenFloors() {
+  const P = cfg.people;
+  const row = (label, path, o) => `<tr><td>${label}</td><td>${inp(path.replace('$', 'nuri'), o)}</td><td>${inp(path.replace('$', 'tova'), o)}</td></tr>`;
+  return `<div class="card"><h2>המינימומים שהאפליקציה לא תרד מהם</h2><p class="note" style="margin-top:0">ההמלצות והחישוב של השכר המינימלי מכבדים את המינימומים האלה. אם ההפקדה בתלוש נמוכה מהמינימום, ההפרש מושלם מהתזרים הביתי.</p>
+   <table><tr><th></th><th>${esc(P.nuri.name)}</th><th>${esc(P.tova.name)}</th></tr>
+   ${row('גמל להשקעה – הפקדה שנתית מקסימלית (₪), עד גיל 60', 'floors.gemelAnnual.$', { dec: 0 })}
+   ${row('פנסיה – הפקדה חודשית כוללת (עובד+מעסיק+פיצויים) בזמן עבודה (₪)', 'floors.pensionMonthly.$', { dec: 1 })}
+   ${row('קרן השתלמות – הפקדה חודשית בזמן עבודה (₪)', 'floors.khMonthly.$', { dec: 1 })}</table>
+   <p style="margin:12px 0 0"><button class="btn sec sm" data-act="gemelCap">עדכון לתקרת גמל להשקעה ${REF.gemelCap.toLocaleString('en-US')} ₪ (2026)</button></p></div>
+  <div class="card"><h2>הפקדות אחרי פרישה</h2><div class="row">
+   ${field(`פנסיה ל${esc(T())} בזמן שהוא/היא פרוש/ה ו${esc(N())} עובד/ת (₪/חודש)`, inp('retiredPension.tova_retired_nuri_working.tova', { dec: 1 }), 'מופקד עד גיל 67')}
+   ${field(`פנסיה ל${esc(N())} כשהוא/היא פרוש/ה ו${esc(T())} עובד/ת (₪/חודש)`, inp('retiredPension.nuri_retired_tova_working.nuri', { dec: 1 }))}
+   ${field(`פנסיה ל${esc(T())} כששניהם פרושים לפני 60 (₪/חודש)`, inp('retiredPension.both_retired_pre60.tova', { dec: 1 }))}
+   ${field(`פנסיה ל${esc(N())} כששניהם פרושים לפני 60 (₪/חודש)`, inp('retiredPension.both_retired_pre60.nuri', { dec: 1 }))}</div>
+   <h3>הפקדות אופציונליות (רק מעודף)</h3>${chk('optKh.nuriSelf', `קרן השתלמות כעצמאי ל${esc(N())} – ${n0(REF.khExemptDeposit)} ₪ בשנה כל עוד הוא/היא עובד/ת`)}${chk('optKh.tovaRetired', `קרן השתלמות ל${esc(T())} אחרי פרישה – ${n0(REF.khExemptDeposit)} ₪ בשנה`)}
+   <p class="note">אין הפקדות לפנסיה בגיל 67 ומעלה (מוטמע במנוע).</p></div>`;
+}
+
+function screenFlow() {
+  const b = bundle(), R = b.rows, S = b.sum, s = b.s;
+  const stress = b.ev.stress;
+  const gaps = R.filter(r => r.mandGap > 1);
+  return `<div class="card"><h2>מקורות הכסף מול הצורך (חודשי ממוצע)</h2>${chart({ xs: R.map(r => r.year), h: 270, stack: true, sub: i => esc(PH(R[i].phase)),
+    series: [{ name: 'משכורות נטו', color: '#1f9d63', vals: R.map(r => (r.netNuri + r.netTova) / 12) }, { name: 'סולארי + קצבאות', color: '#3d6fd8', vals: R.map(r => (r.solar + r.annuityGemel + r.annuityPension) / 12) }, { name: 'משיכה מהשקעות', color: '#e08a1e', vals: R.map(r => r.drawsNet / 12) }, { name: 'פער', color: '#d64545', vals: R.map(r => r.mandGap / 12) }],
+    line: { name: 'צורך (כולל הפקדות)', vals: R.map(r => r.need / 12) } })}</div>
+  ${gaps.length ? `<div class="warnbox">פער במימון ההוצאות בשנים ${gaps[0].year}–${gaps[gaps.length - 1].year} (בשקלי היום, ללא משיכת קרן).</div>` : ''}
+  <div class="card"><h2>פירוט שנתי</h2><div class="scroll"><table><tr><th>שנה</th><th>גילאים</th><th>שלב</th><th class="num">הכנסה קבועה</th><th class="num">הוצאות+ספייר</th><th class="num">הפקדות</th><th class="num">משיכה</th><th class="num">עודף→השקעה</th><th class="num">פער</th><th class="num">נכסים</th></tr>
+  ${R.map(r => `<tr class="${r.mandGap > 1 ? 'gap' : (r.year === s.tovaRetire || r.year === s.nuriRetire ? 'mile' : '')}"><td>${r.year}</td><td>${r.ageNuri}/${r.ageTova}</td><td>${esc(PH(r.phase))}</td><td class="num">${n0(r.fixedIn)}</td><td class="num">${n0(r.living + r.debt + r.spare)}</td><td class="num">${n0(r.gemelDep + r.retPen + r.topups)}</td><td class="num">${n0(r.drawsNet)}</td><td class="num">${n0(r.invest + r.optKh)}</td><td class="num ${r.mandGap > 1 ? 'neg' : ''}">${n0(r.mandGap)}</td><td class="num">${n0(r.total)}</td></tr>`).join('')}</table></div>
+  <p class="note">גילאים: ${esc(N())}/${esc(T())}. שורות כחולות – שנות פרישה. כל הסכומים שנתיים, במונחי 2026. תקינות: סטיית ספר-נכסים ${S.maxRecErr.toExponential(1)}, סטיית תזרים ${S.cashErr.toExponential(1)}.</p></div>
+  <div class="card"><h2>בדיקת משבר</h2><p style="margin:0">${stress.summary.mandGapYears === 0 ? '<span class="badge b-ok">עומד</span> התכנית עומדת גם בירידה חדה בשוק.' : `<span class="badge b-bad">פער</span> במשבר נוצר פער ב-${stress.summary.firstMandatoryGap}.`} <span class="note">הגדרות המשבר – בבית, בהנחות עבודה.</span></p></div>`;
+}
+
+function screenAssets() {
+  const b = bundle(), R = b.rows;
+  const gs = groupSeries(R);
+  const yrSel = Math.min(Math.max(cfg._ledgerYear || b.s.tovaRetire, cfg.baseYear), cfg.horizon);
+  const row = R.find(r => r.year === yrSel);
+  const tot = { open: 0, conv: 0, growth: 0, shock: 0, dep: 0, wd: 0, close: 0 };
+  const rowsL = cfg.assets.filter(a => a.enabled !== false).map(a => { const l = row.ledger[a.id]; Object.keys(tot).forEach(k => tot[k] += l[k]); return `<tr><td>${esc(a.name)}</td><td class="num">${n0(l.open)}</td><td class="num">${n0(-l.conv)}</td><td class="num">${n0(l.growth)}</td><td class="num">${n0(l.shock)}</td><td class="num">${n0(l.dep)}</td><td class="num">${n0(-l.wd)}</td><td class="num"><b>${n0(l.close)}</b></td></tr>`; }).join('');
+  return `<div class="card"><h2>הרכב הנכסים</h2>${chart({ xs: R.map(r => r.year), h: 250, stack: true, sub: i => `סה"כ ${n0(R[i].total)}`, series: Object.keys(GCOL).map(k => ({ name: GNAME[k], color: GCOL[k], vals: gs[k] })) })}</div>
+  <div class="card"><h2>יתרות פתיחה</h2><div class="infobox">הזינו את היתרה העדכנית מכל דוח. יתרה לא ידועה – השאירו 0. אחוז הרווח החייב במס בקרנות השתלמות: אם לא ידוע, 0.</div>
+   <div class="scroll"><table><tr><th>נכס</th><th>יתרה (₪)</th><th>דמי ניהול מצבירה (%)</th><th>דמי ניהול מהפקדה (%)</th><th>% רווח חייב (קה"ש)</th><th>נכון ל</th><th>פעיל</th></tr>
+   ${cfg.assets.map((a, k) => `<tr><td>${esc(a.name)}${a.note ? `<br><span class="note">${esc(a.note)}</span>` : ''}</td><td>${inp(`assets.${k}.bal`, { dec: 0 })}</td><td>${inp(`assets.${k}.aum`, { scale: 100, dec: 3 })}</td><td>${a.kind === 'pension' ? inp(`assets.${k}.depFee`, { scale: 100, dec: 2 }) : '—'}</td><td>${a.kind === 'kh' ? inp(`assets.${k}.taxableShare`, { scale: 100, dec: 0 }) : '—'}</td><td><input class="w" type="date" data-path="dataDates.${a.id}" data-type="text" value="${esc((cfg.dataDates || {})[a.id] || '')}"></td><td><input type="checkbox" data-path="assets.${k}.enabled" data-type="bool" ${a.enabled !== false ? 'checked' : ''}></td></tr>`).join('')}</table></div></div>
+  <div class="card"><h2>ספר נכסים לשנה</h2><div class="row" style="max-width:220px">${field('שנה', `<input inputmode="numeric" data-path="_ledgerYear" data-type="num" data-scale="1" value="${yrSel}">`)}</div>
+   <div class="scroll" style="margin-top:8px"><table><tr><th>נכס</th><th class="num">פתיחה</th><th class="num">המרה לקצבה</th><th class="num">תשואה</th><th class="num">שוק יורד</th><th class="num">הפקדות</th><th class="num">משיכה</th><th class="num">סגירה</th></tr>${rowsL}
+   <tr><td><b>סה"כ</b></td>${['open', 'conv', 'growth', 'shock', 'dep', 'wd', 'close'].map(k => `<td class="num"><b>${n0(k === 'conv' || k === 'wd' ? -tot[k] : tot[k])}</b></td>`).join('')}</tr></table></div></div>`;
+}
+
+function splitHTML(g) {
+  const sp = get('split' + g.k + g.r.tovaYear + '_' + g.r.nuriYear, () => E.capitalSplit(cfg, g.sc, g.r.tovaYear, g.r.nuriYear)), t = sp.total || 1, pc = x => Math.round(x / t * 100) + '%';
+  return `<b>${fm(sp.total)}</b><div class="note">קיים היום ${fm(sp.existing)} (${pc(sp.existing)})<br>חיסכון עתידי ${fm(sp.deposits)} (${pc(sp.deposits)})<br>תשואה ${fm(sp.returns)} (${pc(sp.returns)})</div>`;
+}
+const EMODES = [['together', 'יחד'], ['tova_first', 'קודם ${T}, אחר כך ${N}'], ['nuri_first', 'קודם ${N}, אחר כך ${T}']];
+function earlyCard() {
+  const mode = cfg.earlyMode || 'together', o = { crashAtFirst: cfg.earlyCrash !== false };
+  const res = s => get('pair' + mode + o.crashAtFirst + (cfg.latestRetireAge || 60) + s.id + JSON.stringify(s), () => E.earliestPair(cfg, s, mode, o));
+  const lab = t => t.replace('${T}', esc(T())).replace('${N}', esc(N()));
+  const cur = sc(), rc = res(cur);
+  const salLabel = s => s.tovaSalary.map((x, i) => (i ? 'ואז ' : '') + n0(x.gross) + ' ₪' + (i ? ' מ-' + x.from : '')).join(' ');
+  const groups = []; cfg.scenarios.forEach(s => { const k = JSON.stringify(s.tovaSalary.map(x => [x.from, x.gross])); let g = groups.find(x => x.k === k); if (!g) { g = { k, sc: s, label: salLabel(s), names: [], r: res(s), tp: s.tovaRetire - cfg.people.tova.birth, np: s.nuriRetire - cfg.people.nuri.birth }; groups.push(g); } g.names.push(s.name); });
+  const head = rc.feasible ? `<div class="infobox"><b>${lab(EMODES.find(x => x[0] === mode)[1])}</b> – לפי תרחיש "${esc(cur.name)}": ${esc(T())} פורשת בגיל <b>${rc.tovaAge}</b> (${rc.tovaYear}) ו${esc(N())} בגיל <b>${rc.nuriAge}</b> (${rc.nuriYear}).</div>` : `<div class="infobox" style="border-color:var(--bad)">בתרחיש "${esc(cur.name)}" אין צירוף פרישה שעומד בתכנית עד גיל ${rc.cap} לכל אחד. אפשר להעלות את גיל הפרישה המרבי או לבדוק את ההמלצות בבית.</div>`;
+  return `<div class="card"><h2>הפרישה המוקדמת ביותר – ${esc(N())} ו${esc(T())}</h2>
+  <p class="note" style="margin-top:0">מחושב מחדש מהנתונים שבמערכת. בחרו סדר פרישה:</p>
+  <div class="seg">${EMODES.map(x => `<button class="${x[0] === mode ? 'on' : ''}" data-act="earlyMode" data-id="${x[0]}">${lab(x[1])}</button>`).join('')}</div>
+  <div class="row" style="margin-top:8px;align-items:end"><div class="f" style="max-width:200px"><label>גיל פרישה מרבי לכל אחד</label>${inp('latestRetireAge', { dec: 0 })}</div><div class="f">${chk('earlyCrash', 'משבר בשנת הפרישה הראשונה (מחמיר)')}</div></div>
+  ${head}
+  <div class="scroll"><table><tr><th>שכר ${esc(T())} (ברוטו לחודש)</th><th>${esc(T())} (גיל)</th><th>${esc(N())} (גיל)</th><th>מול הפרישה המתוכננת שלהם: ${esc(T())}</th><th>${esc(N())}</th><th>הון בפרישה</th></tr>
+  ${groups.map(g => { const r = g.r, df = (a, p) => a < p ? `<span class="pos">${p - a} שנים מוקדם יותר</span>` : a > p ? `<span class="neg">${a - p} שנים מאוחר יותר</span>` : 'כמתוכנן'; return `<tr><td>${esc(g.label)}<div class="note">${g.names.map(esc).join(' · ')}</div></td>${r.feasible ? `<td class="num"><b>${r.tovaAge}</b> (${r.tovaYear})</td><td class="num"><b>${r.nuriAge}</b> (${r.nuriYear})</td><td>${df(r.tovaAge, g.tp)}</td><td>${df(r.nuriAge, g.np)}</td><td>${splitHTML(g)}</td>` : '<td colspan="5"><span class="neg">אין צירוף שעומד</span></td>'}</tr>`; }).join('')}</table></div>
+  <p class="note">הטבלה מקבצת תרחישים לפי מסלול השכר של ${esc(T())}, כי זה הדבר היחיד שמשפיע כאן; גילאי הפרישה שבשמות התרחישים אינם נבדקים אלא מחושבים מחדש. ההשוואה היא מול הפרישה של התרחיש הראשון בכל קבוצה. "הון בפרישה" (במונחי 2026, בשנת הפרישה של השני מהם) מפורק ליתרות שקיימות היום, לחיסכון עתידי (הפקדות פחות משיכות) ולתשואה נטו. "קודם ${esc(T())}": ${esc(T())} פורשת המוקדם האפשרי כש${esc(N())} עובד עד הגיל המרבי, ואז נבדק מתי ${esc(N())} יכול לפרוש (ולהפך בסדר השני). "יחד": שניהם באותה שנה. הבדיקה כוללת עמידה בתרחיש קיצון לפי ההגדרות. שאר ההנחות, ההוצאות והנתונים נלקחים מהמערכת, ולכן התוצאה מתעדכנת כשמזינים נתונים.</p></div>`;
+}
+function screenCompare() {
+  const rows = cfg.scenarios.map(s => get('cmp' + s.id + JSON.stringify(s), () => { const ev = E.evalSafe(cfg, s), ms = E.solveMinSalary(cfg, s); return { s, ev, ms }; }));
+  return `${earlyCard()}<div class="card"><h2>השוואת תרחישים</h2><div class="scroll"><table><tr><th>תרחיש</th><th>${esc(N())}</th><th>${esc(T())}</th><th class="num">שכר מתוכנן</th><th class="num">מינימום ברוטו</th><th class="num">מינימום נטו</th><th class="num">פער/מרווח (ברוטו)</th><th>סטטוס</th><th class="num">נכסים בפרישה</th><th></th></tr>
+  ${rows.map(({ s, ev, ms }) => { const g = ms.feasible ? (ms.gapGross > 1 ? `<span class="neg">−${n0(ms.gapGross)}</span>` : `<span class="pos">+${n0(ms.marginGross || 0)}</span>`) : '—'; return `<tr><td>${esc(s.name)}</td><td>${s.nuriRetire - cfg.people.nuri.birth}</td><td>${s.tovaRetire - cfg.people.tova.birth}</td><td class="num">${n0(ms.plannedGross)}</td><td class="num">${ms.feasible ? n0(ms.minGross) : 'אין'}</td><td class="num">${ms.feasible ? n0(ms.minNet) : '—'}</td><td class="num">${g}</td><td>${ev.ok ? '<span class="badge b-ok">עומד</span>' : ev.baseOk ? '<span class="badge b-warn">לא במשבר</span>' : '<span class="badge b-bad">פער</span>'}</td><td class="num">${fm(ev.base.summary.assetsAtTovaRetire)}</td><td><button class="btn sm sec" data-act="setActive" data-id="${s.id}" data-go="home">פתח</button></td></tr>`; }).join('')}</table></div>
+  <p class="note">הגילאים הם גיל הפרישה. "מינימום" – השכר החודשי הקבוע הנמוך ביותר של ${esc(T())} שמאפשר לתרחיש לעמוד במינימומים.</p></div>
+  <div class="card"><h2>הפרישה המוקדמת ביותר של ${esc(N())}</h2><p class="note" style="margin-top:0">לכל תרחיש של ${esc(T())}: השנה המוקדמת ביותר ש${esc(N())} יכול/ה לפרוש והתכנית עדיין עומדת (גם במשבר, לפי הגדרות ההנחות).</p><div class="scroll"><table><tr><th>תרחיש של ${esc(T())}</th><th>${esc(T())} פורשת (גיל)</th><th>${esc(N())} מתוכנן (גיל)</th><th>${esc(N())} מוקדם ביותר</th><th>הפרש מהמתוכנן</th></tr>
+  ${cfg.scenarios.map(s => { const r = get('early' + s.id + JSON.stringify(s), () => E.earliestNuriRetire(cfg, s)), pl = s.nuriRetire - cfg.people.nuri.birth; return `<tr><td>${esc(s.name)}</td><td class="num">${s.tovaRetire - cfg.people.tova.birth}</td><td class="num">${pl}</td><td class="num">${r.feasible ? `<b>${r.age}</b> (${r.year})` : '<span class="neg">אין פרישה שעומדת</span>'}</td><td class="num">${r.feasible ? (r.age < pl ? `<span class="pos">${pl - r.age} שנים מוקדם יותר</span>` : r.age > pl ? `<span class="neg">${r.age - pl} שנים מאוחר יותר</span>` : 'כמתוכנן') : '—'}</td></tr>`; }).join('')}</table></div>
+  <p class="note">הבדיקה משנה רק את שנת הפרישה של ${esc(N())}; כל שאר ההנחות, כולל פרישת ${esc(T())} ושכרה בכל תרחיש, נשארות. אם הפרישה המוקדמת ביותר מאוחרת מהמתוכנן, התרחיש לא עומד בתכנון הנוכחי.</p></div>`;
+}
+
+function screenData() {
+  const refOld = (Date.now() - new Date(REF.version).getTime()) / 864e5 > 300;
+  return `${refOld ? '<div class="warnbox">נתוני הייחוס (מדרגות מס, תקרות) מעודכנים ל-' + REF.version + ' – כדאי לבדוק עדכון.</div>' : ''}
+  ${assumptionsCard('הנחות עבודה')}
+  <div class="card"><h2>נתונים נוספים</h2><div class="row">
+   ${field('מס רווחי הון (%)', inp('cgt', { scale: 100, dec: 1 }))}
+   ${field('הכנסה מסולארי (₪/שנה)', inp('solar', { dec: 0 }))}
+   ${field('שנת התחלה', inp('baseYear', { dec: 0 }))}
+   ${field('שנת סיום', inp('horizon', { dec: 0 }))}</div>
+   <div class="row" style="margin-top:10px">
+   ${field('שכר קובע השתלמות – אדם א׳', inp('people.nuri.khSal', { dec: 0 }))}
+   ${field('המרת גמל לקצבה בגיל 60 (%)', inp('gemel.convPct', { scale: 100, dec: 0 }))}
+   ${field('מקדם קצבה גמל', inp('gemel.factor', { dec: 0 }))}
+   ${field('קצבה פטורה בפנסיה (₪/חודש)', inp('pension.taxFreeMonthly', { dec: 2 }), 'לבדוק מול החוק העדכני')}</div>
+   <div class="row" style="margin-top:10px">${chk('allowPrincipal', 'לאפשר משיכת קרן (ברירת מחדל: רק רווחים)')}</div></div>
+  <div class="card"><h2>הוצאות</h2><div class="scroll"><table><tr><th>סעיף</th><th>סוג</th><th>₪/חודש</th><th>מ-שנה</th><th>חודש</th><th>עד שנה</th><th>חודש</th><th>נומינלי</th><th>פעיל</th><th></th></tr>
+  ${cfg.expenses.map((e, k) => `<tr><td>${inp(`expenses.${k}.name`, { type: 'text', cls: 'w' })}</td><td>${sel(`expenses.${k}.type`, [['living', 'מחייה'], ['child', 'ילדים'], ['debt', 'חוב']])}</td><td>${inp(`expenses.${k}.monthly`, { dec: 0 })}</td><td>${inp(`expenses.${k}.startY`, { dec: 0 })}</td><td>${inp(`expenses.${k}.startM`, { dec: 0 })}</td><td>${inp(`expenses.${k}.endY`, { dec: 0 })}</td><td>${inp(`expenses.${k}.endM`, { dec: 0 })}</td><td><input type="checkbox" data-path="expenses.${k}.nominal" data-type="bool" ${e.nominal ? 'checked' : ''}></td><td><input type="checkbox" data-path="expenses.${k}.enabled" data-type="bool" ${e.enabled !== false ? 'checked' : ''}></td><td><button class="btn sm sec" data-act="delExp" data-k="${k}">✕</button></td></tr>`).join('')}</table></div>
+  <div class="row" style="margin-top:10px;align-items:end"><div class="f" style="max-width:220px"><label>ההוצאות נכונות לתאריך</label><input type="date" data-path="dataDates.expenses" data-type="text" value="${esc((cfg.dataDates || {}).expenses || '')}"></div><div><button class="btn sec sm" data-act="addExp">+ סעיף הוצאה</button></div></div>
+  <p class="note">"נומינלי" – תשלום קבוע בשקלים (משכנתא, הלוואה) שמתכווץ ריאלית עם האינפלציה. הוצאות מסוג "חוב" אינן מצטמצמות בהמלצת צמצום ההוצאות. שנת סיום ריקה = ללא סיום.</p></div>
+  <div class="card"><h2>גיבוי ושחזור</h2><p class="note" style="margin-top:0">${storeOK ? 'הנתונים נשמרים אוטומטית בדפדפן הזה בלבד.' : '<b class="neg">אחסון הדפדפן אינו זמין – ייצאו קובץ גיבוי.</b>'} לשימוש בטלפון ובמחשב – ייצוא ויבוא.</p>
+   <div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn sm" data-act="export">ייצוא קובץ</button><label class="btn sm sec" style="cursor:pointer">ייבוא קובץ<input type="file" id="imp" accept=".json,application/json" style="display:none"></label><button class="btn sm sec" data-act="loadExample">טעינת דוגמה</button><button class="btn sm red" data-act="reset">איפוס – התחלה מאפס</button></div></div>
+  <div class="card"><h2>נתוני ייחוס (2026)</h2><table><tr><th>פרמטר</th><th class="num">ערך</th></tr>
+   <tr><td>תקרת הפקדה שנתית לגמל להשקעה</td><td class="num">${n0(REF.gemelCap)}</td></tr><tr><td>תקרת הפקדה פטורה לקרן השתלמות לעצמאי</td><td class="num">${n0(REF.khExemptDeposit)}</td></tr>
+   <tr><td>ערך נקודת זיכוי (חודשי)</td><td class="num">${REF.creditPoint}</td></tr><tr><td>מדרגות מס (תקרות חודשיות)</td><td class="num">${REF.brackets.map(b => (b[0] === Infinity ? '∞' : n0(b[0])) + ':' + b[1] * 100 + '%').join(' · ')}</td></tr>
+   <tr><td>ריבית בנק ישראל</td><td class="num">${REF.boiRate * 100}%</td></tr><tr><td>מקור</td><td class="num">${REF.sources.map(s => s[1]).join(', ')}</td></tr></table>
+   <p class="note">נקודות הזיכוי של אדם ב׳ מכוילות משכר הברוטו והנטו שהוזנו (${E.calibrateCredits(cfg).toFixed(1)} נקודות אפקטיביות) ונשארות קבועות. כלי תכנון בלבד, אינו ייעוץ פנסיוני, מס או השקעות.</p></div>`;
+}
+
+function screenAbout() {
+  const li = a => '<ul style="margin:6px 0 0;padding-inline-start:20px;line-height:1.7">' + a.map(x => '<li>' + x + '</li>').join('') + '</ul>';
+  return `<div class="card"><h2>איך מתחילים</h2>
+   <p class="note" style="margin-top:0">האפליקציה עוזרת לתכנן מתי אפשר להפסיק לעבוד, ובאילו תנאים, לפי הנתונים של משק הבית. אפשר להתחיל בלי שום הקמה.</p>
+   <ol style="padding-inline-start:20px;line-height:1.8;margin:6px 0">
+    <li>בלשונית "מסמכים" (או "בסיס נתונים") הזינו פרטים בסיסיים: שנות לידה, שכר, יתרות נכסים והוצאות.</li>
+    <li>אספו מסמכים מהצ'ק ליסט: תלושי שכר, דוחות פנסיה, השתלמות וגמל, פירוטי אשראי. אפשר להזין את הערכים ידנית.</li>
+    <li>בלשונית "בית" רואים את גיל הפרישה המוקדם ביותר, ובלשונית "תרחישים" משווים אפשרויות.</li>
+    <li>כל חודש העלו את המסמכים החדשים כדי שהממוצעים יהיו מדויקים יותר.</li></ol>
+   <h3>אפשרויות נוספות (לא חובה)</h3>
+   ${li(['<b>קריאת מסמכים אוטומטית:</b> דורשת מפתח API מ-Anthropic (console.anthropic.com, Keys). משתמשים חדשים מקבלים קרדיט פתיחה קטן, ואחריו התשלום לפי שימוש. עלות מסמך רגיל היא אגורות בודדות. מדביקים את המפתח בקטע "מתקדם" בכרטיס העלאת המסמכים. בלי מפתח אפשר להזין ערכים ידנית.', '<b>סנכרון בין מכשירים:</b> דרך Google Drive שלכם, מוצפן בסיסמה. דורש כתובת https והקמה חד-פעמית (ראו הוראות בכרטיס "סנכרון בין מכשירים").', '<b>גיבוי:</b> "שמירת קובץ גיבוי" בתפריט "עוד". מומלץ פעם בחודש.'])}</div>
+  <div class="card"><h2>פרטיות</h2>
+   ${li(['<b>הנתונים נשמרים אצלכם:</b> בדפדפן של המכשיר שבו אתם עובדים. אין שרת של מפתחי האפליקציה, ואין להם גישה לנתונים שלכם.', '<b>ללא מעקב:</b> אין פרסומות, ניתוח התנהגות או איסוף נתוני שימוש.', '<b>קריאת מסמכים:</b> רק אם הזנתם מפתח API, תוכן המסמך נשלח ל-Anthropic לצורך הקריאה, בחשבון שלכם. קראו את תנאי השימוש והפרטיות שלהם. בלי מפתח, שום מסמך לא יוצא מהמכשיר.', '<b>סנכרון דרייב:</b> הנתונים מוצפנים בדפדפן לפני ההעלאה ונשמרים בתיקייה מוסתרת בדרייב שלכם. הסיסמה לא נשמרת, ואם תשכחו אותה לא ניתן לשחזר.', '<b>מפתח ה-API נשמר בדפדפן</b> של אותו מכשיר בלבד.', '<b>בטעינת ספריות:</b> כשקוראים קבצי PDF, Excel או Word, נטענות ספריות קוד מרשתות הפצה ציבוריות. לא נשלחים אליהן נתונים.', '<b>על המכשיר:</b> הנתונים המקומיים אינם מוצפנים. השתמשו במכשיר פרטי. "איפוס" בכרטיס הגיבוי מוחק את הכול מהדפדפן.'])}</div>
+  <div class="card"><h2>הגבלות</h2>
+   ${li(['<b>כלי תכנון בלבד:</b> אינו ייעוץ פנסיוני, מס, השקעות או משפטי, ואינו תחליף ליועץ מוסמך. ההחלטות באחריותכם.', '<b>מבוסס חוקי ישראל</b> (מס הכנסה, פנסיה, קצבה פטורה, קרנות השתלמות, גמל להשקעה) לפי נתוני ייחוס בגרסה ' + esc(REF.version) + '. חוקים משתנים, ולכן כדאי לוודא מול מקור מעודכן.', '<b>הנחות מפושטות:</b> סימולציה שנתית בערכי ' + cfg.baseYear + ', תשואות ואינפלציה קבועות, מס מחושב בקירוב. התוצאות הן הערכה ולא תחזית.', '<b>בדיקת קיצון:</b> מדמה זעזוע שוק חד פעמי ולא את כל התרחישים האפשריים.', '<b>קריאת מסמכים עלולה לטעות:</b> בדקו כל ערך במסך האישור לפני שהוא נכנס למודל. המסמכים עצמם הם הראיה.', '<b>אובדן נתונים:</b> ניקוי נתוני הדפדפן מוחק את הנתונים המקומיים. שמרו גיבוי.', '<b>אין אחריות:</b> האפליקציה ניתנת כפי שהיא (as is), ללא התחייבות לדיוק, לזמינות או להתאמה למקרה מסוים.'])}</div>`;
+}
+
+const TABS = [['home', 'בית', screenHome], ['strategy', 'אסטרטגיה', screenStrategy], ['floors', 'מינימומים', screenFloors], ['flow', 'תזרים', screenFlow], ['assets', 'נכסים', screenAssets], ['compare', 'השוואה', screenCompare], ['data', 'נתונים', screenData], ['start', 'בסיס נתונים', screenStart], ['about', 'אודות', screenAbout]];
+const NAVB = [['home', 'בית', 'M3 11l9-8 9 8v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z'], ['strategy', 'תרחישים', 'M6 19a2 2 0 1 0 0-4 2 2 0 0 0 0 4zM18 9a2 2 0 1 0 0-4 2 2 0 0 0 0 4zM8 17h6a3 3 0 0 0 0-6h-4a3 3 0 0 1 0-6h4'], ['assets', 'נכסים', 'M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18zM12 7v10M9.5 9.5c0-1 1-1.5 2.5-1.5s2.5.5 2.5 1.5-1 1.3-2.5 1.5-2.5.5-2.5 1.5 1 1.5 2.5 1.5 2.5-.5 2.5-1.5'], ['start', 'מסמכים', 'M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z'], ['more', 'עוד', 'M5 12h.01M12 12h.01M19 12h.01']];
+const MORE = [['floors', 'מינימומים'], ['flow', 'תזרים'], ['compare', 'השוואה'], ['data', 'נתונים'], ['about', 'אודות ופרטיות']];
+let moreOpen = false; const openF = {};
+function getTheme() { try { return localStorage.getItem('ffi.theme') || 'auto'; } catch (e) { return 'auto'; } }
+function applyTheme() { const t = getTheme(); if (t === 'auto') document.documentElement.removeAttribute('data-theme'); else document.documentElement.setAttribute('data-theme', t); }
+applyTheme();
+function foldify(root) {
+  const mobile = window.innerWidth <= 720;
+  let idx = 0;
+  const kids = Array.prototype.slice.call(root.children), yd = root.querySelector('#yd');
+  if (yd) Array.prototype.slice.call(yd.children).forEach(k => kids.push(k));
+  kids.forEach(c => {
+    if (!c.classList.contains('card') || c.classList.contains('nofold')) return;
+    const h = c.querySelector('h2'); if (!h) return;
+    const key = tab + '|' + h.textContent.trim();
+    const d = document.createElement('details'); d.className = c.className + ' fold'; d.setAttribute('data-fk', key);
+    if (key in openF ? openF[key] : (!mobile || (tab !== 'home' && idx === 0))) d.open = true; idx++;
+    const sm = document.createElement('summary'); sm.innerHTML = '<span>' + h.innerHTML + '</span><i class="chev"></i>';
+    h.remove(); d.appendChild(sm); while (c.firstChild) d.appendChild(c.firstChild); c.replaceWith(d);
+  });
+}
+function render() {
+  if (lock.on) { $('#app').innerHTML = lockHTML(); return; }
+  const y = window.scrollY;
+  const t = TABS.find(x => x[0] === tab) || TABS[1];
+  let html;
+  try { html = t[2](); } catch (e) { html = `<div class="card"><h2>שגיאה בחישוב</h2><pre style="white-space:pre-wrap;direction:ltr">${esc(e.stack || e)}</pre></div>`; }
+  const ic = d => `<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="${d}"/></svg>`;
+  const inMore = MORE.some(x => x[0] === tab);
+  const bnav = `<nav class="bnav">${NAVB.map(x => { const on = x[0] === 'more' ? (moreOpen || inMore) : (x[0] === tab && !moreOpen); return `<button class="${on ? 'on' : ''}" data-act="${x[0] === 'more' ? 'moreToggle' : 'tab'}" data-id="${x[0]}">${ic(x[2])}<span>${x[1]}</span></button>`; }).join('')}</nav>`;
+  const th = getTheme();
+  const sheet = moreOpen ? `<div class="sheetbg" data-act="moreToggle"></div><div class="sheet"><div class="sheetg">${MORE.map(x => `<button class="${x[0] === tab ? 'on' : ''}" data-act="tab" data-id="${x[0]}">${x[1]}</button>`).join('')}</div>
+   <p style="margin:12px 0 0"><button class="btn sm sec" data-act="export">שמירת קובץ גיבוי</button></p><div class="seg" style="margin-top:12px">${[['auto', 'אוטומטי'], ['light', 'בהיר'], ['dark', 'כהה']].map(x => `<button class="${th === x[0] ? 'on' : ''}" data-act="theme" data-id="${x[0]}">${x[1]}</button>`).join('')}</div></div>` : '';
+  $('#app').innerHTML = `<header class="top"><h1>תכנון עצמאות כלכלית${FAMILY ? ' – ' + esc(N()) + ' ו' + esc(T()) : ''}<small>כל הסכומים במונחי 2026 · כלי תכנון בלבד</small></h1></header>
+  <nav class="tabs">${TABS.map(x => `<button class="${x[0] === tab ? 'on' : ''}" data-act="tab" data-id="${x[0]}">${x[1]}</button>`).join('')}</nav><div id="main">${html}</div>
+  <footer>כלי תכנון בלבד – אינו ייעוץ פנסיוני, מס או השקעות. הנתונים נשמרים במכשיר זה. <a href="#" data-act="tab" data-id="about" style="color:inherit">אודות, פרטיות והגבלות</a> · גרסה ${esc(APP_VERSION)}<br><span id="syncst">${esc(SYNC_TXT[sync.st] || '')}</span></footer>${bnav}${sheet}`;
+  foldify($('#main'));
+  window.scrollTo(0, y);
+  if (typeof chatRender === 'function' && chatOpen && !lock.on) { const a = document.activeElement; if (!a || a.id !== 'chatIn') chatRender(); }
+}
+document.addEventListener('toggle', e => { const d = e.target; if (d && d.getAttribute && d.getAttribute('data-fk')) openF[d.getAttribute('data-fk')] = d.open; }, true);
+
+/* ---------- events ---------- */
+function newId() { return 's' + Date.now().toString(36); }
+const ACT = {
+  earlyMode: el => { cfg.earlyMode = el.dataset.id; },
+  tab: el => { tab = el.dataset.id; moreOpen = false; window.scrollTo(0, 0); },
+  moreToggle: () => { moreOpen = !moreOpen; },
+  gLogin: () => { if (!gClient()) { alert('הדביקו קודם מזהה לקוח'); return 'skip'; } if (!secureOrigin()) { setSync('nohttps'); return; } lock.on = true; lock.step = 'pw'; lock.err = ''; lock.pw = ''; },
+  unlock: () => { const a = document.getElementById('pw1'), b = document.getElementById('pw2'); driveUnlock(a ? a.value : '', b ? b.value : '').then(() => render()); return 'skip'; },
+  lockSkip: () => { lock.on = false; lock.pw = ''; sync.ref = null; sync.kind = ''; setSync(''); },
+  bkNow: () => { runBackup(false); return 'skip'; },
+  bkShow: () => { dList('ffi-backup-' + (FAMILY ? 'family' : 'generic') + '-').then(l => { BK.list = l; render(); }).catch(() => { BK.msg = 'לא ניתן לטעון גיבויים'; render(); }); return 'skip'; },
+  bkRestore: el => { if (!confirm('לשחזר מהגיבוי הזה? הנתונים הנוכחיים יוחלפו.')) return 'skip'; restoreBackup(el.dataset.id).then(() => { BK.msg = 'הנתונים שוחזרו'; render(); }).catch(() => { BK.msg = 'השחזור נכשל'; render(); }); return 'skip'; },
+  gOff: () => { lsSet(GAUTH, ''); GTOK.t = ''; CRY.key = null; sync.ref = null; sync.kind = ''; setSync(''); },
+  theme: el => { try { localStorage.setItem('ffi.theme', el.dataset.id); } catch (e) { } applyTheme(); },
+  goHome: () => { cfg.setup = true; tab = 'home'; window.scrollTo(0, 0); },
+  goYear: el => { selYear = +el.dataset.y; if (tab !== 'home') tab = 'home'; },
+  setActive: el => { cfg.active = el.dataset.id; selYear = null; if (el.dataset.go) tab = el.dataset.go; },
+  apply: el => { const rec = get('rec', () => E.recommend(cfg)); const r = rec.recs[+el.dataset.i]; if (r) r.apply.forEach(([p, v]) => E.setPath(cfg, p, v)); },
+  applyRet: el => { const i = scIdx(); cfg.scenarios[i].tovaRetire = +el.dataset.t; cfg.scenarios[i].nuriRetire = +el.dataset.n; },
+  addSeg: () => { const s = sc(); const last = s.tovaSalary[s.tovaSalary.length - 1]; s.tovaSalary.push({ from: Math.max(last.from + 1, cfg.baseYear + 2), gross: last.gross }); },
+  delSeg: el => { sc().tovaSalary.splice(+el.dataset.k, 1); },
+  dupSc: () => { const c = E.clone(sc()); c.id = newId(); c.name += ' (עותק)'; cfg.scenarios.push(c); cfg.active = c.id; },
+  newSc: () => { const c = E.clone(sc()); c.id = newId(); c.name = 'החלפת מקצוע'; const y = cfg.baseYear + 2; c.tovaSalary = c.tovaSalary.filter(x => x.from < y).concat([{ from: y, gross: 25000 }]); cfg.scenarios.push(c); cfg.active = c.id; },
+  delSc: () => { if (cfg.scenarios.length < 2) return; if (!confirm('למחוק את התרחיש?')) return; cfg.scenarios = cfg.scenarios.filter(s => s.id !== cfg.active); cfg.active = cfg.scenarios[0].id; },
+  gemelCap: () => { cfg.floors.gemelAnnual.nuri = REF.gemelCap; cfg.floors.gemelAnnual.tova = REF.gemelCap; },
+  addExp: () => { cfg.expenses.push({ id: 'e' + Date.now(), name: 'סעיף חדש', type: 'living', monthly: 0, startY: cfg.baseYear, kind: 'recurring' }); },
+  delExp: el => { cfg.expenses.splice(+el.dataset.k, 1); },
+  docApply: () => { applyItem(draft, true); draft = Object.assign(newItem(), { id: 'draft', type: draft.type, owner: draft.owner }); },
+  clearImpact: () => { lastImpact = null; },
+  qApply: el => { const it = itemById(el.dataset.it); if (it) { applyItem(it, true); queue = queue.filter(x => x !== it); } },
+  qEvidence: el => { const it = itemById(el.dataset.it); if (it) { applyItem(it, false); queue = queue.filter(x => x !== it); } },
+  qDrop: el => { queue = queue.filter(x => x.id !== el.dataset.it); },
+  qRetry: el => { const it = itemById(el.dataset.it); if (it) { runAI(it); return 'skip'; } },
+  qApplyAll: () => { closedBuf = []; const done = queue.filter(x => x.status === 'done'), before = snap(), all = []; done.forEach(it => all.push(...applyItem(it, true, true))); lastImpact = { before, after: snap(), changes: all, unchanged: 0, closed: closedBuf.slice(), type: 'multi', date: todayStr(), label: done.length + ' מסמכים' }; queue = queue.filter(x => x.status !== 'done'); },
+  docOpen: el => { idbOpen(el.dataset.id); return 'skip'; },
+  histEx: el => { const h = cfg.history[+el.dataset.i]; if (h) { h.ex = !h.ex; recomputeHist(); } },
+  histDel: el => { cfg.history.splice(+el.dataset.i, 1); recomputeHist(); },
+  addExpected: () => { cfg.expected.push({ id: 'x' + Date.now().toString(36), on: true, title: 'כרטיס אשראי חדש', type: 'card', owner: 'nuri', freq: 'monthly', dueDay: 10 }); },
+  noActivity: el => { cfg.slots = cfg.slots || {}; cfg.slots[el.dataset.id + '|' + el.dataset.k] = 'none'; },
+  undoSlot: el => { delete cfg.slots[el.dataset.id + '|' + el.dataset.k]; },
+  delExpected: el => { cfg.expected.splice(+el.dataset.i, 1); },
+  delDoc: el => { const d = cfg.docs.splice(+el.dataset.k, 1)[0]; if (d && d.fileId) idbDel(d.fileId); },
+  loadExample: () => { if (!confirm('לטעון משפחה לדוגמה? הנתונים הנוכחיים יוחלפו.')) return; cfg = E.clone(EXAMPLE); selYear = null; tab = 'home'; },
+  reset: () => { if (!confirm('למחוק את כל הנתונים ולהתחיל מאפס?')) return; cfg = E.clone(BLANKCFG); selYear = null; tab = 'start'; },
+  export: () => {
+    cfg.lastBackup = ymOf(new Date()); save();
+    const fname = 'family-fi-' + new Date().toISOString().slice(0, 10) + '.json', data = JSON.stringify(cfg, null, 1);
+    if (window.claude && window.claude.use) { window.claude.use('downloads').then(d => { if (d) return d.save({ filename: fname, data }); }).catch(() => {}); return 'skip'; }
+    const blob = new Blob([data], { type: 'application/json' }); const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob); a.download = 'family-fi-' + new Date().toISOString().slice(0, 10) + '.json'; a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); render(); }, 300); return 'skip';
+  },
+};
+document.addEventListener('click', e => {
+  const el = e.target.closest('[data-act]'); if (!el || !ACT[el.dataset.act]) return;
+  const r_ = ACT[el.dataset.act](el); if (r_ === 'skip' || r_ === 'nr') return;
+  save(); render();
+});
+document.addEventListener('input', e => {
+  if (e.target.id !== 'yr') return;
+  selYear = +e.target.value; const b = bundle(); const yd = $('#yd'); if (yd) yd.innerHTML = yearDetail(b);
+});
+function afterSet(path) {
+  const t = cfg.people.tova, c = t.calib;
+  if (path === 'people.tova.calib.gross') cfg.scenarios.forEach(s => { s.tovaSalary[0].gross = c.gross || 0; });
+  if (path.indexOf('people.tova.calib') === 0 && c.gross > 0 && c.penSal > 0) t.pensShare = Math.min(1, c.penSal / c.gross);
+}
+document.addEventListener('change', e => {
+  const el = e.target;
+  if (el.id === 'imp') {
+    const f = el.files[0]; if (!f) return; const rd = new FileReader();
+    rd.onload = () => { try { const o = JSON.parse(rd.result); if (o.schema !== 1) throw 0; cfg = deepFill(o, EXAMPLE); selYear = null; save(); render(); } catch (x) { alert('קובץ לא תקין'); } };
+    rd.readAsText(f); return;
+  }
+  if (el.dataset && el.dataset.expect) { const e = (cfg.expected || []).find(x => x.id === el.dataset.expect); if (e && el.files.length) { const p = periodInfo(e, new Date()); addFiles(Array.from(el.files), { type: e.type, owner: e.owner, sel: e.sel, slot: e.id + '|' + p.key, date: fmtD(p.end), label: e.title }); tab = 'start'; window.scrollTo(0, 0); render(); } el.value = ''; return; }
+  if (el.id === 'docFile') { addFiles(Array.from(el.files)); return; }
+  if (el.dataset && el.dataset.apikey) { lsSet({ key: AKEY, model2: AMODEL2, gclient: GCID, idle: IDLE_KEY }[el.dataset.apikey] || AMODEL, el.value.trim()); render(); return; }
+  if (el.dataset && el.dataset.itreset) { const it = itemById(el.dataset.it); if (it) { it[el.dataset.itreset] = el.value; if (el.dataset.itreset !== 'sel') { if (el.dataset.itreset === 'type') it.sel = ''; it.values = {}; } } render(); return; }
+  if (el.dataset && el.dataset.itdate) { const it = itemById(el.dataset.it); if (it) it.date = el.value || todayStr(); return; }
+  if (el.dataset && el.dataset.pend != null) { const it = itemById(el.dataset.it); if (it) { it.closes = it.closes || {}; it.closes[+el.dataset.pend] = el.checked; } return; }
+  if (el.dataset && el.dataset.key) { const it = itemById(el.dataset.it); if (it) { const t = el.value.replace(/,/g, '').trim(); it.values[el.dataset.key] = t === '' ? '' : parseFloat(t); syncPend(it); } return; }
+  if (!el.dataset || !el.dataset.path) return;
+  let v; const t = el.dataset.type;
+  if (t === 'bool') v = el.checked;
+  else if (t === 'text') v = el.value;
+  else { const x = parseFloat(String(el.value).replace(/,/g, '')); if (isNaN(x)) { if (el.value.trim() === '') v = undefined; else return; } else v = x / (parseFloat(el.dataset.scale) || 1); }
+  if (el.dataset.path === '_ledgerYear') cfg._ledgerYear = v;
+  else { E.setPath(cfg, el.dataset.path, v); afterSet(el.dataset.path); }
+  save(); render();
+});
+
+/* ---------- chat ---------- */
+let chatOpen = false, chatBusy = false, chatMsgs = [], chatReqs = [];
+function chatEl() { let e = document.getElementById('chat'); if (!e) { e = document.createElement('div'); e.id = 'chat'; document.body.appendChild(e); } return e; }
+function chatCtx() {
+  const b = bundle(), c = JSON.parse(JSON.stringify(cfg)); delete c.docs; delete c.checklist; delete c.dataDates; delete c.active;
+  return JSON.stringify({ today: todayStr(), activeScenario: b.s.name, results: { planOk: b.ev.ok, planOkWithoutCrash: b.ev.baseOk, assetsAtTovaRetire: Math.round(b.sum.assetsAtTovaRetire), finalAssets: Math.round(b.sum.finalAssets), minGrossSalaryTova: b.ms.feasible ? b.ms.minGross : null, plannedGrossTova: b.ms.plannedGross, firstMandatoryGapYear: b.sum.firstMandatoryGap }, missing: missingItems(), dataDates: cfg.dataDates, openTasks: (cfg.pending || []).filter(p => !p.done).map(p => p.t), model: c });
+}
+function chatPrompt(q) {
+  const hist = chatMsgs.slice(-8).map(m => (m.role === 'u' ? 'משתמש: ' : 'עוזר: ') + m.text).join('\n');
+  return `אתה העוזר המובנה באפליקציית תכנון עצמאות כלכלית של משפחה. ענה בעברית, בקצרה ובפשטות, כמי שמסביר לאדם שאינו מומחה. אתה אינו יועץ פנסיוני, מס או השקעות, ואל תמציא מספרים: השתמש רק בנתוני המודל ובתוצאות שלהלן. אם נדרש חישוב שהאפליקציה אינה מבצעת, אמור זאת.
+כללי עדכון: אסור לשנות נתונים בעצמך. אם המשתמש מבקש לשנות ערך או מספר ממנו לעדכן, החזר אותו ב-changes והמשתמש יאשר. path הוא נתיב בנקודות בתוך model (מערכים לפי אינדקס, למשל assets.3.bal או people.nuri.netMonthly או scenarios.1.tovaRetire), והערך חייב להיות מאותו סוג כמו הקיים (מספר, ערך בוליאני או טקסט). שיעורים כשברים (0.02 = 2%). סכומים בשקלים. לעו"ש הנתיב הוא assets.<אינדקס הנכס שבו kind הוא cash>.bal. אל תציע שינוי בנתיבים שאינם קיימים.
+אם הבקשה היא שינוי של האפליקציה עצמה (תכונה חדשה, חישוב חדש, תיקון באג), החזר ב-appRequest ניסוח קצר ומדויק של הבקשה, ובתשובה הסבר שזה שינוי קוד שמבצעים בשיחה עם Claude.
+החזר JSON בלבד: {"reply":"תשובה","changes":[{"path":"...","value":..., "label":"תיאור בעברית"}],"appRequest":null}
+המצב הנוכחי: ${chatCtx()}
+${hist ? 'השיחה עד כה:\n' + hist + '\n' : ''}שאלת המשתמש: ${q}`;
+}
+function chatValid(ch) {
+  if (!ch || typeof ch.path !== 'string' || /^(docs|checklist|pending|dataDates|schema|_)/.test(ch.path)) return false;
+  const cur = E.getPath(cfg, ch.path); if (cur === undefined || cur === null || typeof cur === 'object') return false;
+  return typeof cur === typeof ch.value && (typeof cur !== 'number' || isFinite(ch.value));
+}
+async function chatSend() {
+  const inp = document.getElementById('chatIn'); const q = inp ? inp.value.trim() : ''; if (!q || chatBusy) return;
+  chatMsgs.push({ role: 'u', text: q }); chatBusy = true; chatRender();
+  try {
+    const res = await sampleFn.json(chatPrompt(q), { cache: false });
+    const ch = (res.changes || []).filter(chatValid).map(c => Object.assign({}, c, { from: E.getPath(cfg, c.path), state: 'open' }));
+    chatMsgs.push({ role: 'a', text: String(res.reply || ''), changes: ch });
+    if (res.appRequest) { chatReqs.push(String(res.appRequest)); chatMsgs[chatMsgs.length - 1].req = String(res.appRequest); }
+  } catch (e) { chatMsgs.push({ role: 'a', text: e && e.code ? (SAMPLE_ERR[e.code] || 'שגיאה (' + e.code + ')') : 'שגיאה: ' + String((e && e.message) || e) }); }
+  chatBusy = false; chatRender();
+}
+function chatApply(mi, ci) {
+  const m = chatMsgs[mi], c = m && m.changes[ci]; if (!c || c.state !== 'open' || !chatValid(c)) return;
+  const before = snap(); E.setPath(cfg, c.path, c.value); afterSet(c.path); c.state = 'done';
+  const dk = /^assets\.(\d+)\./.exec(c.path); if (dk && cfg.assets[+dk[1]]) { cfg.dataDates = cfg.dataDates || {}; cfg.dataDates[cfg.assets[+dk[1]].id] = todayStr(); }
+  save(); const after = snap(), dA = after.assets - before.assets;
+  c.result = Math.abs(dA) < 1000 ? 'ההון בפרישה לא השתנה מהותית' : `ההון בפרישת ${T()}: ${fm(before.assets)} ← ${fm(after.assets)}`;
+  if (before.minGross !== after.minGross) c.result += `; שכר מינימלי: ${before.minGross == null ? 'לא אפשרי' : n0(before.minGross)} ← ${after.minGross == null ? 'לא אפשרי' : n0(after.minGross)}`;
+  render(); chatRender();
+}
+function chatRender() {
+  const el = chatEl();
+  const keep = (document.getElementById('chatIn') || {}).value || '';
+  if (!chatOpen) { el.innerHTML = '<button class="chatfab" data-act="chatToggle" aria-label="פתח צ\'אט">💬 שאלו אותי</button>'; return; }
+  const fv = v => typeof v === 'number' ? (Math.abs(v) < 1 && v !== 0 ? (v * 100).toFixed(2).replace(/\.?0+$/, '') + '%' : n0(v)) : String(v);
+  el.innerHTML = `<div class="chatbox"><div class="chathead"><b>עוזר התכנון</b><span><button class="btn sm sec" data-act="chatClear">נקה</button> <button class="btn sm sec" data-act="chatToggle">סגור</button></span></div>
+  <div class="chatlog" id="chatLog">${!sampleFn ? '<p class="note"><b>הצ\'אט אינו זמין כאן.</b> הוא עובד רק כשהעמוד נפתח בתוך Claude (הקישור של ה-Artifact, אחרי אישור השימוש ב-Claude). בקובץ ה-HTML הלא מקוון, או בדפדפן רגיל, אי אפשר להתכתב. אם אתם בתוך Claude ועדיין רואים הודעה זו, אשרו את בקשת ההרשאה של העמוד, או רעננו אותו.</p>' : ''}${chatMsgs.length ? '' : '<p class="note">שאלו על המספרים ("למה השכר המינימלי כזה?"), נסו מה-אם ("מה אם נפרוש שנתיים מאוחר יותר?") או עדכנו נתון ("היתרה בעו"ש היום 38 אלף"). שינוי נתונים ייכנס רק אחרי אישור שלכם. שינויי קוד: ביקשו כאן, ואעביר ניסוח לשיחה עם Claude.</p>'}
+  ${chatMsgs.map((m, mi) => `<div class="msg ${m.role}">${esc(m.text).replace(/\n/g, '<br>')}${(m.changes || []).map((c, ci) => `<div class="prop"><b>${esc(c.label || c.path)}</b>: ${esc(fv(c.from))} ← <b>${esc(fv(c.value))}</b> ${c.state === 'open' ? `<button class="btn sm" data-act="chatApply" data-m="${mi}" data-c="${ci}">החל</button> <button class="btn sm sec" data-act="chatSkip" data-m="${mi}" data-c="${ci}">דלג</button>` : c.state === 'done' ? `<div class="note">הוחל. ${esc(c.result || '')}</div>` : '<span class="note">דולג</span>'}</div>`).join('')}${m.req ? `<div class="prop"><b>בקשת שינוי באפליקציה</b><div class="note">${esc(m.req)}</div></div>` : ''}</div>`).join('')}${chatBusy ? '<div class="msg a note">חושב…</div>' : ''}</div>
+  ${chatReqs.length ? `<div class="note" style="padding:4px 10px">${chatReqs.length} בקשות שינוי באפליקציה <button class="btn sm sec" data-act="chatReqs">הצג והעתק</button></div>` : ''}
+  <div class="chatin"><textarea id="chatIn" rows="2" ${sampleFn ? '' : 'disabled'} placeholder="כתבו שאלה או עדכון…">${esc(keep)}</textarea><button class="btn" data-act="chatSend" ${chatBusy || !sampleFn ? 'disabled' : ''}>שלח</button></div></div>`;
+  const lg = document.getElementById('chatLog'); if (lg) lg.scrollTop = lg.scrollHeight;
+}
+Object.assign(ACT, {
+  chatToggle: () => { chatOpen = !chatOpen; chatRender(); return 'nr'; }, chatClear: () => { chatMsgs = []; chatRender(); return 'nr'; },
+  chatSend: () => { chatSend(); return 'nr'; }, chatApply: el => { chatApply(+el.dataset.m, +el.dataset.c); return 'nr'; },
+  chatSkip: el => { chatMsgs[+el.dataset.m].changes[+el.dataset.c].state = 'skip'; chatRender(); return 'nr'; },
+  chatReqs: () => { const t = 'בקשות שינוי לאפליקציה:\n' + chatReqs.map((x, i) => (i + 1) + '. ' + x).join('\n'); try { navigator.clipboard.writeText(t); } catch (e) {} chatMsgs.push({ role: 'a', text: t + '\n\n(הועתק. הדביקו בשיחה עם Claude.)' }); chatRender(); return 'nr'; }
+});
+document.addEventListener('keydown', e => { if (lock.on && e.key === 'Enter' && e.target && /^pw[12]$/.test(e.target.id)) { e.preventDefault(); ACT.unlock(); } if (e.target && e.target.id === 'chatIn' && e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); chatSend(); } });
+seedHistory();
+seedExpected();
+chatRender();
+booted = true; syncInit();
+window.__ffi = { get draft() { return draft; }, get queue() { return queue; }, ACT, addFiles, get cfg() { return cfg; }, render, go: t => { tab = t; render(); } };
+render();
+})();
+</script>
+</body></html>
