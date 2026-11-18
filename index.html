@@ -645,7 +645,7 @@ if (typeof module !== 'undefined') module.exports = DEFAULTS;
 <script>(function () {
 'use strict';
 const FAMILY = false; /*FAMILY*/
-const APP_VERSION = '2026.11.18-2';
+const APP_VERSION = '2026.11.18-4';
 const E = FFI, REF = E.REF, KEY = FAMILY ? 'ffi.family.v1' : 'ffi.cfg.v1', EXAMPLE = DEFAULTS, BLANKCFG = BLANK;
 const $ = s => document.querySelector(s);
 const esc = s => String(s == null ? '' : s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
@@ -672,7 +672,7 @@ function adopt(o) { if (!o || o.schema !== 1) return false; deepFill(o, EXAMPLE)
 function pushSoon() { if (!sync.ref) return; clearTimeout(sync.timer); sync.timer = setTimeout(pushNow, 1500); }
 async function pushNow() {
   if (!sync.ref) return;
-  try { const j = JSON.stringify(cfg); if (j.length > SYNC_MAX) { setSync('big'); return; } if (!cfg._ts) cfg._ts = Date.now(); const ts = cfg._ts; setSync('push'); sync.last = ts; if (sync.kind === 'drive') await dPush(); else await sync.ref.set({ ts, json: JSON.stringify(cfg) }); setSync('ok'); } catch (e) { setSync(String(e.message) === 'auth' ? 'login' : 'err'); }
+  try { const j = JSON.stringify(cfg); if (j.length > SYNC_MAX) { setSync('big'); return; } if (!cfg._ts) cfg._ts = Date.now(); const ts = cfg._ts; setSync('push'); sync.last = ts; if (sync.kind === 'drive') await dPush(); else await sync.ref.set({ ts, json: JSON.stringify(cfg) }); setSync('ok'); } catch (e) { setSync(/^auth/.test(String(e.message)) ? 'login' : 'err'); }
 }
 function onRemote(d) {
   if (!d || !d.json || !(d.ts > (cfg._ts || 0)) || d.ts === sync.last) return;
@@ -688,10 +688,10 @@ function gToken(interactive) {
     if (GTOK.t && Date.now() < GTOK.exp - 60000) return res(GTOK.t);
     loadScript('https://accounts.google.com/gsi/client', () => window.google && google.accounts && google.accounts.oauth2).then(() => {
       const tc = google.accounts.oauth2.initTokenClient({ client_id: gClient(), scope: 'https://www.googleapis.com/auth/drive.appdata',
-        callback: r => { if (r.error) return rej(new Error('auth')); GTOK.t = r.access_token; GTOK.exp = Date.now() + (+r.expires_in || 3600) * 1000; lsSet(GAUTH, '1'); res(GTOK.t); },
-        error_callback: () => rej(new Error('auth')) });
+        callback: r => { if (r.error) return rej(new Error('auth:' + r.error + (r.error_description ? ' ' + r.error_description : ''))); GTOK.t = r.access_token; GTOK.exp = Date.now() + (+r.expires_in || 3600) * 1000; lsSet(GAUTH, '1'); res(GTOK.t); },
+        error_callback: e => rej(new Error('auth:' + ((e && e.type) || 'popup'))) });
       tc.requestAccessToken({ prompt: interactive ? 'select_account' : '' });
-    }).catch(() => rej(new Error('auth')));
+    }).catch(() => rej(new Error('auth:script')));
   });
 }
 async function dFetch(url, opt) {
@@ -726,7 +726,19 @@ async function dPush() {
   const r = await dFetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&fields=id', { method: 'POST', headers: { 'Content-Type': 'multipart/related; boundary=' + b }, body: mp });
   DRV.id = (await r.json()).id;
 }
-async function drivePoll() { if (sync.kind !== 'drive' || lock.on || !CRY.key) return; try { const d = await dPull(); if (d && d.json) onRemote(d); } catch (e) { if (String(e.message) === 'auth') setSync('login'); } }
+async function drivePoll() { if (sync.kind !== 'drive' || lock.on || !CRY.key) return; try { const d = await dPull(); if (d && d.json) onRemote(d); } catch (e) { if (/^auth/.test(String(e.message))) setSync('login'); } }
+function driveDiag(e) {
+  const m = String(e && e.message || e);
+  if (m.indexOf('auth:script') === 0) return 'לא ניתן לטעון את ספריית ההתחברות של גוגל – בדקו חיבור לאינטרנט וחוסמי פרסומות.';
+  if (m.indexOf('auth:popup_failed') === 0) return 'הדפדפן חסם את חלון ההתחברות של גוגל – אשרו חלונות קופצ׳ים לאתר ונסו שוב.';
+  if (m.indexOf('auth:popup_closed') === 0) return 'חלון ההתחברות נסגר לפני שהסתיים – נסו שוב ואשרו את ההרשאות.';
+  if (m.indexOf('auth:access_denied') === 0) return 'ההרשאה נדחתה. ודאו שחשבון הגוגל שלכם מופיע ב-Test users, ושההיקף drive.appdata נוסף ב-Data Access.';
+  if (m.indexOf('auth') === 0) return 'ההתחברות לגוגל נכשלה (' + m.replace(/^auth:?/, '') + '). בדקו שהמקור https://' + location.host + ' מופיע ב-Authorized JavaScript origins.';
+  if (m.indexOf('drive 403') === 0) return 'גוגל סירבה לגשת לדרייב (403). ודאו ש-Google Drive API מופעל בפרויקט, ושההיקף drive.appdata נוסף.';
+  if (m.indexOf('drive 401') === 0) return 'ההרשאה לא התקבלה (401). נסו להתחבר שוב.';
+  if (m.indexOf('drive') === 0) return 'שגיאת דרייב: ' + m;
+  return 'שגיאה: ' + m + ' (בדקו חיבור לאינטרנט).';
+}
 async function driveUnlock(pw, pw2) {
   lock.err = ''; lock.pw = pw;
   if (!pw || pw.length < 6) { lock.err = 'סיסמה של 6 תווים לפחות'; return; }
@@ -746,7 +758,7 @@ async function driveUnlock(pw, pw2) {
     if (d && d.ts > (cfg._ts || 0)) onRemote(d); else await pushNow();
     setSync('ok'); setTimeout(maybeBackup, 1500);
     if (!DRV.timer) { DRV.timer = setInterval(() => { drivePoll(); maybeBackup(); }, 30000); document.addEventListener('visibilitychange', () => { if (!document.hidden) drivePoll(); }); }
-  } catch (e) { lock.err = 'לא ניתן להתחבר לדרייב – בדקו חיבור ואישור הרשאה'; }
+  } catch (e) { lock.err = driveDiag(e); }
 }
 /* ---- auto-lock after idle (drive sync only) ---- */
 const IDLE_KEY = 'ffi.idle'; let lastAct = Date.now();
@@ -803,7 +815,7 @@ function lockHTML() {
   <p style="margin:12px 0 0"><button class="btn" data-act="unlock">${cr ? 'יצירה והמשך' : 'פתיחה'}</button> <button class="btn sec" data-act="lockSkip">המשך בלי סנכרון</button></p></div>`;
 }
 function syncCard() {
-  if (window.claude && window.claude.use) return '';
+  if (window.claude && window.claude.use) return `<div class="card"><h2>סנכרון בין מכשירים</h2><p style="margin:0"><b>${esc(SYNC_TXT[sync.st] || 'הסנכרון פעיל')}</b></p><p class="note" style="margin:6px 0 0">הנתונים מסונכרנים אוטומטית דרך חשבון Claude שלכם, בלי הגדרות נוספות.</p></div>`;
   const cid = gClient(), st = SYNC_TXT[sync.st] || '';
   return `<div class="card"><h2>סנכרון בין מכשירים (Google Drive)</h2>
    <p class="note" style="margin-top:0">הנתונים נשמרים בקובץ מוסתר בדרייב שלכם (אף אחד אחר לא רואה אותו). נדרשת פתיחה מכתובת https והגדרה חד-פעמית.</p>
@@ -1590,7 +1602,7 @@ function screenAbout() {
   return `<div class="card"><h2>איך מתחילים</h2>
    <p class="note" style="margin-top:0">האפליקציה עוזרת לתכנן מתי אפשר להפסיק לעבוד, ובאילו תנאים, לפי הנתונים של משק הבית. אפשר להתחיל בלי שום הקמה.</p>
    <ol style="padding-inline-start:20px;line-height:1.8;margin:6px 0">
-    <li>בלשונית "מסמכים" (או "בסיס נתונים") הזינו פרטים בסיסיים: שנות לידה, שכר, יתרות נכסים והוצאות.</li>
+    <li>בלשונית "מסמכים" הזינו פרטים בסיסיים: שנות לידה, שכר, יתרות נכסים והוצאות.</li>
     <li>אספו מסמכים מהצ'ק ליסט: תלושי שכר, דוחות פנסיה, השתלמות וגמל, פירוטי אשראי. אפשר להזין את הערכים ידנית.</li>
     <li>בלשונית "בית" רואים את גיל הפרישה המוקדם ביותר, ובלשונית "תרחישים" משווים אפשרויות.</li>
     <li>כל חודש העלו את המסמכים החדשים כדי שהממוצעים יהיו מדויקים יותר.</li></ol>
@@ -1602,7 +1614,7 @@ function screenAbout() {
    ${li(['<b>כלי תכנון בלבד:</b> אינו ייעוץ פנסיוני, מס, השקעות או משפטי, ואינו תחליף ליועץ מוסמך. ההחלטות באחריותכם.', '<b>מבוסס חוקי ישראל</b> (מס הכנסה, פנסיה, קצבה פטורה, קרנות השתלמות, גמל להשקעה) לפי נתוני ייחוס בגרסה ' + esc(REF.version) + '. חוקים משתנים, ולכן כדאי לוודא מול מקור מעודכן.', '<b>הנחות מפושטות:</b> סימולציה שנתית בערכי ' + cfg.baseYear + ', תשואות ואינפלציה קבועות, מס מחושב בקירוב. התוצאות הן הערכה ולא תחזית.', '<b>בדיקת קיצון:</b> מדמה זעזוע שוק חד פעמי ולא את כל התרחישים האפשריים.', '<b>קריאת מסמכים עלולה לטעות:</b> בדקו כל ערך במסך האישור לפני שהוא נכנס למודל. המסמכים עצמם הם הראיה.', '<b>אובדן נתונים:</b> ניקוי נתוני הדפדפן מוחק את הנתונים המקומיים. שמרו גיבוי.', '<b>אין אחריות:</b> האפליקציה ניתנת כפי שהיא (as is), ללא התחייבות לדיוק, לזמינות או להתאמה למקרה מסוים.'])}</div>`;
 }
 
-const TABS = [['home', 'בית', screenHome], ['strategy', 'אסטרטגיה', screenStrategy], ['floors', 'מינימומים', screenFloors], ['flow', 'תזרים', screenFlow], ['assets', 'נכסים', screenAssets], ['compare', 'השוואה', screenCompare], ['data', 'נתונים', screenData], ['start', 'בסיס נתונים', screenStart], ['about', 'אודות', screenAbout]];
+const TABS = [['home', 'בית', screenHome], ['strategy', 'תרחישים', screenStrategy], ['assets', 'נכסים', screenAssets], ['start', 'מסמכים', screenStart], ['floors', 'מינימומים', screenFloors], ['flow', 'תזרים', screenFlow], ['compare', 'השוואה', screenCompare], ['data', 'נתונים', screenData], ['about', 'אודות', screenAbout]];
 const NAVB = [['home', 'בית', 'M3 11l9-8 9 8v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z'], ['strategy', 'תרחישים', 'M6 19a2 2 0 1 0 0-4 2 2 0 0 0 0 4zM18 9a2 2 0 1 0 0-4 2 2 0 0 0 0 4zM8 17h6a3 3 0 0 0 0-6h-4a3 3 0 0 1 0-6h4'], ['assets', 'נכסים', 'M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18zM12 7v10M9.5 9.5c0-1 1-1.5 2.5-1.5s2.5.5 2.5 1.5-1 1.3-2.5 1.5-2.5.5-2.5 1.5 1 1.5 2.5 1.5 2.5-.5 2.5-1.5'], ['start', 'מסמכים', 'M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z'], ['more', 'עוד', 'M5 12h.01M12 12h.01M19 12h.01']];
 const MORE = [['floors', 'מינימומים'], ['flow', 'תזרים'], ['compare', 'השוואה'], ['data', 'נתונים'], ['about', 'אודות ופרטיות']];
 let moreOpen = false; const openF = {};
