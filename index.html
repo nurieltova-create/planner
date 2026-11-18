@@ -645,7 +645,7 @@ if (typeof module !== 'undefined') module.exports = DEFAULTS;
 <script>(function () {
 'use strict';
 const FAMILY = false; /*FAMILY*/
-const APP_VERSION = '2026.11.18-4';
+const APP_VERSION = '2026.11.18-5';
 const E = FFI, REF = E.REF, KEY = FAMILY ? 'ffi.family.v1' : 'ffi.cfg.v1', EXAMPLE = DEFAULTS, BLANKCFG = BLANK;
 const $ = s => document.querySelector(s);
 const esc = s => String(s == null ? '' : s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
@@ -819,7 +819,7 @@ function syncCard() {
   const cid = gClient(), st = SYNC_TXT[sync.st] || '';
   return `<div class="card"><h2>סנכרון בין מכשירים (Google Drive)</h2>
    <p class="note" style="margin-top:0">הנתונים נשמרים בקובץ מוסתר בדרייב שלכם (אף אחד אחר לא רואה אותו). נדרשת פתיחה מכתובת https והגדרה חד-פעמית.</p>
-   <div class="f"><label>מזהה לקוח (Client ID) של Google</label><input data-apikey="gclient" value="${esc(cid)}" placeholder="123456-abc.apps.googleusercontent.com" autocomplete="off"></div>
+   <div class="f"><label>מזהה לקוח (Client ID) של Google</label><input data-apikey="gclient" dir="ltr" style="text-align:left" value="${esc(cid)}" placeholder="123456-abc.apps.googleusercontent.com" autocomplete="off"></div>
    <div class="f" style="max-width:260px;margin-top:10px"><label>נעילה אוטומטית אחרי חוסר פעילות</label><select data-apikey="idle">${[2, 5, 10, 30].map(m => `<option value="${m}" ${idleMin() === m ? 'selected' : ''}>${m} דקות</option>`).join('')}</select></div>
    <p style="margin:10px 0 4px">${st ? '<b>' + esc(st) + '</b>' : ''}</p>
    <p style="margin:0"><button class="btn" data-act="gLogin">התחברות וסנכרון</button> <button class="btn sec" data-act="gOff">ניתוק</button></p>
@@ -1446,7 +1446,7 @@ function docCard() {
   const online = navigator.onLine, key = lsGet(AKEY);
   const status = sampleFn ? '<span class="badge b-ok">קריאה אוטומטית פעילה (דרך חשבון ה-Claude שלכם)</span>' : !online ? '<span class="badge b-warn">אופליין – קריאה אוטומטית חסומה, אפשר להזין ידנית</span>' : key ? '<span class="badge b-ok">מחובר – קריאה אוטומטית פעילה</span>' : '<span class="badge b-warn">קריאה אוטומטית זמינה בגרסת Claude של האפליקציה</span>';
   const done = queue.filter(x => x.status === 'done');
-  const adv = sampleFn ? '' : `<details style="margin-top:8px"><summary class="note" style="cursor:pointer">מתקדם: חיבור באמצעות מפתח API (למשתמשים טכניים)</summary><div class="row" style="margin-top:8px"><div class="f"><label>מפתח API</label><input type="password" data-apikey="key" value="${esc(key)}" placeholder="sk-ant-…" autocomplete="off"></div><div class="f"><label>מודל זול (תלושים, אשראי, עו"ש)</label><input data-apikey="model" value="${esc(lsGet(AMODEL) || M_LIGHT)}"></div><div class="f"><label>מודל מדויק (פנסיה, השתלמות, גמל, תיק)</label><input data-apikey="model2" value="${esc(lsGet(AMODEL2) || M_HEAVY)}"></div></div></div></details>`;
+  const adv = sampleFn ? '' : `<details style="margin-top:8px"><summary class="note" style="cursor:pointer">מתקדם: חיבור באמצעות מפתח API (למשתמשים טכניים)</summary><div class="row" style="margin-top:8px"><div class="f"><label>מפתח API</label><input type="password" data-apikey="key" dir="ltr" style="text-align:left" value="${esc(key)}" placeholder="sk-ant-…" autocomplete="off"></div><div class="f"><label>מודל זול (תלושים, אשראי, עו"ש)</label><input data-apikey="model" dir="ltr" style="text-align:left" value="${esc(lsGet(AMODEL) || M_LIGHT)}"></div><div class="f"><label>מודל מדויק (פנסיה, השתלמות, גמל, תיק)</label><input data-apikey="model2" dir="ltr" style="text-align:left" value="${esc(lsGet(AMODEL2) || M_HEAVY)}"></div></div></div></details>`;
   return `${impactHTML()}<div class="card"><h2>העלאת מסמכים</h2>
    <p style="margin:0 0 8px">${status}</p>
    <div class="infobox">כשהקריאה האוטומטית פעילה, האפליקציה קוראת כל קובץ (PDF, תמונה, Excel, Word, CSV), מסווגת אותו, מחלצת את המספרים ומציגה אותם לאישור לפני שהם נכנסים לחישוב. <b>תוכן הקובץ נשלח ל-Claude לצורך הקריאה</b>; האפליקציה עצמה לא שומרת אותו בשום שרת.</div>${adv}
