@@ -645,7 +645,7 @@ if (typeof module !== 'undefined') module.exports = DEFAULTS;
 <script>(function () {
 'use strict';
 const FAMILY = false; /*FAMILY*/
-const APP_VERSION = '2026.11.18-5';
+const APP_VERSION = '2026.11.18-6';
 const E = FFI, REF = E.REF, KEY = FAMILY ? 'ffi.family.v1' : 'ffi.cfg.v1', EXAMPLE = DEFAULTS, BLANKCFG = BLANK;
 const $ = s => document.querySelector(s);
 const esc = s => String(s == null ? '' : s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
@@ -674,8 +674,14 @@ async function pushNow() {
   if (!sync.ref) return;
   try { const j = JSON.stringify(cfg); if (j.length > SYNC_MAX) { setSync('big'); return; } if (!cfg._ts) cfg._ts = Date.now(); const ts = cfg._ts; setSync('push'); sync.last = ts; if (sync.kind === 'drive') await dPush(); else await sync.ref.set({ ts, json: JSON.stringify(cfg) }); setSync('ok'); } catch (e) { setSync(/^auth/.test(String(e.message)) ? 'login' : 'err'); }
 }
-function onRemote(d) {
-  if (!d || !d.json || !(d.ts > (cfg._ts || 0)) || d.ts === sync.last) return;
+const stripTs = o => { const c = JSON.parse(JSON.stringify(o)); delete c._ts; return JSON.stringify(c); };
+const isBlankCfg = o => { try { return stripTs(o) === stripTs(BLANKCFG); } catch (e) { return false; } };
+function onRemote(d, force) {
+  if (!d || !d.json) return;
+  let rb = false; try { rb = isBlankCfg(JSON.parse(d.json)); } catch (e) { }
+  if (rb && !isBlankCfg(cfg)) return; /* never replace real data with an empty state */
+  const lb = !FAMILY && isBlankCfg(cfg);
+  if (!(force || lb || d.ts > (cfg._ts || 0)) || d.ts === sync.last) return;
   const a = document.activeElement; if (a && /INPUT|TEXTAREA|SELECT/.test(a.tagName)) { setTimeout(() => onRemote(d), 3000); return; }
   try { if (adopt(JSON.parse(d.json))) { setSync('ok'); render(); } } catch (e) { }
 }
@@ -755,7 +761,7 @@ async function driveUnlock(pw, pw2) {
       await newKey(pw); d = plain;
     }
     lock.on = false; lock.pw = ''; sync.kind = 'drive'; sync.ref = true; setSync('init');
-    if (d && d.ts > (cfg._ts || 0)) onRemote(d); else await pushNow();
+    if (d && d.json && (d.ts > (cfg._ts || 0) || (!FAMILY && isBlankCfg(cfg)))) onRemote(d); else if (!(d && d.json && isBlankCfg(cfg))) await pushNow();
     setSync('ok'); setTimeout(maybeBackup, 1500);
     if (!DRV.timer) { DRV.timer = setInterval(() => { drivePoll(); maybeBackup(); }, 30000); document.addEventListener('visibilitychange', () => { if (!document.hidden) drivePoll(); }); }
   } catch (e) { lock.err = driveDiag(e); }
@@ -842,7 +848,7 @@ async function syncInit() {
     const db = await window.claude.use('db'), us = await window.claude.use('user'); if (!db || !us) { setSync(''); return; }
     const id = await us.id(); sync.ref = db.doc('data/users/' + id + '/' + (FAMILY ? 'family' : 'generic'));
     const snap = await sync.ref.get(), d = snap && await (typeof snap.data === 'function' ? snap.data() : snap);
-    if (d && d.json && d.ts > (cfg._ts || 0)) onRemote(d); else await pushNow();
+    if (d && d.json && (d.ts > (cfg._ts || 0) || (!FAMILY && isBlankCfg(cfg)))) onRemote(d); else if (!(d && d.json && isBlankCfg(cfg))) await pushNow();
     setSync('ok');
     if (sync.ref.onSnapshot) sync.ref.onSnapshot(async sn => { const x = sn && await (typeof sn.data === 'function' ? sn.data() : sn.data || sn); onRemote(x); });
   } catch (e) { setSync('err'); }
