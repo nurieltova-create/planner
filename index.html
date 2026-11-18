@@ -645,7 +645,7 @@ if (typeof module !== 'undefined') module.exports = DEFAULTS;
 <script>(function () {
 'use strict';
 const FAMILY = false; /*FAMILY*/
-const APP_VERSION = '2026.11.18-1';
+const APP_VERSION = '2026.11.18-2';
 const E = FFI, REF = E.REF, KEY = FAMILY ? 'ffi.family.v1' : 'ffi.cfg.v1', EXAMPLE = DEFAULTS, BLANKCFG = BLANK;
 const $ = s => document.querySelector(s);
 const esc = s => String(s == null ? '' : s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
@@ -681,7 +681,7 @@ function onRemote(d) {
 }
 /* ---- Google Drive sync (hidden app-data file; needs https origin + own OAuth client id) ---- */
 const GCID = 'ffi.gclient', GAUTH = 'ffi.gauth', GTOK = { t: '', exp: 0 }, DRV = { id: '', timer: null }, DFN = 'ffi-' + (FAMILY ? 'family' : 'generic') + '.json';
-const gClient = () => lsGet(GCID);
+const DEFAULT_GCID = '290341742225-lo00blnpoedtudqgo2bibj7hldranttc.apps.googleusercontent.com', gClient = () => lsGet(GCID) || DEFAULT_GCID;
 const secureOrigin = () => location.protocol === 'https:' || location.hostname === 'localhost' || location.hostname === '127.0.0.1';
 function gToken(interactive) {
   return new Promise((res, rej) => {
