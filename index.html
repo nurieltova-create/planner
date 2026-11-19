@@ -661,7 +661,7 @@ if (typeof module !== 'undefined') module.exports = DEFAULTS;
 <script>(function () {
 'use strict';
 const FAMILY = false; /*FAMILY*/
-const APP_VERSION = '2026.11.19-3';
+const APP_VERSION = '2026.11.19-4';
 const E = FFI, REF = E.REF, KEY = FAMILY ? 'ffi.family.v1' : 'ffi.cfg.v1', EXAMPLE = DEFAULTS, BLANKCFG = BLANK;
 const $ = s => document.querySelector(s);
 const esc = s => String(s == null ? '' : s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
@@ -691,12 +691,13 @@ async function pushNow() {
   try { const j = JSON.stringify(cfg); if (j.length > SYNC_MAX) { setSync('big'); return; } if (!cfg._ts) cfg._ts = Date.now(); const ts = cfg._ts; setSync('push'); sync.last = ts; if (sync.kind === 'drive') await dPush(); else await sync.ref.set({ ts, json: JSON.stringify(cfg) }); setSync('ok'); } catch (e) { setSync(/^auth/.test(String(e.message)) ? 'login' : 'err'); }
 }
 const stripTs = o => { const c = JSON.parse(JSON.stringify(o)); delete c._ts; return JSON.stringify(c); };
-const isBlankCfg = o => { try { return stripTs(o) === stripTs(BLANKCFG); } catch (e) { return false; } };
+const hasData = o => { try { const P = o.people || {}, d = o.docs; return !!(o.setup || (P.nuri && P.nuri.netMonthly > 0) || (P.tova && P.tova.netMonthly > 0) || (o.assets || []).some(a => a.bal > 0) || (d && (Array.isArray(d) ? d.length : Object.keys(d).length))); } catch (e) { return true; } };
+const isBlankCfg = o => !hasData(o);
 function onRemote(d, force) {
   if (!d || !d.json) return;
   let rb = false; try { rb = isBlankCfg(JSON.parse(d.json)); } catch (e) { }
   if (rb && !isBlankCfg(cfg)) return; /* never replace real data with an empty state */
-  const lb = !FAMILY && isBlankCfg(cfg);
+  const lb = isBlankCfg(cfg);
   if (!(force || lb || d.ts > (cfg._ts || 0)) || d.ts === sync.last) return;
   const a = document.activeElement; if (a && /INPUT|TEXTAREA|SELECT/.test(a.tagName)) { setTimeout(() => onRemote(d), 3000); return; }
   try { if (adopt(JSON.parse(d.json))) { setSync('ok'); render(); } } catch (e) { }
@@ -748,7 +749,7 @@ async function dPush() {
   const r = await dFetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&fields=id', { method: 'POST', headers: { 'Content-Type': 'multipart/related; boundary=' + b }, body: mp });
   DRV.id = (await r.json()).id;
 }
-async function drivePoll() { if (sync.kind !== 'drive' || lock.on || !CRY.key) return; try { const d = await dPull(); if (d && d.json) { if (d.ts < (cfg._ts || 0) && !isBlankCfg(cfg)) await pushNow(); else { onRemote(d); setSync('ok'); } } } catch (e) { if (/^auth/.test(String(e.message))) setSync('login'); else if (!navigator.onLine) setSync('offline'); } }
+async function drivePoll() { if (sync.kind !== 'drive' || lock.on || !CRY.key) return; try { const d = await dPull(); if (d && d.json) { let rb = false; try { rb = isBlankCfg(JSON.parse(d.json)); } catch (e) { } if (!isBlankCfg(cfg) && (rb || d.ts < (cfg._ts || 0))) await pushNow(); else { onRemote(d); setSync('ok'); } } } catch (e) { if (/^auth/.test(String(e.message))) setSync('login'); else if (!navigator.onLine) setSync('offline'); } }
 window.addEventListener('online', () => { if (typeof drivePoll === 'function') drivePoll(); });
 function driveDiag(e) {
   const m = String(e && e.message || e);
@@ -761,6 +762,13 @@ function driveDiag(e) {
   if (m.indexOf('drive 401') === 0) return 'ההרשאה לא התקבלה (401). נסו להתחבר שוב.';
   if (m.indexOf('drive') === 0) return 'שגיאת דרייב: ' + m;
   return 'שגיאה: ' + m + ' (בדקו חיבור לאינטרנט).';
+}
+async function reconcile(d) {
+  const lb = isBlankCfg(cfg);
+  if (!(d && d.json)) { if (!lb) await pushNow(); return; }
+  let rb = false; try { rb = isBlankCfg(JSON.parse(d.json)); } catch (e) { }
+  if (rb) { if (!lb) await pushNow(); return; }
+  if (lb || d.ts > (cfg._ts || 0)) onRemote(d, true); else await pushNow();
 }
 async function saveVerifier() { try { lsSet('ffi.vfy', await encEnv('ok', 0)); } catch (e) { } }
 async function offlineUnlock(pw) {
@@ -788,7 +796,7 @@ async function driveUnlock(pw, pw2) {
     }
     await saveVerifier();
     lock.on = false; lock.pw = ''; sync.kind = 'drive'; sync.ref = true; setSync('init');
-    if (d && d.json && (d.ts > (cfg._ts || 0) || (!FAMILY && isBlankCfg(cfg)))) onRemote(d); else if (!(d && d.json && isBlankCfg(cfg))) await pushNow();
+    await reconcile(d);
     setSync('ok'); setTimeout(maybeBackup, 1500);
     if (!DRV.timer) { DRV.timer = setInterval(() => { drivePoll(); maybeBackup(); }, 30000); document.addEventListener('visibilitychange', () => { if (!document.hidden) drivePoll(); }); }
   } catch (e) { if (/auth:script|Failed to fetch|Load failed|NetworkError/.test(String(e && e.message || e)) && lsGet('ffi.vfy') && await offlineUnlock(pw)) return; lock.err = driveDiag(e); }
@@ -875,7 +883,7 @@ async function syncInit() {
     const db = await window.claude.use('db'), us = await window.claude.use('user'); if (!db || !us) { setSync(''); return; }
     const id = await us.id(); sync.ref = db.doc('data/users/' + id + '/' + (FAMILY ? 'family' : 'generic'));
     const snap = await sync.ref.get(), d = snap && await (typeof snap.data === 'function' ? snap.data() : snap);
-    if (d && d.json && (d.ts > (cfg._ts || 0) || (!FAMILY && isBlankCfg(cfg)))) onRemote(d); else if (!(d && d.json && isBlankCfg(cfg))) await pushNow();
+    await reconcile(d);
     setSync('ok');
     if (sync.ref.onSnapshot) sync.ref.onSnapshot(async sn => { const x = sn && await (typeof sn.data === 'function' ? sn.data() : sn.data || sn); onRemote(x); });
   } catch (e) { setSync('err'); }
