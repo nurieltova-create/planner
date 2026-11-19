@@ -668,7 +668,7 @@ if (typeof module !== 'undefined') module.exports = DEFAULTS;
 <script>(function () {
 'use strict';
 const FAMILY = false; /*FAMILY*/
-const APP_VERSION = '2026.11.19-16';
+const APP_VERSION = '2026.11.19-17';
 const E = FFI, REF = E.REF, KEY = FAMILY ? 'ffi.family.v1' : 'ffi.cfg.v1', EXAMPLE = DEFAULTS, BLANKCFG = BLANK;
 const $ = s => document.querySelector(s);
 const esc = s => String(s == null ? '' : s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
@@ -1212,15 +1212,7 @@ function hSaving(c, s, Y) {
   if (!n) return null; const m = v => Math.round(v / n / 12 / 50) * 50;
   return { gemel: m(t.gemel), pen: m(t.pen), kh: m(t.kh), inv: m(t.inv) };
 }
-function hEarliest(spareVal) {
-  const R = hRange(), sp = {}; for (const k in cfg.spare) sp[k] = spareVal;
-  return get('hear' + spareVal + '_' + R.yN + '_' + (cfg.saveFrac == null ? 1 : cfg.saveFrac) + (cfg.home && cfg.home.mode) + (cfg.home && cfg.home.tYear), () => {
-    const h = H(), tFix = h.mode === 'together' ? null : h.tYear;
-    const ok = y => { const t = tFix == null ? y : tFix, s = hScen(y, t); return E.safeFast(Object.assign({}, hBase(y, t), { spare: sp }), s); };
-    let lo = R.y0, hi = R.yN; if (!ok(hi)) return null; if (ok(lo)) return lo; while (hi - lo > 1) { const m = (lo + hi) >> 1; if (ok(m)) hi = m; else lo = m; } return hi;
-  });
-}
-function hPhases(eff, s, Y, svTot) {
+function hPhases(eff, s, Y) {
   const rows = E.simulate(eff, { sc: s }).rows, R = hRange(), m = x => Math.round(x / 12 / 50) * 50;
   const at = pred => rows.find(r => r.year >= Y && pred(r));
   const ph = [];
@@ -1238,15 +1230,10 @@ function hPhases(eff, s, Y, svTot) {
     if (diff > 50) { dT = `עודף ${ils(m(diff))} בחודש`; dD = '<div class="note">ההכנסות גבוהות מההוצאות. העודף זמין להשקעה.</div>'; }
     else if (diff < -50) { dT = `חסר ${ils(m(-diff))} בחודש`; dD = '<div class="note">גם עם משיכה מהתיק ההכנסות לא מכסות את ההוצאות בשלב הזה.</div>'; }
     else { dT = 'אין הפרש'; dD = '<div class="note">ההכנסות (כולל המשיכה מהתיק) מכסות את ההוצאות בדיוק. עודף מופיע רק כשההכנסות הקבועות גבוהות מההוצאות.</div>'; }
-    let extra = '';
-    if (i === 0 && svTot) {
-      const e3 = hEarliest(3000), e5 = hEarliest(5000), ag = y => y == null ? 'אין שנה אפשרית' : `גיל ${y - R.nb}`;
-      extra = `<details class="hdet"><summary>מה אפשר לעשות עם היתרה החודשית עד הפרישה?</summary><div class="note">עד הפרישה נשארת יתרה של כ-${ils(svTot)} בחודש. אם כולה מושקעת בתיקי השקעות:</div>${li('ספייר חודשי 3,000: פרישה מוקדמת ביותר', ag(e3))}${li('ספייר חודשי 5,000: פרישה מוקדמת ביותר', ag(e5))}<div class="note">הגילאים מחושבים בתחום הירוק, עם ספייר קבוע בגובה הנבחר.</div></details>`;
-    }
     return `<div class="card nofold hph"><h2 style="margin:0 0 6px;font-size:16px">${esc(t)}</h2>
       <details class="hdet"><summary><b>הכנסות: ${ils(m(inc))}</b></summary>${incD}</details>
       <details class="hdet"><summary><b>הוצאות: ${ils(m(need))}</b></summary>${expD}</details>
-      <details class="hdet"><summary><b>הפרש: ${dT}</b></summary>${dD}</details>${extra}</div>`;
+      <details class="hdet"><summary><b>הפרש: ${dT}</b></summary>${dD}</details></div>`;
   }).join('');
 }
 let hPh = '';
@@ -1264,7 +1251,7 @@ function hActions(nY, tY, v) {
       if (fmin < 0.97) L.push(`<b>לחסוך לפחות ${ils(tot)} בחודש</b> עד הפרישה. זה המינימום שהחישוב דורש.<br><span class="note">${parts(sv)}</span><br><span class="note">אם תחסכו את כל היתרה, החיסכון יהיה כ-${ils(full)} בחודש. כל חיסכון מעבר למינימום הוא מרווח ביטחון.</span>`);
       else L.push(`<b>לחסוך את כל היתרה, כ-${ils(full)} בחודש</b> עד הפרישה. כל ההכנסה שמעבר להוצאות נדרשת כדי לעמוד בתכנית.<br><span class="note">${parts(svFull)}</span>`);
     }
-    hPh = hPhases(eff, s, Y, svFull ? svFull.gemel + svFull.pen + svFull.kh + svFull.inv : 0);
+    hPh = hPhases(eff, s, Y);
     if (v.how === 'spare') L.push(`<b>לוותר על הספייר</b> או להקטין אותו ל-${ils(Math.round((cfg.spare.both_retired_pre60 || 0) * v.f / 100) * 100)} בחודש (כיום ${ils(cfg.spare.both_retired_pre60 || 0)}).`);
     if (v.how === 'cut') L.push(`<b>לוותר על הספייר ולצמצם הוצאות מחייה ב-${Math.ceil((1 - v.scale) * 100)}%</b> מהרמה הנוכחית.`);
     if (age(nY) !== plan) L.push(`פרישה בגיל ${age(nY)} במקום ${plan} בתוכנית הנוכחית.`);
