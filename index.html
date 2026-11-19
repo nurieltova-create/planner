@@ -668,7 +668,7 @@ if (typeof module !== 'undefined') module.exports = DEFAULTS;
 <script>(function () {
 'use strict';
 const FAMILY = false; /*FAMILY*/
-const APP_VERSION = '2026.11.19-15';
+const APP_VERSION = '2026.11.19-16';
 const E = FFI, REF = E.REF, KEY = FAMILY ? 'ffi.family.v1' : 'ffi.cfg.v1', EXAMPLE = DEFAULTS, BLANKCFG = BLANK;
 const $ = s => document.querySelector(s);
 const esc = s => String(s == null ? '' : s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
@@ -1231,7 +1231,7 @@ function hPhases(eff, s, Y, svTot) {
   const li = (a, b) => `<div class="hrow"><span>${a}</span><span>${b}</span></div>`;
   return ph.map(([t, r, _], i) => {
     const wk = r.netNuri + r.netTova, ann = r.annuityGemel + r.annuityPension, draw = r.drawsNet, tax = r.tax, inc = r.fixedIn + draw, need = r.need, diff = inc - need;
-    const incD = [wk > 0 ? li('עבודה', ils(m(wk))) : '', ann > 0 ? li('קצבאות (גמל ופנסיה)', ils(m(ann))) : '', r.solar > 0 ? li('סולארי (הערכה)', ils(m(r.solar))) : '',
+    const incD = [wk > 0 ? li('עבודה', ils(m(wk))) : '', r.annuityGemel > 0 ? li('קצבת גמל להשקעה', ils(m(r.annuityGemel))) : '', r.annuityPension > 0 ? li('קצבת פנסיה', ils(m(r.annuityPension))) : '', r.solar > 0 ? li('סולארי (הערכה)', ils(m(r.solar))) : '',
       draw > 1 ? `<div class="hrow hdraw"><span>משיכה מהתיק ❗</span><span>${ils(m(draw))}</span></div><div class="note hdraw">משיכה נטו מתיק ההשקעות לכיסוי הפער בין ההוצאות להכנסות הקבועות. ברוטו ${ils(m(draw + tax))} (מס ${ils(m(tax))}). יתרת התיק בתחילת השלב: ${ils(Math.round(r.total / 10000) * 10000)} (במונחי 2026).</div>` : ''].join('');
     const expD = [li('הוצאות מחייה', ils(m(r.living))), r.debt > 0 ? li('חובות', ils(m(r.debt))) : '', r.spare > 0 ? li('ספייר', ils(m(r.spare))) : '', (r.gemelDep + r.retPen + r.topups) > 0 ? li('הפקדות חובה (גמל ופנסיה)', ils(m(r.gemelDep + r.retPen + r.topups))) : '', r.targetAnnual > 0 && need - r.mand > 1 ? li('תוספת הוצאות זיקנה', ils(m(need - r.mand))) : ''].join('');
     let dT, dD;
