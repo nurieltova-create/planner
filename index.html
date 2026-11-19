@@ -664,7 +664,7 @@ if (typeof module !== 'undefined') module.exports = DEFAULTS;
 <script>(function () {
 'use strict';
 const FAMILY = false; /*FAMILY*/
-const APP_VERSION = '2026.11.19-10';
+const APP_VERSION = '2026.11.19-11';
 const E = FFI, REF = E.REF, KEY = FAMILY ? 'ffi.family.v1' : 'ffi.cfg.v1', EXAMPLE = DEFAULTS, BLANKCFG = BLANK;
 const $ = s => document.querySelector(s);
 const esc = s => String(s == null ? '' : s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
@@ -1228,6 +1228,18 @@ function hActions(nY, tY, v) {
   } else {
     L.push(br.o ? `<b>הקדום ביותר האפשרי: גיל ${age(br.o)}</b> (${br.o})${br.g ? `, ובירוק מגיל ${age(br.g)} (${br.g})` : ''}.` : `<b>אין שנה אפשרית עד גיל ${cfg.latestRetireAge || 60}.</b> אפשר להעלות את הגיל המרבי בהנחות העבודה.`);
     try { const rc = E.recommend(Object.assign({}, base, { scenarios: cfg.scenarios.map(x => x.id === cfg.active ? s : x) })); (rc.recs || []).filter(r => !r.violatesFloors).slice(0, 3).forEach(r => L.push(esc(r.text))); } catch (e) { }
+  }
+  if (v.k !== 'g') {
+    try {
+      const okG = x => E.safeFast(Object.assign({}, base, { extraMonthly: -x }), s);
+      let xm = null;
+      if (okG(20000)) { let lo = 0, hi = 20000; for (let i = 0; i < 11; i++) { const m = (lo + hi) / 2; if (okG(m)) hi = m; else lo = m; } xm = Math.ceil(hi / 100) * 100; }
+      const gA = br.g == null ? null : age(br.g);
+      const bits = [];
+      if (xm) bits.push(`<b>אפשר להוסיף עוד ${ils(xm)} בחודש להשקעות</b> (על חשבון הוצאות) כדי לפרוש בגיל ${age(nY)} בתחום הירוק`);
+      if (gA != null) bits.push(`${xm ? 'בלי תוספת, ' : ''}הגיל הכי מוקדם בתחום הירוק הוא <b>${gA}</b>`);
+      if (bits.length) L.unshift(bits.join('. ') + '.');
+    } catch (e) { }
   }
   return L;
 }
