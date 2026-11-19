@@ -661,7 +661,7 @@ if (typeof module !== 'undefined') module.exports = DEFAULTS;
 <script>(function () {
 'use strict';
 const FAMILY = false; /*FAMILY*/
-const APP_VERSION = '2026.11.19-2';
+const APP_VERSION = '2026.11.19-3';
 const E = FFI, REF = E.REF, KEY = FAMILY ? 'ffi.family.v1' : 'ffi.cfg.v1', EXAMPLE = DEFAULTS, BLANKCFG = BLANK;
 const $ = s => document.querySelector(s);
 const esc = s => String(s == null ? '' : s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
@@ -682,7 +682,7 @@ let booted = false;
 function save() { if (booted) cfg._ts = Date.now(); try { localStorage.setItem(KEY, JSON.stringify(cfg)); storeOK = true; } catch (e) { storeOK = false; } if (booted) pushSoon(); }
 /* ---- cross-device sync (Claude artifact db; private per user) ---- */
 const sync = { st: 'off', ref: null, kind: '', timer: null, last: 0 }, SYNC_MAX = 900000;
-const SYNC_TXT = { init: 'מתחבר לסנכרון…', ok: 'מסונכרן בין המכשירים', push: 'מסנכרן…', err: 'הסנכרון לא זמין כרגע – הנתונים נשמרים במכשיר ויסונכרנו בהמשך', big: 'הנתונים גדולים מדי לסנכרון', login: 'נדרשת התחברות לגוגל לסנכרון', nohttps: 'סנכרון דרייב דורש פתיחה מכתובת https' };
+const SYNC_TXT = { init: 'מתחבר לסנכרון…', ok: 'מסונכרן בין המכשירים', push: 'מסנכרן…', err: 'הסנכרון לא זמין כרגע – הנתונים נשמרים במכשיר ויסונכרנו בהמשך', big: 'הנתונים גדולים מדי לסנכרון', offline: 'מצב לא מקוון – הנתונים נשמרים במכשיר ויסונכרנו כשהחיבור יחזור', login: 'נדרשת התחברות לגוגל לסנכרון', nohttps: 'סנכרון דרייב דורש פתיחה מכתובת https' };
 function setSync(st) { sync.st = st; const el = document.getElementById('syncst'); if (el) el.textContent = SYNC_TXT[st] || ''; }
 function adopt(o) { if (!o || o.schema !== 1) return false; deepFill(o, EXAMPLE); migrate(o); cfg = o; memo = { key: '', v: {} }; selYear = null; try { localStorage.setItem(KEY, JSON.stringify(cfg)); } catch (e) { } return true; }
 function pushSoon() { if (!sync.ref) return; clearTimeout(sync.timer); sync.timer = setTimeout(pushNow, 1500); }
@@ -748,7 +748,8 @@ async function dPush() {
   const r = await dFetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&fields=id', { method: 'POST', headers: { 'Content-Type': 'multipart/related; boundary=' + b }, body: mp });
   DRV.id = (await r.json()).id;
 }
-async function drivePoll() { if (sync.kind !== 'drive' || lock.on || !CRY.key) return; try { const d = await dPull(); if (d && d.json) onRemote(d); } catch (e) { if (/^auth/.test(String(e.message))) setSync('login'); } }
+async function drivePoll() { if (sync.kind !== 'drive' || lock.on || !CRY.key) return; try { const d = await dPull(); if (d && d.json) { if (d.ts < (cfg._ts || 0) && !isBlankCfg(cfg)) await pushNow(); else { onRemote(d); setSync('ok'); } } } catch (e) { if (/^auth/.test(String(e.message))) setSync('login'); else if (!navigator.onLine) setSync('offline'); } }
+window.addEventListener('online', () => { if (typeof drivePoll === 'function') drivePoll(); });
 function driveDiag(e) {
   const m = String(e && e.message || e);
   if (m.indexOf('auth:script') === 0) return 'לא ניתן לטעון את ספריית ההתחברות של גוגל – בדקו חיבור לאינטרנט וחוסמי פרסומות.';
@@ -761,9 +762,18 @@ function driveDiag(e) {
   if (m.indexOf('drive') === 0) return 'שגיאת דרייב: ' + m;
   return 'שגיאה: ' + m + ' (בדקו חיבור לאינטרנט).';
 }
+async function saveVerifier() { try { lsSet('ffi.vfy', await encEnv('ok', 0)); } catch (e) { } }
+async function offlineUnlock(pw) {
+  const v = lsGet('ffi.vfy'); if (!v) return false;
+  try { const env = JSON.parse(v); await keyFrom(env, pw); if (await decEnv(env) !== 'ok') throw 0; } catch (e) { CRY.key = null; lock.err = 'סיסמה שגויה'; return true; }
+  lock.on = false; lock.pw = ''; lock.err = ''; sync.kind = 'drive'; sync.ref = true; setSync('offline');
+  if (!DRV.timer) { DRV.timer = setInterval(() => { drivePoll(); maybeBackup(); }, 30000); document.addEventListener('visibilitychange', () => { if (!document.hidden) drivePoll(); }); }
+  return true;
+}
 async function driveUnlock(pw, pw2) {
   lock.err = ''; lock.pw = pw;
   if (!pw || pw.length < 6) { lock.err = 'סיסמה של 6 תווים לפחות'; return; }
+  if (!navigator.onLine && lsGet('ffi.vfy')) { await offlineUnlock(pw); return; }
   try {
     try { await gToken(false); } catch (e) { await gToken(true); }
     const f = await dFind(); let env = null, plain = null;
@@ -776,11 +786,12 @@ async function driveUnlock(pw, pw2) {
       if (pw !== pw2) { lock.err = 'הסיסמאות אינן זהות'; return; }
       await newKey(pw); d = plain;
     }
+    await saveVerifier();
     lock.on = false; lock.pw = ''; sync.kind = 'drive'; sync.ref = true; setSync('init');
     if (d && d.json && (d.ts > (cfg._ts || 0) || (!FAMILY && isBlankCfg(cfg)))) onRemote(d); else if (!(d && d.json && isBlankCfg(cfg))) await pushNow();
     setSync('ok'); setTimeout(maybeBackup, 1500);
     if (!DRV.timer) { DRV.timer = setInterval(() => { drivePoll(); maybeBackup(); }, 30000); document.addEventListener('visibilitychange', () => { if (!document.hidden) drivePoll(); }); }
-  } catch (e) { lock.err = driveDiag(e); }
+  } catch (e) { if (/auth:script|Failed to fetch|Load failed|NetworkError/.test(String(e && e.message || e)) && lsGet('ffi.vfy') && await offlineUnlock(pw)) return; lock.err = driveDiag(e); }
 }
 /* ---- auto-lock after idle (drive sync only) ---- */
 const IDLE_KEY = 'ffi.idle'; let lastAct = Date.now();
@@ -1932,6 +1943,7 @@ seedExpected();
 chatRender();
 booted = true; syncInit();
 window.__ffi = { get draft() { return draft; }, get queue() { return queue; }, ACT, addFiles, get cfg() { return cfg; }, render, go: t => { tab = t; render(); } };
+try { if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost') && !window.claude) navigator.serviceWorker.register('sw.js').catch(() => { }); } catch (e) { }
 render();
 })();
 </script>
