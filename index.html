@@ -144,6 +144,7 @@ details.fold>*:last-child{margin-bottom:16px}
 .hv .hl{font-size:15px;font-weight:600}.hbig2{font-size:84px;font-weight:700;line-height:1.05;margin:6px 0 0}.hsub{font-size:13px;opacity:.95;margin-bottom:8px}
 .ac2{font-size:14px;line-height:1.6;margin:0;padding:9px 0;border-bottom:1px solid var(--line)}.ac2:last-child{border:0}
 .hlk{text-align:center;margin:8px 0 16px}
+@media(min-width:721px){nav.tabs{flex-wrap:wrap;overflow:visible}}
 </style></head>
 <body><div class="app" id="app"></div><div id="tip"></div>
 <script>/* Family FI Planner – engine (pure, no DOM). All amounts in real 2026 shekels. */
@@ -661,7 +662,7 @@ if (typeof module !== 'undefined') module.exports = DEFAULTS;
 <script>(function () {
 'use strict';
 const FAMILY = false; /*FAMILY*/
-const APP_VERSION = '2026.11.19-4';
+const APP_VERSION = '2026.11.19-5';
 const E = FFI, REF = E.REF, KEY = FAMILY ? 'ffi.family.v1' : 'ffi.cfg.v1', EXAMPLE = DEFAULTS, BLANKCFG = BLANK;
 const $ = s => document.querySelector(s);
 const esc = s => String(s == null ? '' : s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
