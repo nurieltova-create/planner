@@ -147,6 +147,8 @@ details.fold>*:last-child{margin-bottom:16px}
 @media(min-width:721px){nav.tabs{flex-wrap:wrap;overflow:visible}}
 
 .subn{display:flex;gap:2px 18px;flex-wrap:wrap;margin:0 0 14px;padding:0 4px;border-bottom:1px solid var(--line)}.subn button{border:0;background:none;padding:8px 2px 9px;font:inherit;font-size:14px;color:var(--mut);cursor:pointer;border-bottom:3px solid transparent;margin-bottom:-1px;border-radius:0}.subn button.on{color:var(--pri);font-weight:600;border-bottom-color:var(--pri)}.subn:before{content:attr(data-t);flex-basis:100%;font-size:11px;color:var(--mut);margin-bottom:-6px;letter-spacing:.2px}
+
+.hdet{border-top:1px solid var(--line);padding:8px 0}.hdet summary{cursor:pointer;list-style:none}.hdet summary::-webkit-details-marker{display:none}.hdet summary::after{content:' ▾';color:var(--mut)}.hrow{display:flex;justify-content:space-between;gap:12px;padding:3px 0;font-size:14px}.hph{margin-top:10px}
 </style></head>
 <body><div class="app" id="app"></div><div id="tip"></div>
 <script>/* Family FI Planner – engine (pure, no DOM). All amounts in real 2026 shekels. */
@@ -664,7 +666,7 @@ if (typeof module !== 'undefined') module.exports = DEFAULTS;
 <script>(function () {
 'use strict';
 const FAMILY = false; /*FAMILY*/
-const APP_VERSION = '2026.11.19-12';
+const APP_VERSION = '2026.11.19-13';
 const E = FFI, REF = E.REF, KEY = FAMILY ? 'ffi.family.v1' : 'ffi.cfg.v1', EXAMPLE = DEFAULTS, BLANKCFG = BLANK;
 const $ = s => document.querySelector(s);
 const esc = s => String(s == null ? '' : s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
@@ -1208,13 +1210,44 @@ function hSaving(c, s, Y) {
   if (!n) return null; const m = v => Math.round(v / n / 12 / 50) * 50;
   return { gemel: m(t.gemel), pen: m(t.pen), kh: m(t.kh), inv: m(t.inv) };
 }
-function hIncome(c, s, Y) {
-  const rows = E.simulate(c, { sc: s }).rows, m = x => Math.round(x / 12 / 50) * 50;
-  const f = r => r && { net: m(r.fixedIn + r.drawsNet), ann: m(r.annuityGemel + r.annuityPension), sol: m(r.solar), wd: m(r.drawsNet), wk: m(r.netNuri + r.netTova) };
-  const a = f(rows.find(r => r.year >= Y)), r67 = rows.find(r => r.year >= Y && r.ageNuri >= 67 && r.ageTova >= 67);
-  return { a, b: r67 && r67.year > Y ? f(r67) : null, y67: r67 && r67.year };
+function hEarliest(spareVal) {
+  const R = hRange(), sp = {}; for (const k in cfg.spare) sp[k] = spareVal;
+  return get('hear' + spareVal + '_' + R.yN + '_' + (cfg.saveFrac == null ? 1 : cfg.saveFrac) + (cfg.home && cfg.home.mode) + (cfg.home && cfg.home.tYear), () => {
+    const h = H(), tFix = h.mode === 'together' ? null : h.tYear;
+    const ok = y => { const t = tFix == null ? y : tFix, s = hScen(y, t); return E.safeFast(Object.assign({}, hBase(y, t), { spare: sp }), s); };
+    let lo = R.y0, hi = R.yN; if (!ok(hi)) return null; if (ok(lo)) return lo; while (hi - lo > 1) { const m = (lo + hi) >> 1; if (ok(m)) hi = m; else lo = m; } return hi;
+  });
 }
+function hPhases(eff, s, Y, svTot) {
+  const rows = E.simulate(eff, { sc: s }).rows, R = hRange(), m = x => Math.round(x / 12 / 50) * 50;
+  const at = pred => rows.find(r => r.year >= Y && pred(r));
+  const ph = [];
+  const r1 = at(() => true), r60 = at(r => r.ageNuri >= 60), r67 = at(r => r.ageNuri >= 67 && r.ageTova >= 67);
+  if (r1 && r1.ageNuri < 60) ph.push(['משנת הפרישה ועד גיל 60', r1, false]);
+  if (r60) ph.push([r1 && r1.year === r60.year ? 'מהפרישה (גיל 60+)' : 'מגיל 60', r60, false]);
+  if (r67 && (!r60 || r67.year > r60.year)) ph.push(['מהפנסיה (שניכם מגיל 67)', r67, false]);
+  const li = (a, b) => `<div class="hrow"><span>${a}</span><span>${b}</span></div>`;
+  return ph.map(([t, r, _], i) => {
+    const wk = r.netNuri + r.netTova, ann = r.annuityGemel + r.annuityPension, inc = r.fixedIn, need = r.need, diff = inc - need, draw = r.drawsNet, tax = r.tax;
+    const incD = [wk > 0 ? li('עבודה', ils(m(wk))) : '', ann > 0 ? li('קצבאות (גמל ופנסיה)', ils(m(ann))) : '', r.solar > 0 ? li('סולארי (הערכה)', ils(m(r.solar))) : ''].join('');
+    const expD = r.targetAnnual > 0 ? li('יעד הכנסה חודשית שהגדרתם', ils(m(need))) + `<div class="note">בשלב הזה התכנית מממנת את היעד, ולא את ההוצאות הנוכחיות.</div>` : [li('הוצאות מחייה', ils(m(r.living))), r.debt > 0 ? li('חובות', ils(m(r.debt))) : '', r.spare > 0 ? li('ספייר', ils(m(r.spare))) : '', (r.gemelDep + r.retPen + r.topups) > 0 ? li('הפקדות חובה (גמל ופנסיה)', ils(m(r.gemelDep + r.retPen + r.topups))) : ''].join('');
+    let dT, dD;
+    if (diff < -1) { dT = `נמשך מהתיק ${ils(m(-diff))} בחודש`; dD = li('משיכה נטו מהתיק', ils(m(draw))) + li('מס על המשיכה', ils(m(tax))) + li('משיכה ברוטו', ils(m(draw + tax))) + li('יתרת התיק בתחילת השלב', ils(Math.round(r.total / 10000) * 10000)) + '<div class="note">ההכנסות הקבועות נמוכות מההוצאות, והפער ממומן ממשיכה מהתיק.</div>'; }
+    else { dT = `עודף ${ils(m(diff))} בחודש`; dD = '<div class="note">ההכנסות הקבועות מכסות את ההוצאות.</div>'; }
+    let extra = '';
+    if (i === 0 && svTot) {
+      const e3 = hEarliest(3000), e5 = hEarliest(5000), ag = y => y == null ? 'אין שנה אפשרית' : `גיל ${y - R.nb}`;
+      extra = `<details class="hdet"><summary>מה אפשר לעשות עם ההפרש עד הפרישה?</summary><div class="note">עד הפרישה נשארת יתרה של כ-${ils(svTot)} בחודש. אם כולה מושקעת בתיקי השקעות:</div>${li('ספייר חודשי 3,000: פרישה מוקדמת ביותר', ag(e3))}${li('ספייר חודשי 5,000: פרישה מוקדמת ביותר', ag(e5))}<div class="note">הגילאים מחושבים בתחום הירוק, עם ספייר קבוע בגובה הנבחר.</div></details>`;
+    }
+    return `<div class="card nofold hph"><h2 style="margin:0 0 6px;font-size:16px">${esc(t)}</h2>
+      <details class="hdet"><summary><b>הכנסות: ${ils(m(inc))}</b></summary>${incD}</details>
+      <details class="hdet"><summary><b>הוצאות: ${ils(m(need))}</b></summary>${expD}</details>
+      <details class="hdet"><summary><b>הפרש: ${dT}</b></summary>${dD}</details>${extra}</div>`;
+  }).join('');
+}
+let hPh = '';
 function hActions(nY, tY, v) {
+  hPh = '';
   const R = hRange(), s = hScen(nY, tY), base = hBase(nY, tY), eff = Object.assign({}, base, v.ov), L = [];
   const age = y => y - R.nb, sc0 = sc(), plan = sc0.nuriRetire - R.nb, br = hBar();
   if (v.k !== 'r') {
@@ -1227,10 +1260,7 @@ function hActions(nY, tY, v) {
       if (fmin < 0.97) L.push(`<b>לחסוך לפחות ${ils(tot)} בחודש</b> עד הפרישה. זה המינימום שהחישוב דורש.<br><span class="note">${parts(sv)}</span><br><span class="note">אם תחסכו את כל היתרה, החיסכון יהיה כ-${ils(full)} בחודש. כל חיסכון מעבר למינימום הוא מרווח ביטחון.</span>`);
       else L.push(`<b>לחסוך את כל היתרה, כ-${ils(full)} בחודש</b> עד הפרישה. כל ההכנסה שמעבר להוצאות נדרשת כדי לעמוד בתכנית.<br><span class="note">${parts(svFull)}</span>`);
     }
-    try {
-      const inc = hIncome(eff, s, Y), line = x => { const p = [x.ann > 0 ? `קצבאות ${ils(x.ann)}` : '', x.wk > 0 ? `עבודה ${ils(x.wk)}` : '', x.sol > 0 ? `סולארי ${ils(x.sol)} (הערכה)` : '', x.wd > 0 ? `משיכה מהתיק ${ils(x.wd)}` : ''].filter(Boolean).join(' · '); return p; };
-      if (inc.a) L.push(`<b>הכנסה חודשית נטו מהפרישה: כ-${ils(inc.a.net)}</b><br><span class="note">${line(inc.a)}</span>` + (inc.b ? `<br><span class="note">משנת ${inc.y67} (שניכם מגיל 67): כ-${ils(inc.b.net)} נטו בחודש (${line(inc.b)})</span>` : ''));
-    } catch (e) { }
+    hPh = hPhases(eff, s, Y, svFull ? svFull.gemel + svFull.pen + svFull.kh + svFull.inv : 0);
     if (v.how === 'spare') L.push(`<b>לוותר על הספייר</b> או להקטין אותו ל-${ils(Math.round((cfg.spare.both_retired_pre60 || 0) * v.f / 100) * 100)} בחודש (כיום ${ils(cfg.spare.both_retired_pre60 || 0)}).`);
     if (v.how === 'cut') L.push(`<b>לוותר על הספייר ולצמצם הוצאות מחייה ב-${Math.ceil((1 - v.scale) * 100)}%</b> מהרמה הנוכחית.`);
     if (age(nY) !== plan) L.push(`פרישה בגיל ${age(nY)} במקום ${plan} בתוכנית הנוכחית.`);
@@ -1259,7 +1289,7 @@ function hResult() {
   const chips = h.mode === 'together' ? `<span class="hchip">שנת ${nY}</span><span class="hchip">${esc(T())} בגיל ${tAge}</span>` : `<span class="hchip">${esc(N())} ${nY}</span><span class="hchip">${esc(T())} ${tY} · גיל ${tAge}</span>`;
   const L = hActions(nY, tY, v);
   return `<div class="hv ${v.k}"><div class="hl">${esc(lab)}</div><div class="hbig2">${h.age}</div><div class="hsub">גיל הפרישה של ${esc(N())}</div><div>${chips}</div></div>
-  <div class="card nofold"><h2 style="margin:0 0 6px;font-size:16px">מה לעשות</h2>${L.map(x => `<p class="ac2">${x}</p>`).join('')}</div>`;
+  <div class="card nofold"><h2 style="margin:0 0 6px;font-size:16px">מה לעשות</h2>${L.map(x => `<p class="ac2">${x}</p>`).join('')}</div>${hPh}`;
 }
 function screenHome() {
   const h = H(), R = hRange(), br = hBar(), tot = R.yN - R.y0 + 1, tb = cfg.people.tova.birth;
