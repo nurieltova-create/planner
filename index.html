@@ -149,6 +149,7 @@ details.fold>*:last-child{margin-bottom:16px}
 .subn{display:flex;gap:2px 18px;flex-wrap:wrap;margin:0 0 14px;padding:0 4px;border-bottom:1px solid var(--line)}.subn button{border:0;background:none;padding:8px 2px 9px;font:inherit;font-size:14px;color:var(--mut);cursor:pointer;border-bottom:3px solid transparent;margin-bottom:-1px;border-radius:0}.subn button.on{color:var(--pri);font-weight:600;border-bottom-color:var(--pri)}.subn:before{content:attr(data-t);flex-basis:100%;font-size:11px;color:var(--mut);margin-bottom:-6px;letter-spacing:.2px}
 
 .hdet{border-top:1px solid var(--line);padding:8px 0}.hdet summary{cursor:pointer;list-style:none}.hdet summary::-webkit-details-marker{display:none}.hdet summary::after{content:' ▾';color:var(--mut)}.hrow{display:flex;justify-content:space-between;gap:12px;padding:3px 0;font-size:14px}.hph{margin-top:10px}
+.hdraw{background:rgba(255,170,60,.16);border-radius:8px;padding:4px 8px}
 </style></head>
 <body><div class="app" id="app"></div><div id="tip"></div>
 <script>/* Family FI Planner – engine (pure, no DOM). All amounts in real 2026 shekels. */
@@ -666,7 +667,7 @@ if (typeof module !== 'undefined') module.exports = DEFAULTS;
 <script>(function () {
 'use strict';
 const FAMILY = false; /*FAMILY*/
-const APP_VERSION = '2026.11.19-13';
+const APP_VERSION = '2026.11.19-14';
 const E = FFI, REF = E.REF, KEY = FAMILY ? 'ffi.family.v1' : 'ffi.cfg.v1', EXAMPLE = DEFAULTS, BLANKCFG = BLANK;
 const $ = s => document.querySelector(s);
 const esc = s => String(s == null ? '' : s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
@@ -1228,16 +1229,18 @@ function hPhases(eff, s, Y, svTot) {
   if (r67 && (!r60 || r67.year > r60.year)) ph.push(['מהפנסיה (שניכם מגיל 67)', r67, false]);
   const li = (a, b) => `<div class="hrow"><span>${a}</span><span>${b}</span></div>`;
   return ph.map(([t, r, _], i) => {
-    const wk = r.netNuri + r.netTova, ann = r.annuityGemel + r.annuityPension, inc = r.fixedIn, need = r.need, diff = inc - need, draw = r.drawsNet, tax = r.tax;
-    const incD = [wk > 0 ? li('עבודה', ils(m(wk))) : '', ann > 0 ? li('קצבאות (גמל ופנסיה)', ils(m(ann))) : '', r.solar > 0 ? li('סולארי (הערכה)', ils(m(r.solar))) : ''].join('');
+    const wk = r.netNuri + r.netTova, ann = r.annuityGemel + r.annuityPension, draw = r.drawsNet, tax = r.tax, inc = r.fixedIn + draw, need = r.need, diff = inc - need;
+    const incD = [wk > 0 ? li('עבודה', ils(m(wk))) : '', ann > 0 ? li('קצבאות (גמל ופנסיה)', ils(m(ann))) : '', r.solar > 0 ? li('סולארי (הערכה)', ils(m(r.solar))) : '',
+      draw > 1 ? `<div class="hrow hdraw"><span>משיכה מהתיק ❗</span><span>${ils(m(draw))}</span></div><div class="note hdraw">משיכה נטו מתיק ההשקעות לכיסוי הפער בין ההוצאות להכנסות הקבועות. ברוטו ${ils(m(draw + tax))} (מס ${ils(m(tax))}). יתרת התיק בתחילת השלב: ${ils(Math.round(r.total / 10000) * 10000)} (במונחי 2026).</div>` : ''].join('');
     const expD = r.targetAnnual > 0 ? li('יעד הכנסה חודשית שהגדרתם', ils(m(need))) + `<div class="note">בשלב הזה התכנית מממנת את היעד, ולא את ההוצאות הנוכחיות.</div>` : [li('הוצאות מחייה', ils(m(r.living))), r.debt > 0 ? li('חובות', ils(m(r.debt))) : '', r.spare > 0 ? li('ספייר', ils(m(r.spare))) : '', (r.gemelDep + r.retPen + r.topups) > 0 ? li('הפקדות חובה (גמל ופנסיה)', ils(m(r.gemelDep + r.retPen + r.topups))) : ''].join('');
     let dT, dD;
-    if (diff < -1) { dT = `נמשך מהתיק ${ils(m(-diff))} בחודש`; dD = li('משיכה נטו מהתיק', ils(m(draw))) + li('מס על המשיכה', ils(m(tax))) + li('משיכה ברוטו', ils(m(draw + tax))) + li('יתרת התיק בתחילת השלב', ils(Math.round(r.total / 10000) * 10000)) + '<div class="note">ההכנסות הקבועות נמוכות מההוצאות, והפער ממומן ממשיכה מהתיק.</div>'; }
-    else { dT = `עודף ${ils(m(diff))} בחודש`; dD = '<div class="note">ההכנסות הקבועות מכסות את ההוצאות.</div>'; }
+    if (diff > 50) { dT = `עודף ${ils(m(diff))} בחודש`; dD = '<div class="note">ההכנסות גבוהות מההוצאות. העודף זמין להשקעה.</div>'; }
+    else if (diff < -50) { dT = `חסר ${ils(m(-diff))} בחודש`; dD = '<div class="note">גם עם משיכה מהתיק ההכנסות לא מכסות את ההוצאות בשלב הזה.</div>'; }
+    else { dT = 'אין הפרש'; dD = '<div class="note">ההכנסות (כולל המשיכה מהתיק) מכסות את ההוצאות בדיוק. עודף מופיע רק כשההכנסות הקבועות גבוהות מההוצאות.</div>'; }
     let extra = '';
     if (i === 0 && svTot) {
       const e3 = hEarliest(3000), e5 = hEarliest(5000), ag = y => y == null ? 'אין שנה אפשרית' : `גיל ${y - R.nb}`;
-      extra = `<details class="hdet"><summary>מה אפשר לעשות עם ההפרש עד הפרישה?</summary><div class="note">עד הפרישה נשארת יתרה של כ-${ils(svTot)} בחודש. אם כולה מושקעת בתיקי השקעות:</div>${li('ספייר חודשי 3,000: פרישה מוקדמת ביותר', ag(e3))}${li('ספייר חודשי 5,000: פרישה מוקדמת ביותר', ag(e5))}<div class="note">הגילאים מחושבים בתחום הירוק, עם ספייר קבוע בגובה הנבחר.</div></details>`;
+      extra = `<details class="hdet"><summary>מה אפשר לעשות עם היתרה החודשית עד הפרישה?</summary><div class="note">עד הפרישה נשארת יתרה של כ-${ils(svTot)} בחודש. אם כולה מושקעת בתיקי השקעות:</div>${li('ספייר חודשי 3,000: פרישה מוקדמת ביותר', ag(e3))}${li('ספייר חודשי 5,000: פרישה מוקדמת ביותר', ag(e5))}<div class="note">הגילאים מחושבים בתחום הירוק, עם ספייר קבוע בגובה הנבחר.</div></details>`;
     }
     return `<div class="card nofold hph"><h2 style="margin:0 0 6px;font-size:16px">${esc(t)}</h2>
       <details class="hdet"><summary><b>הכנסות: ${ils(m(inc))}</b></summary>${incD}</details>
