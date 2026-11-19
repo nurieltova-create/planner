@@ -374,7 +374,8 @@ function simulate(cfg, opts) {
     const spare = (cfg.spare[phase] || 0) * 12;
     const mand = ex.living + ex.debt + spare + gemelDep + retPen + topups;
     const targetOn = cfg.target.enabled && (phase === 'age60_to67' || phase === 'pension_age');
-    const targetAnnual = targetOn ? cfg.target.netMonthly * 12 : 0;
+    const tfix = cfg.target.mode === 'fixed', xOld = (cfg.target.oldAgeExtra == null ? 5000 : cfg.target.oldAgeExtra) * 12;
+    const targetAnnual = targetOn ? (tfix ? cfg.target.netMonthly * 12 : ex.living + ex.debt + spare + xOld) : 0;
     const need = Math.max(mand, targetAnnual);
     const annuityIn = ann.nuri.gemel + ann.tova.gemel + ann.nuri.pension + ann.tova.pension;
     const solar = cfg.solar;
@@ -553,7 +554,7 @@ function recommend(cfg) {
     }
     // 6. target
     const S = ev.base.summary;
-    if (cfg.target.enabled && S.incomeGapTotal > 1 && S.sustainableMonthly60) {
+    if (cfg.target.enabled && cfg.target.mode === 'fixed' && S.incomeGapTotal > 1 && S.sustainableMonthly60) {
       const t = Math.floor(S.sustainableMonthly60 / 500) * 500;
       res.recs.push({ id: 'target', title: 'הורדת יעד ההכנסה בפרישה', text: `יעד הכנסה בר-קיימא בגיל 60+ הוא כ-${money(t)} ₪ נטו לחודש (במקום ${money(cfg.target.netMonthly)}).`, apply: [['target.netMonthly', t]] });
     }
@@ -667,7 +668,7 @@ if (typeof module !== 'undefined') module.exports = DEFAULTS;
 <script>(function () {
 'use strict';
 const FAMILY = false; /*FAMILY*/
-const APP_VERSION = '2026.11.19-14';
+const APP_VERSION = '2026.11.19-15';
 const E = FFI, REF = E.REF, KEY = FAMILY ? 'ffi.family.v1' : 'ffi.cfg.v1', EXAMPLE = DEFAULTS, BLANKCFG = BLANK;
 const $ = s => document.querySelector(s);
 const esc = s => String(s == null ? '' : s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
@@ -1232,7 +1233,7 @@ function hPhases(eff, s, Y, svTot) {
     const wk = r.netNuri + r.netTova, ann = r.annuityGemel + r.annuityPension, draw = r.drawsNet, tax = r.tax, inc = r.fixedIn + draw, need = r.need, diff = inc - need;
     const incD = [wk > 0 ? li('עבודה', ils(m(wk))) : '', ann > 0 ? li('קצבאות (גמל ופנסיה)', ils(m(ann))) : '', r.solar > 0 ? li('סולארי (הערכה)', ils(m(r.solar))) : '',
       draw > 1 ? `<div class="hrow hdraw"><span>משיכה מהתיק ❗</span><span>${ils(m(draw))}</span></div><div class="note hdraw">משיכה נטו מתיק ההשקעות לכיסוי הפער בין ההוצאות להכנסות הקבועות. ברוטו ${ils(m(draw + tax))} (מס ${ils(m(tax))}). יתרת התיק בתחילת השלב: ${ils(Math.round(r.total / 10000) * 10000)} (במונחי 2026).</div>` : ''].join('');
-    const expD = r.targetAnnual > 0 ? li('יעד הכנסה חודשית שהגדרתם', ils(m(need))) + `<div class="note">בשלב הזה התכנית מממנת את היעד, ולא את ההוצאות הנוכחיות.</div>` : [li('הוצאות מחייה', ils(m(r.living))), r.debt > 0 ? li('חובות', ils(m(r.debt))) : '', r.spare > 0 ? li('ספייר', ils(m(r.spare))) : '', (r.gemelDep + r.retPen + r.topups) > 0 ? li('הפקדות חובה (גמל ופנסיה)', ils(m(r.gemelDep + r.retPen + r.topups))) : ''].join('');
+    const expD = [li('הוצאות מחייה', ils(m(r.living))), r.debt > 0 ? li('חובות', ils(m(r.debt))) : '', r.spare > 0 ? li('ספייר', ils(m(r.spare))) : '', (r.gemelDep + r.retPen + r.topups) > 0 ? li('הפקדות חובה (גמל ופנסיה)', ils(m(r.gemelDep + r.retPen + r.topups))) : '', r.targetAnnual > 0 && need - r.mand > 1 ? li('תוספת הוצאות זיקנה', ils(m(need - r.mand))) : ''].join('');
     let dT, dD;
     if (diff > 50) { dT = `עודף ${ils(m(diff))} בחודש`; dD = '<div class="note">ההכנסות גבוהות מההוצאות. העודף זמין להשקעה.</div>'; }
     else if (diff < -50) { dT = `חסר ${ils(m(-diff))} בחודש`; dD = '<div class="note">גם עם משיכה מהתיק ההכנסות לא מכסות את ההוצאות בשלב הזה.</div>'; }
@@ -1336,7 +1337,7 @@ function screenOverview() {
   ${assumptionsCard()}
   ${minIncomeCard(b)}
   ${recsCard()}
-  ${S.incomeGapTotal > 1 ? `<div class="warnbox">יעד ההכנסה (${ils(cfg.target.netMonthly)} נטו בחודש) לא מתקיים בכל שנות 60+; הפער הראשון ב-${S.firstIncomeOnlyGap}.</div>` : ''}`;
+  ${S.incomeGapTotal > 1 && cfg.target.mode === 'fixed' ? `<div class="warnbox">יעד ההכנסה (${ils(cfg.target.netMonthly)} נטו בחודש) לא מתקיים בכל שנות 60+; הפער הראשון ב-${S.firstIncomeOnlyGap}.</div>` : ''}`;
 }
 
 /* ---------- start / checklist ---------- */
@@ -1680,7 +1681,7 @@ function screenStrategy() {
    <table><tr><th>גיל פרישה</th><th>שנה</th><th class="num">ברוטו מינימלי</th><th class="num">נטו מינימלי</th></tr>${sens.map(x => `<tr><td>${x.age}</td><td>${x.year}</td><td class="num">${x.feasible ? n0(x.minGross) : '—'}</td><td class="num">${x.feasible ? n0(x.minNet) : 'לא אפשרי'}</td></tr>`).join('')}</table></div>
   <div class="card"><h2>מפת גילאי פרישה</h2><p class="note" style="margin-top:0">שורות: גיל פרישת ${esc(T())} · עמודות: גיל פרישת ${esc(N())}. <span class="badge b-ok">ירוק</span> עומד · <span class="badge b-warn">כתום</span> עומד רק בלי משבר · <span class="badge b-bad">אדום</span> פער. לחיצה על משבצת מחילה אותה על התרחיש.</p>${heat}</div>
   <div class="card"><h2>יעד הכנסה ושכבת ביטחון</h2><div class="row">
-   <div class="f"><label>יעד הכנסה נטו בגיל 60+ (₪/חודש)</label>${inp('target.netMonthly', { dec: 0 })}</div>
+   <div class="f"><label>תוספת הוצאות זיקנה מגיל 60 (₪/חודש). מגיל 60 ההוצאות הן הוצאות המחייה, החובות והספייר, ועוד התוספת הזו</label>${inp('target.oldAgeExtra', { dec: 0 })}</div>
    <div class="f"><label>&nbsp;</label>${chk('target.enabled', 'יעד הכנסה פעיל')}${chk('requireTarget', 'לדרוש עמידה ביעד כתנאי לתכנית')}${chk('stress.requireInSolver', 'לדרוש עמידה גם בתרחיש משבר')}</div></div>
    <h3>ספייר חודשי לפי שלב</h3><div class="row">${E.PHASES.slice(1).map(p => field(esc(PH(p)), inp('spare.' + p, { dec: 0 }))).join('')}</div></div>`;
 }
