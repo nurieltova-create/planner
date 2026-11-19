@@ -664,7 +664,7 @@ if (typeof module !== 'undefined') module.exports = DEFAULTS;
 <script>(function () {
 'use strict';
 const FAMILY = false; /*FAMILY*/
-const APP_VERSION = '2026.11.19-11';
+const APP_VERSION = '2026.11.19-12';
 const E = FFI, REF = E.REF, KEY = FAMILY ? 'ffi.family.v1' : 'ffi.cfg.v1', EXAMPLE = DEFAULTS, BLANKCFG = BLANK;
 const $ = s => document.querySelector(s);
 const esc = s => String(s == null ? '' : s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
@@ -1208,6 +1208,12 @@ function hSaving(c, s, Y) {
   if (!n) return null; const m = v => Math.round(v / n / 12 / 50) * 50;
   return { gemel: m(t.gemel), pen: m(t.pen), kh: m(t.kh), inv: m(t.inv) };
 }
+function hIncome(c, s, Y) {
+  const rows = E.simulate(c, { sc: s }).rows, m = x => Math.round(x / 12 / 50) * 50;
+  const f = r => r && { net: m(r.fixedIn + r.drawsNet), ann: m(r.annuityGemel + r.annuityPension), sol: m(r.solar), wd: m(r.drawsNet), wk: m(r.netNuri + r.netTova) };
+  const a = f(rows.find(r => r.year >= Y)), r67 = rows.find(r => r.year >= Y && r.ageNuri >= 67 && r.ageTova >= 67);
+  return { a, b: r67 && r67.year > Y ? f(r67) : null, y67: r67 && r67.year };
+}
 function hActions(nY, tY, v) {
   const R = hRange(), s = hScen(nY, tY), base = hBase(nY, tY), eff = Object.assign({}, base, v.ov), L = [];
   const age = y => y - R.nb, sc0 = sc(), plan = sc0.nuriRetire - R.nb, br = hBar();
@@ -1221,10 +1227,13 @@ function hActions(nY, tY, v) {
       if (fmin < 0.97) L.push(`<b>לחסוך לפחות ${ils(tot)} בחודש</b> עד הפרישה. זה המינימום שהחישוב דורש.<br><span class="note">${parts(sv)}</span><br><span class="note">אם תחסכו את כל היתרה, החיסכון יהיה כ-${ils(full)} בחודש. כל חיסכון מעבר למינימום הוא מרווח ביטחון.</span>`);
       else L.push(`<b>לחסוך את כל היתרה, כ-${ils(full)} בחודש</b> עד הפרישה. כל ההכנסה שמעבר להוצאות נדרשת כדי לעמוד בתכנית.<br><span class="note">${parts(svFull)}</span>`);
     }
+    try {
+      const inc = hIncome(eff, s, Y), line = x => { const p = [x.ann > 0 ? `קצבאות ${ils(x.ann)}` : '', x.wk > 0 ? `עבודה ${ils(x.wk)}` : '', x.sol > 0 ? `סולארי ${ils(x.sol)} (הערכה)` : '', x.wd > 0 ? `משיכה מהתיק ${ils(x.wd)}` : ''].filter(Boolean).join(' · '); return p; };
+      if (inc.a) L.push(`<b>הכנסה חודשית נטו מהפרישה: כ-${ils(inc.a.net)}</b><br><span class="note">${line(inc.a)}</span>` + (inc.b ? `<br><span class="note">משנת ${inc.y67} (שניכם מגיל 67): כ-${ils(inc.b.net)} נטו בחודש (${line(inc.b)})</span>` : ''));
+    } catch (e) { }
     if (v.how === 'spare') L.push(`<b>לוותר על הספייר</b> או להקטין אותו ל-${ils(Math.round((cfg.spare.both_retired_pre60 || 0) * v.f / 100) * 100)} בחודש (כיום ${ils(cfg.spare.both_retired_pre60 || 0)}).`);
     if (v.how === 'cut') L.push(`<b>לוותר על הספייר ולצמצם הוצאות מחייה ב-${Math.ceil((1 - v.scale) * 100)}%</b> מהרמה הנוכחית.`);
     if (age(nY) !== plan) L.push(`פרישה בגיל ${age(nY)} במקום ${plan} בתוכנית הנוכחית.`);
-    if (v.k === 'g') { try { const rc = E.recommend(Object.assign({}, eff, { scenarios: cfg.scenarios.map(x => x.id === cfg.active ? s : x) })); const m = (rc.margins || []).find(x => x.id === 'extraExp'); if (m && m.value > 0) L.push(`מרווח: אפשר להוסיף עד ${ils(m.value)} בחודש להוצאות ועדיין לעמוד בתכנית.`); } catch (e) { } }
   } else {
     L.push(br.o ? `<b>הקדום ביותר האפשרי: גיל ${age(br.o)}</b> (${br.o})${br.g ? `, ובירוק מגיל ${age(br.g)} (${br.g})` : ''}.` : `<b>אין שנה אפשרית עד גיל ${cfg.latestRetireAge || 60}.</b> אפשר להעלות את הגיל המרבי בהנחות העבודה.`);
     try { const rc = E.recommend(Object.assign({}, base, { scenarios: cfg.scenarios.map(x => x.id === cfg.active ? s : x) })); (rc.recs || []).filter(r => !r.violatesFloors).slice(0, 3).forEach(r => L.push(esc(r.text))); } catch (e) { }
