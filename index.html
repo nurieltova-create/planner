@@ -145,6 +145,8 @@ details.fold>*:last-child{margin-bottom:16px}
 .ac2{font-size:14px;line-height:1.6;margin:0;padding:9px 0;border-bottom:1px solid var(--line)}.ac2:last-child{border:0}
 .hlk{text-align:center;margin:8px 0 16px}
 @media(min-width:721px){nav.tabs{flex-wrap:wrap;overflow:visible}}
+
+.subn{display:flex;gap:6px;flex-wrap:wrap;margin:0 0 12px}.subn button{border:0;background:var(--surface);padding:8px 14px;border-radius:999px;font:inherit;font-size:13px;color:var(--ink);cursor:pointer}.subn button.on{background:var(--pri);color:#fff}
 </style></head>
 <body><div class="app" id="app"></div><div id="tip"></div>
 <script>/* Family FI Planner – engine (pure, no DOM). All amounts in real 2026 shekels. */
@@ -662,7 +664,7 @@ if (typeof module !== 'undefined') module.exports = DEFAULTS;
 <script>(function () {
 'use strict';
 const FAMILY = false; /*FAMILY*/
-const APP_VERSION = '2026.11.19-5';
+const APP_VERSION = '2026.11.19-6';
 const E = FFI, REF = E.REF, KEY = FAMILY ? 'ffi.family.v1' : 'ffi.cfg.v1', EXAMPLE = DEFAULTS, BLANKCFG = BLANK;
 const $ = s => document.querySelector(s);
 const esc = s => String(s == null ? '' : s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
@@ -1251,8 +1253,7 @@ function screenHome() {
   <p class="hlk"><button class="btn sec" data-act="tab" data-id="assume">הנחות העבודה לחישוב ←</button></p>`;
 }
 function screenAssume() {
-  return `<div class="card nofold"><h2>הנחות העבודה</h2><p class="note">כאן נקבעות ההנחות שעליהן מבוסס החישוב בעמוד הראשי.</p>
-  <div class="sheetg">${[['strategy', 'תרחישים, שכר וגילאי פרישה'], ['floors', 'מינימום הפקדות והוצאות'], ['assets', 'נכסים וחיסכון'], ['overview', 'סקירה מלאה']].map(x => `<button data-act="tab" data-id="${x[0]}">${x[1]}</button>`).join('')}</div></div>${assumptionsCard()}`;
+  return `<div class="card nofold"><p class="note" style="margin:0">כאן נקבעות ההנחות שעליהן מבוסס החישוב בעמוד הראשי. תרחישים ומינימומים בלשוניות שלמעלה.</p></div>${assumptionsCard()}`;
 }
 function screenOverview() {
   const b = bundle(), S = b.sum, s = b.s, ev = b.ev, R = b.rows, P = cfg.people;
@@ -1747,11 +1748,17 @@ function screenAbout() {
   <div class="card"><h2>פרטיות</h2>
    ${li(['<b>הנתונים נשמרים אצלכם:</b> בדפדפן של המכשיר שבו אתם עובדים. אין שרת של מפתחי האפליקציה, ואין להם גישה לנתונים שלכם.', '<b>ללא מעקב:</b> אין פרסומות, ניתוח התנהגות או איסוף נתוני שימוש.', '<b>קריאת מסמכים:</b> רק אם הזנתם מפתח API, תוכן המסמך נשלח ל-Anthropic לצורך הקריאה, בחשבון שלכם. קראו את תנאי השימוש והפרטיות שלהם. בלי מפתח, שום מסמך לא יוצא מהמכשיר.', '<b>סנכרון דרייב:</b> הנתונים מוצפנים בדפדפן לפני ההעלאה ונשמרים בתיקייה מוסתרת בדרייב שלכם. הסיסמה לא נשמרת, ואם תשכחו אותה לא ניתן לשחזר.', '<b>מפתח ה-API נשמר בדפדפן</b> של אותו מכשיר בלבד.', '<b>בטעינת ספריות:</b> כשקוראים קבצי PDF, Excel או Word, נטענות ספריות קוד מרשתות הפצה ציבוריות. לא נשלחים אליהן נתונים.', '<b>על המכשיר:</b> הנתונים המקומיים אינם מוצפנים. השתמשו במכשיר פרטי. "איפוס" בכרטיס הגיבוי מוחק את הכול מהדפדפן.'])}</div>
   <div class="card"><h2>הגבלות</h2>
-   ${li(['<b>כלי תכנון בלבד:</b> אינו ייעוץ פנסיוני, מס, השקעות או משפטי, ואינו תחליף ליועץ מוסמך. ההחלטות באחריותכם.', '<b>מבוסס חוקי ישראל</b> (מס הכנסה, פנסיה, קצבה פטורה, קרנות השתלמות, גמל להשקעה) לפי נתוני ייחוס בגרסה ' + esc(REF.version) + '. חוקים משתנים, ולכן כדאי לוודא מול מקור מעודכן.', '<b>הנחות מפושטות:</b> סימולציה שנתית בערכי ' + cfg.baseYear + ', תשואות ואינפלציה קבועות, מס מחושב בקירוב. התוצאות הן הערכה ולא תחזית.', '<b>בדיקת קיצון:</b> מדמה זעזוע שוק חד פעמי ולא את כל התרחישים האפשריים.', '<b>קריאת מסמכים עלולה לטעות:</b> בדקו כל ערך במסך האישור לפני שהוא נכנס למודל. המסמכים עצמם הם הראיה.', '<b>אובדן נתונים:</b> ניקוי נתוני הדפדפן מוחק את הנתונים המקומיים. שמרו גיבוי.', '<b>אין אחריות:</b> האפליקציה ניתנת כפי שהיא (as is), ללא התחייבות לדיוק, לזמינות או להתאמה למקרה מסוים.'])}</div>`;
+   ${li(['<b>כלי תכנון בלבד:</b> אינו ייעוץ פנסיוני, מס, השקעות או משפטי, ואינו תחליף ליועץ מוסמך. ההחלטות באחריותכם.', '<b>מבוסס חוקי ישראל</b> (מס הכנסה, פנסיה, קצבה פטורה, קרנות השתלמות, גמל להשקעה) לפי נתוני ייחוס בגרסה ' + esc(REF.version) + '. חוקים משתנים, ולכן כדאי לוודא מול מקור מעודכן.', '<b>הנחות מפושטות:</b> סימולציה שנתית בערכי ' + cfg.baseYear + ', תשואות ואינפלציה קבועות, מס מחושב בקירוב. התוצאות הן הערכה ולא תחזית.', '<b>בדיקת קיצון:</b> מדמה זעזוע שוק חד פעמי ולא את כל התרחישים האפשריים.', '<b>קריאת מסמכים עלולה לטעות:</b> בדקו כל ערך במסך האישור לפני שהוא נכנס למודל. המסמכים עצמם הם הראיה.', '<b>אובדן נתונים:</b> ניקוי נתוני הדפדפן מוחק את הנתונים המקומיים. שמרו גיבוי.', '<b>אין אחריות:</b> האפליקציה ניתנת כפי שהיא (as is), ללא התחייבות לדיוק, לזמינות או להתאמה למקרה מסוים.'])}</div>
+  <div class="card"><h2>מראה וגיבוי</h2><div class="seg">${[['auto', 'אוטומטי'], ['light', 'בהיר'], ['dark', 'כהה']].map(x => `<button class="${getTheme() === x[0] ? 'on' : ''}" data-act="theme" data-id="${x[0]}">${x[1]}</button>`).join('')}</div><p style="margin:12px 0 0"><button class="btn sm sec" data-act="export">שמירת קובץ גיבוי</button></p></div>`;
 }
 
 const TABS = [['home', 'בית', screenHome], ['assume', 'הנחות עבודה', screenAssume], ['overview', 'סקירה מלאה', screenOverview], ['strategy', 'תרחישים', screenStrategy], ['assets', 'נכסים', screenAssets], ['start', 'מסמכים', screenStart], ['floors', 'מינימומים', screenFloors], ['flow', 'תזרים', screenFlow], ['compare', 'השוואה', screenCompare], ['data', 'נתונים', screenData], ['about', 'אודות', screenAbout]];
-const NAVB = [['home', 'בית', 'M3 11l9-8 9 8v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z'], ['strategy', 'תרחישים', 'M6 19a2 2 0 1 0 0-4 2 2 0 0 0 0 4zM18 9a2 2 0 1 0 0-4 2 2 0 0 0 0 4zM8 17h6a3 3 0 0 0 0-6h-4a3 3 0 0 1 0-6h4'], ['assets', 'נכסים', 'M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18zM12 7v10M9.5 9.5c0-1 1-1.5 2.5-1.5s2.5.5 2.5 1.5-1 1.3-2.5 1.5-2.5.5-2.5 1.5 1 1.5 2.5 1.5 2.5-.5 2.5-1.5'], ['start', 'מסמכים', 'M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z'], ['more', 'עוד', 'M5 12h.01M12 12h.01M19 12h.01']];
+const NAVB = [['home', 'בית', 'M3 11l9-8 9 8v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z'], ['assume', 'הנחות עבודה', 'M6 19a2 2 0 1 0 0-4 2 2 0 0 0 0 4zM18 9a2 2 0 1 0 0-4 2 2 0 0 0 0 4zM8 17h6a3 3 0 0 0 0-6h-4a3 3 0 0 1 0-6h4'], ['start', 'מסמכים', 'M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z'], ['data', 'נתונים', 'M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18zM12 7v10M9.5 9.5c0-1 1-1.5 2.5-1.5s2.5.5 2.5 1.5-1 1.3-2.5 1.5-2.5.5-2.5 1.5 1 1.5 2.5 1.5 2.5-.5 2.5-1.5']];
+const GROUPS = { assume: [['assume', 'הנחות כלליות'], ['strategy', 'תרחישים'], ['floors', 'מינימומים']], data: [['assets', 'נכסים'], ['flow', 'תזרים'], ['overview', 'סקירה מלאה'], ['compare', 'השוואה'], ['data', 'ייבוא וגיבוי'], ['about', 'אודות והגדרות']] };
+const topOf = t => t === 'home' || t === 'start' ? t : GROUPS.assume.some(x => x[0] === t) ? 'assume' : 'data';
+const lastSub = {};
+const TOP = [['home', 'בית'], ['assume', 'הנחות עבודה'], ['start', 'מסמכים'], ['data', 'נתונים']];
+const topTarget = k => k === 'home' || k === 'start' ? k : (lastSub[k] || GROUPS[k][0][0]);
 const MORE = [['assume', 'הנחות עבודה'], ['overview', 'סקירה מלאה'], ['floors', 'מינימומים'], ['flow', 'תזרים'], ['compare', 'השוואה'], ['data', 'נתונים'], ['about', 'אודות ופרטיות']];
 let moreOpen = false; const openF = {};
 function getTheme() { try { return localStorage.getItem('ffi.theme') || 'auto'; } catch (e) { return 'auto'; } }
@@ -1779,13 +1786,14 @@ function render() {
   let html;
   try { html = t[2](); } catch (e) { html = `<div class="card"><h2>שגיאה בחישוב</h2><pre style="white-space:pre-wrap;direction:ltr">${esc(e.stack || e)}</pre></div>`; }
   const ic = d => `<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="${d}"/></svg>`;
-  const inMore = MORE.some(x => x[0] === tab);
-  const bnav = `<nav class="bnav">${NAVB.map(x => { const on = x[0] === 'more' ? (moreOpen || inMore) : (x[0] === tab && !moreOpen); return `<button class="${on ? 'on' : ''}" data-act="${x[0] === 'more' ? 'moreToggle' : 'tab'}" data-id="${x[0]}">${ic(x[2])}<span>${x[1]}</span></button>`; }).join('')}</nav>`;
+  const top = topOf(tab); if (GROUPS[top]) lastSub[top] = tab;
+  const bnav = `<nav class="bnav">${NAVB.map(x => `<button class="${x[0] === top ? 'on' : ''}" data-act="tab" data-id="${topTarget(x[0])}">${ic(x[2])}<span>${x[1]}</span></button>`).join('')}</nav>`;
+  const subnav = GROUPS[top] ? `<div class="subn">${GROUPS[top].map(x => `<button class="${x[0] === tab ? 'on' : ''}" data-act="tab" data-id="${x[0]}">${x[1]}</button>`).join('')}</div>` : '';
   const th = getTheme();
   const sheet = moreOpen ? `<div class="sheetbg" data-act="moreToggle"></div><div class="sheet"><div class="sheetg">${MORE.map(x => `<button class="${x[0] === tab ? 'on' : ''}" data-act="tab" data-id="${x[0]}">${x[1]}</button>`).join('')}</div>
    <p style="margin:12px 0 0"><button class="btn sm sec" data-act="export">שמירת קובץ גיבוי</button></p><div class="seg" style="margin-top:12px">${[['auto', 'אוטומטי'], ['light', 'בהיר'], ['dark', 'כהה']].map(x => `<button class="${th === x[0] ? 'on' : ''}" data-act="theme" data-id="${x[0]}">${x[1]}</button>`).join('')}</div></div>` : '';
   $('#app').innerHTML = `<header class="top"><h1>תכנון עצמאות כלכלית${FAMILY ? ' – ' + esc(N()) + ' ו' + esc(T()) : ''}<small>כל הסכומים במונחי 2026 · כלי תכנון בלבד</small></h1></header>
-  <nav class="tabs">${TABS.map(x => `<button class="${x[0] === tab ? 'on' : ''}" data-act="tab" data-id="${x[0]}">${x[1]}</button>`).join('')}</nav><div id="main">${html}</div>
+  <nav class="tabs">${TOP.map(x => `<button class="${x[0] === top ? 'on' : ''}" data-act="tab" data-id="${topTarget(x[0])}">${x[1]}</button>`).join('')}</nav>${subnav}<div id="main">${html}</div>
   <footer>כלי תכנון בלבד – אינו ייעוץ פנסיוני, מס או השקעות. הנתונים נשמרים במכשיר זה. <a href="#" data-act="tab" data-id="about" style="color:inherit">אודות, פרטיות והגבלות</a> · גרסה ${esc(APP_VERSION)}<br><span id="syncst">${esc(SYNC_TXT[sync.st] || '')}</span></footer>${bnav}${sheet}`;
   foldify($('#main'));
   window.scrollTo(0, y);
