@@ -399,7 +399,7 @@ function simulate(cfg, opts) {
     const mandGap = Math.max(0, mand - funded);
     const incomeGap = Math.max(0, need - funded) - mandGap;
     const spend = need - mandGap - incomeGap;
-    const surplus = Math.max(0, fixedIn - need);
+    const surplusFull = Math.max(0, fixedIn - need), sf = cfg.saveFrac == null ? 1 : cfg.saveFrac, surplus = surplusFull * sf, consumed = surplusFull - surplus;
     // optional deposits & investing
     let optKh = 0, left = surplus;
     if (cfg.optKh.nuriSelf && work.nuri && left > 0) {
@@ -424,7 +424,7 @@ function simulate(cfg, opts) {
     const ce = Math.abs((fixedIn + drawsNet + mandGap) - (spend + optKh + (surplus - optKh - invest > 1e-6 ? surplus - optKh : invest) ));
     // note: if no psagot asset, leftover surplus is simply idle cash
     const idle = surplus - optKh - invest;
-    const ce2 = Math.abs((fixedIn + drawsNet + mandGap) - (spend + optKh + invest + idle));
+    const ce2 = Math.abs((fixedIn + drawsNet + mandGap) - (spend + optKh + invest + idle + consumed));
     cashErr = Math.max(cashErr, ce2);
     // summary
     if (mandGap > 1) { S.mandGapTotal += mandGap; S.mandGapYears++; if (S.firstMandatoryGap == null) S.firstMandatoryGap = y; }
@@ -664,7 +664,7 @@ if (typeof module !== 'undefined') module.exports = DEFAULTS;
 <script>(function () {
 'use strict';
 const FAMILY = false; /*FAMILY*/
-const APP_VERSION = '2026.11.19-9';
+const APP_VERSION = '2026.11.19-10';
 const E = FFI, REF = E.REF, KEY = FAMILY ? 'ffi.family.v1' : 'ffi.cfg.v1', EXAMPLE = DEFAULTS, BLANKCFG = BLANK;
 const $ = s => document.querySelector(s);
 const esc = s => String(s == null ? '' : s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
@@ -1212,10 +1212,15 @@ function hActions(nY, tY, v) {
   const R = hRange(), s = hScen(nY, tY), base = hBase(nY, tY), eff = Object.assign({}, base, v.ov), L = [];
   const age = y => y - R.nb, sc0 = sc(), plan = sc0.nuriRetire - R.nb, br = hBar();
   if (v.k !== 'r') {
-    const sv = hSaving(eff, s, Math.max(nY, tY));
-    if (sv) { const tot = sv.gemel + sv.pen + sv.kh + sv.inv;
-      const parts = [['גמל להשקעה', sv.gemel], ['פנסיה והשתלמות', sv.pen], ['קרן השתלמות עצמאית', sv.kh], ['תיק השקעות', sv.inv]].filter(x => x[1] > 0).map(x => `${x[0]}: ${ils(x[1])}`);
-      L.push(`<b>לשים בצד ${ils(tot)} בחודש</b> עד הפרישה${parts.length ? `<br><span class="note">${parts.join('<br>')}</span>` : ''}`); }
+    const Y = Math.max(nY, tY), svFull = hSaving(eff, s, Y);
+    if (svFull) {
+      const okF = f => E.safeFast(Object.assign({}, eff, { saveFrac: f }), s);
+      let fmin = 1; if (okF(0)) fmin = 0; else { let lo = 0, hi = 1; for (let i = 0; i < 9; i++) { const m = (lo + hi) / 2; if (okF(m)) hi = m; else lo = m; } fmin = Math.min(1, hi + 0.005); }
+      const sv = hSaving(Object.assign({}, eff, { saveFrac: fmin }), s, Y) || svFull, sum = x => x.gemel + x.pen + x.kh + x.inv, tot = sum(sv), full = sum(svFull);
+      const parts = x => [['גמל להשקעה', x.gemel], ['פנסיה והשתלמות', x.pen], ['קרן השתלמות עצמאית', x.kh], ['תיק השקעות', x.inv]].filter(y => y[1] > 0).map(y => `${y[0]}: ${ils(y[1])}`).join('<br>');
+      if (fmin < 0.97) L.push(`<b>לחסוך לפחות ${ils(tot)} בחודש</b> עד הפרישה. זה המינימום שהחישוב דורש.<br><span class="note">${parts(sv)}</span><br><span class="note">אם תחסכו את כל היתרה, החיסכון יהיה כ-${ils(full)} בחודש. כל חיסכון מעבר למינימום הוא מרווח ביטחון.</span>`);
+      else L.push(`<b>לחסוך את כל היתרה, כ-${ils(full)} בחודש</b> עד הפרישה. כל ההכנסה שמעבר להוצאות נדרשת כדי לעמוד בתכנית.<br><span class="note">${parts(svFull)}</span>`);
+    }
     if (v.how === 'spare') L.push(`<b>לוותר על הספייר</b> או להקטין אותו ל-${ils(Math.round((cfg.spare.both_retired_pre60 || 0) * v.f / 100) * 100)} בחודש (כיום ${ils(cfg.spare.both_retired_pre60 || 0)}).`);
     if (v.how === 'cut') L.push(`<b>לוותר על הספייר ולצמצם הוצאות מחייה ב-${Math.ceil((1 - v.scale) * 100)}%</b> מהרמה הנוכחית.`);
     if (age(nY) !== plan) L.push(`פרישה בגיל ${age(nY)} במקום ${plan} בתוכנית הנוכחית.`);
